@@ -1,3 +1,13 @@
+name: UIA Bench
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 5 * * *"
+
+permissions:
+  contents: write
+
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -12,7 +22,6 @@ jobs:
 
       - run: npm ci || npm i
 
-      # 1) One timestamp reused by all steps (and artifacts)
       - name: Set timestamp
         id: set-ts
         run: |
@@ -20,7 +29,6 @@ jobs:
           echo "TS=$TS" >> "$GITHUB_ENV"
           mkdir -p results
 
-      # 2) Baseline: direct model calls, no UIA wrapper (produces baseline_${TS}.jsonl)
       - name: Run baseline (no UIA)
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -28,7 +36,6 @@ jobs:
           node baseline.js --log="results/baseline_${TS}.jsonl"
           cp "results/baseline_${TS}.jsonl" "results/baseline_latest.jsonl"
 
-      # 3) UIA-monitored: your existing A1–A9 suite (produces uia_run_${TS}.jsonl)
       - name: Run full A1–A9 suite (UIA)
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -38,7 +45,6 @@ jobs:
           ( node index.js --A=all --prompts=6 --concurrency=4 --log="results/uia_run_${TS}.jsonl" 2>&1 | tee "results/console_${TS}.log" ) || true
           echo ">>> END batch call"
 
-          # Prefer new path; fallback to legacy if needed
           if [ -s "results/uia_run_${TS}.jsonl" ]; then
             echo "✅ Found results/uia_run_${TS}.jsonl"
             cp "results/uia_run_${TS}.jsonl" "results/uia_latest.jsonl"
@@ -55,7 +61,6 @@ jobs:
           echo ">>> File sizes"
           wc -c results/*.jsonl 2>/dev/null || true
 
-      # 4) Quick comparison report (markdown) – no repo changes needed
       - name: Compare baseline vs UIA
         run: |
           node - <<'NODE'
@@ -119,7 +124,7 @@ jobs:
           console.log(md);
           NODE
 
-      - name: Upload artifacts (logs + results)
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -127,7 +132,7 @@ jobs:
           path: results/**
           if-no-files-found: warn
 
-      - name: Commit results to repo (optional)
+      - name: Commit results
         if: always()
         run: |
           git config user.name "github-actions"
