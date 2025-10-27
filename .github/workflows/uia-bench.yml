@@ -31,7 +31,7 @@ jobs:
           ts=$(date -u +"%Y-%m-%dT%H%M%SZ")
 
           echo ">>> START batch call"
-          ( node index.js --A=all --prompts=6 --log="results/uia_run_${ts}.jsonl" 2>&1 | tee "results/console_${ts}.log" ) || true
+          ( ( node index.js --A=all --prompts=6 --concurrency=4 --log="results/uia_run_${ts}.jsonl" 2>&1 | tee "results/console_${ts}.log" ) || true
           echo ">>> END batch call"
 
           echo ">>> List results/"
