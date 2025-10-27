@@ -3,10 +3,10 @@ name: UIA Bench
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 5 * * *"  # runs daily at 05:00 UTC (optional)
+    - cron: "0 5 * * *"
 
 permissions:
-  contents: write  # allow commit step below
+  contents: write
 
 jobs:
   run:
@@ -30,36 +30,37 @@ jobs:
           mkdir -p results
           ts=$(date -u +"%Y-%m-%dT%H%M%SZ")
 
-          echo ">>> START batch call"
-          ( ( node index.js --A=all --prompts=6 --concurrency=4 --log="results/uia_run_${ts}.jsonl" 2>&1 | tee "results/console_${ts}.log" ) || true
-          echo ">>> END batch call"
+          echo ">>> START UIA batch"
+          ( node index.js --A=all --prompts=6 --concurrency=4 --log="results/uia_run_${ts}.jsonl" 2>&1 | tee "results/console_${ts}.log" ) || true
+          echo ">>> END UIA batch"
 
-          echo ">>> List results/"
-          ls -la results || true
-
-          # Primary target (new code path)
           if [ -s "results/uia_run_${ts}.jsonl" ]; then
-            echo "✅ Found results/uia_run_${ts}.jsonl"
+            echo "✅ UIA complete"
             cp "results/uia_run_${ts}.jsonl" results/latest.jsonl
-          # Fallback to legacy path (old index.js writes here)
           elif [ -s "uia_log.jsonl" ]; then
-            echo "✅ Found legacy ./uia_log.jsonl (copying)"
             cp "uia_log.jsonl" "results/uia_run_${ts}.jsonl"
             cp "results/uia_run_${ts}.jsonl" results/latest.jsonl
           else
-            echo "⚠️ No JSONL found; leaving an empty placeholder."
+            echo "⚠️ No UIA output"
             : > results/latest.jsonl
           fi
 
-          # Tiny proof so Artifacts always exist
-          echo "UIA Bench completed at $(date -u)" > results/readme.txt
+          echo ">>> START baseline"
+          ( node baseline.js --model=gpt-4o-mini --log="results/baseline_${ts}.jsonl" --t=0.7 2>&1 | tee "results/baseline_console_${ts}.log" ) || true
+          echo ">>> END baseline"
 
-          # Show sizes for debugging
+          if [ -s "results/baseline_${ts}.jsonl" ]; then
+            echo "✅ Baseline complete"
+            cp "results/baseline_${ts}.jsonl" results/baseline_latest.jsonl
+          else
+            echo "⚠️ No baseline output"
+          fi
+
+          echo "UIA Bench completed at $(date -u)" > results/readme.txt
           echo ">>> File sizes"
           wc -c results/*.jsonl 2>/dev/null || true
-          exit 0
 
-      - name: Upload artifacts (logs + results)
+      - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -67,7 +68,7 @@ jobs:
           path: results/**
           if-no-files-found: warn
 
-      - name: Commit results to repo (optional)
+      - name: Commit results
         if: always()
         run: |
           git config user.name "github-actions"
