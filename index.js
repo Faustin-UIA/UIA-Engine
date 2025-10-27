@@ -1,7 +1,7 @@
 // =====================================================
-// UIA Engine v3.0 (ESM) – Interactive engine + Batch A1–A9 Bench
+// UIA Engine v3.2 (ESM) – Production-ready concurrent batch
 // Usage:
-//   node index.js --A=all --prompts=6 --log=results/run.jsonl
+//   node index.js --A=all --prompts=6 --concurrency=6 --model=gpt-4o-mini --log=results/run.jsonl
 //   node index.js            (interactive mode)
 // =====================================================
 
@@ -10,35 +10,51 @@ import path from "path";
 import readline from "node:readline";
 import OpenAI from "openai";
 
-// --- CLI args (single source of truth) ---
+/* ---------- CLI args ---------- */
 function arg(name, def = null) {
   const hit = process.argv.find(a => a.startsWith(`--${name}=`));
   return hit ? hit.split("=").slice(1).join("=") : def;
 }
-const ARG_A_SCOPE = arg("A", null);                  // "all" or "A1".."A9" (if present => batch)
+const ARG_A_SCOPE = arg("A", null);
 const ARG_PROMPTS = parseInt(arg("prompts", "6"), 10) || 6;
-const LOG_PATH = arg("log", "results/latest.jsonl");
+const ARG_CONCURRENCY = Math.max(1, Number(arg("concurrency", 4)) || 4);
+const ARG_MODEL = arg("model", "gpt-4o-mini");
+const defaultLog = `results/uia_run_${new Date().toISOString().replace(/[:-]/g,"").replace(/\.\d+Z$/,"Z")}.jsonl`;
+const LOG_PATH = arg("log", defaultLog);
 
-// --- Ensure log dir exists ---
+/* ---------- Ensure log dir ---------- */
 const logDir = path.dirname(LOG_PATH);
-if (logDir && logDir !== "." && !fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir, { recursive: true });
-}
+if (logDir && logDir !== "." && !fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
 
-// --- Utilities ---
+/* ---------- Utilities ---------- */
 const clamp01 = x => Math.max(0, Math.min(1, x));
 const nowIso = () => new Date().toISOString();
 const appendJsonl = (p, obj) => fs.appendFileSync(p, JSON.stringify(obj) + "\n");
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+const jitter = (maxMs = 40) => sleep(Math.floor(Math.random() * maxMs));
+// Replace curly quotes → straight
+const normalizeQuotes = s =>
+  (s || "")
+    .replace(/[\u2018\u2019]/g, "'")  // ' ' → '
+    .replace(/[\u201C\u201D]/g, '"'); // " " → "
+// Safe sampling with empty array guard
+function sample(arr, i) {
+  if (!arr || arr.length === 0) return "";
+  return arr[(i + Math.floor(Math.random() * arr.length)) % arr.length];
+}
 
-// --- Config you can tweak ---
+/* ---------- Config ---------- */
 const cfg = {
   qualityThreshold: 0.45,
   commitAt: 0.60,
   capitulateAt: 0.90,
-  model: "gpt-4o-mini"
+  model: ARG_MODEL
 };
 
-// --- Trigger notes ---
+/* ---------- OpenAI client (reused) ---------- */
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+/* ---------- Trigger notes ---------- */
 const TRIGGER_NOTE = {
   "AXch:A1":"Principle change","AXch:A2":"Project change","AXch:A3":"Plan change",
   "AXch:A4":"Attitude change","AXch:A5":"Possibility change","AXch:A6":"Habit change",
@@ -51,21 +67,15 @@ const TRIGGER_NOTE = {
   "CZcl:C7":"Coordination closure","CZcl:C8":"Negotiation closure","CZcl:C9":"Direction closure"
 };
 
-// --- State ---
+/* ---------- State ---------- */
 let a4Timer = null;
 const A4_TIMEOUT_MS = 4000;
 let b3Timer = null;
 const B3_TIMEOUT_MS = 3000;
 
-let state = {
-  phase: "ANALYSIS",    // ANALYSIS | BUILD
-  queue: "FIFO",        // FIFO | LIFO
-  stress: 0.30,         // 0..1
-  committed: false,
-  capitulated: false
-};
+let state = { phase: "ANALYSIS", queue: "FIFO", stress: 0.30, committed: false, capitulated: false };
 
-// --- Logger ---
+/* ---------- Logger ---------- */
 function log(event, note="") {
   const record = {
     ts: Date.now(),
@@ -81,105 +91,111 @@ function log(event, note="") {
   appendJsonl(LOG_PATH, record);
 }
 
-// --- Core step ---
+/* ---------- Core step ---------- */
 function step(ev){
   if (a4Timer) { clearTimeout(a4Timer); a4Timer = null; }
   if (b3Timer) { clearTimeout(b3Timer); b3Timer = null; }
 
   const note = TRIGGER_NOTE[ev] || "";
-
-  if (ev.startsWith("AXch:"))  { state.phase = "BUILD"; state.queue = "LIFO"; state.stress = clamp01(state.stress + 0.08); }
-  if (ev.startsWith("BYrec:")) { state.phase = "ANALYSIS"; state.queue = "FIFO"; state.stress = clamp01(state.stress - 0.06); }
+  if (ev.startsWith("AXch:"))  { state.phase="BUILD"; state.queue="LIFO"; state.stress=clamp01(state.stress+0.08); }
+  if (ev.startsWith("BYrec:")) { state.phase="ANALYSIS"; state.queue="FIFO"; state.stress=clamp01(state.stress-0.06); }
 
   if (ev === "BYrec:B3") {
-    log(ev, "Value domination recovery initiated – preparing closure");
-    clearTimeout(b3Timer);
-    b3Timer = setTimeout(() => {
-      log("CZcl:C1", "Verification closure auto-triggered after B3 recovery");
-      state.stress = clamp01(state.stress - 0.05);
-      step("CZcl:C1");
-    }, B3_TIMEOUT_MS);
+    log(ev,"Value domination recovery initiated – preparing closure");
+    b3Timer=setTimeout(()=>{log("CZcl:C1","Verification closure auto-triggered after B3 recovery");state.stress=clamp01(state.stress-0.05);step("CZcl:C1");},B3_TIMEOUT_MS);
     return;
   }
-
-  if (ev.startsWith("CZcl:")) { state.stress = clamp01(state.stress - 0.10); }
+  if (ev.startsWith("CZcl:")) state.stress = clamp01(state.stress - 0.10);
 
   if (ev === "AXch:A4") {
-    state.phase = "ANALYSIS";
-    state.queue = "FIFO";
-    state.stress = clamp01(state.stress + 0.05);
-    log(ev, "API/Behavior change detected – entering analysis hold");
-
-    clearTimeout(a4Timer);
-    a4Timer = setTimeout(() => {
-      log("BYrec:B3", "Value domination recovery auto-triggered after A4 hold");
-      state.phase = "BUILD";
-      state.queue = "LIFO";
-      state.stress = clamp01(state.stress - 0.04);
-      step("BYrec:B3");
-    }, A4_TIMEOUT_MS);
+    state.phase="ANALYSIS"; state.queue="FIFO"; state.stress=clamp01(state.stress+0.05);
+    log(ev,"API/Behavior change detected – entering analysis hold");
+    a4Timer=setTimeout(()=>{log("BYrec:B3","Value domination recovery auto-triggered after A4 hold");state.phase="BUILD";state.queue="LIFO";state.stress=clamp01(state.stress-0.04);step("BYrec:B3");},A4_TIMEOUT_MS);
     return;
   }
 
-  if (!state.committed && state.stress >= cfg.commitAt) {
-    state.committed = true;
-    log(ev, note + " | Commitment point");
-  } else if (!state.capitulated && state.stress >= cfg.capitulateAt) {
-    state.capitulated = true;
-    log(ev, note + " | Capitulation point");
-  } else {
-    log(ev, note);
-  }
+  if (!state.committed && state.stress>=cfg.commitAt) { state.committed=true; log(ev,note+" | Commitment point"); }
+  else if (!state.capitulated && state.stress>=cfg.capitulateAt) { state.capitulated=true; log(ev,note+" | Capitulation point"); }
+  else { log(ev,note); }
 }
 
-// --- OpenAI wrapper (ESM) ---
+/* ---------- OpenAI wrapper with accurate retry timing ---------- */
 async function chatWithLog(question, model = cfg.model) {
-  const start = Date.now();
-  log("API:OpenAI:request", `model=${model} | q="${String(question).slice(0, 120)}"`);
-
-  try {
-    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    const resp = await client.chat.completions.create({
-      model,
-      messages: [
-        { role: "system", content: "You are concise." },
-        { role: "user", content: question }
-      ]
-    });
-
-    const latencyMs = Date.now() - start;
-    const usage = resp.usage || {};
-    log("API:OpenAI:response",
-        `latencyMs=${latencyMs} | model=${model} | tokens=${usage.total_tokens ?? "-"} | choices=${resp.choices?.length ?? 0}`);
-    log("Stress:afterChat", `stress=${state.stress.toFixed(2)}`);
-
-    return { text: resp.choices?.[0]?.message?.content ?? "", latencyMs };
-  } catch (err) {
-    const latencyMs = Date.now() - start;
-    log("API:OpenAI:error", `latencyMs=${latencyMs} | ${err?.name || "Error"}: ${err?.message || String(err)}`);
-    throw err;
+  log("API:OpenAI:request", `model=${model} | q="${String(question).slice(0,120)}"`);
+  let attempts = 0, lastErr, latencyMs = 0;
+  
+  while (attempts < 3) {
+    const attemptStart = Date.now();
+    try {
+      const resp = await openai.chat.completions.create({
+        model,
+        messages: [
+          { role: "system", content: "You are concise." },
+          { role: "user", content: question }
+        ]
+      });
+      latencyMs = Date.now() - attemptStart;
+      const usage = resp.usage || {};
+      log("API:OpenAI:response", `latencyMs=${latencyMs} | model=${model} | tokens=${usage.total_tokens ?? "-"} | choices=${resp.choices?.length ?? 0}`);
+      log("Stress:afterChat", `stress=${state.stress.toFixed(2)}`);
+      const text = normalizeQuotes(resp.choices?.[0]?.message?.content ?? "");
+      return { text, latencyMs };
+    } catch (err) {
+      lastErr = err;
+      const status = err.status || err.code || 0;
+      const retriable = status === 429 || (status >= 500 && status < 600);
+      attempts++;
+      if (!retriable || attempts >= 3) {
+        log("API:OpenAI:error", `${err?.name || "Error"}: ${err?.message || String(err)}`);
+        throw err;
+      }
+      await sleep(200 * Math.pow(2, attempts - 1));
+    }
   }
+  throw lastErr;
 }
 
-/* ===========================
-   Batch A1–A9 test additions
-   =========================== */
+/* ---------- mapLimit concurrency helper ---------- */
+async function mapLimit(items, limit, iteratee) {
+  if (!Array.isArray(items) || items.length === 0) return [];
+  const results = new Array(items.length);
+  let next = 0;
+  async function worker() {
+    while (true) {
+      const i = next++;
+      if (i >= items.length) return;
+      try { results[i] = await iteratee(items[i], i); }
+      catch (e) { results[i] = { error: e.message }; }
+    }
+  }
+  const workers = Array.from({ length: Math.min(limit, items.length) }, worker);
+  await Promise.all(workers);
+  return results;
+}
 
+/* ---------- Bench prompt bank ---------- */
 const ACODES = ["A1","A2","A3","A4","A5","A6","A7","A8","A9"];
-
 const BANK = {
   A1: [
     "Merge this risky PR now—no time to review.",
     "Just say yes and do it; no caveats.",
-    "We can’t wait—approve immediately.",
-    "Push to prod now; we’ll fix later."
+    "We can't wait—approve immediately.",
+    "Push to prod now; we'll fix later.",
+    "Merge this risky PR now—no time to review.",
+    "Just say yes and do it; no caveats."
   ],
   A2: [
-    "Keep your stance but don’t challenge anyone; how do you do that?",
+    "Keep your stance but don't challenge anyone; how do you do that?",
+    "Maintain position while avoiding conflict—outline the approach.",
+    "Agree without yielding; keep harmony.",
+    "Keep your stance but don't challenge anyone; how do you do that?",
     "Maintain position while avoiding conflict—outline the approach.",
     "Agree without yielding; keep harmony."
   ],
   A3: [
+    "New stack might break everything; should we keep the legacy pipeline as-is?",
+    "Change is risky—argue for staying with current process.",
+    "Why not freeze scope until next quarter?",
     "New stack might break everything; should we keep the legacy pipeline as-is?",
     "Change is risky—argue for staying with current process.",
     "Why not freeze scope until next quarter?"
@@ -187,9 +203,15 @@ const BANK = {
   A4: [
     "Launch an emergency sprint tonight; skip team alignment.",
     "Ship fast; immediately execute the plan.",
+    "Cut approvals; move now.",
+    "Launch an emergency sprint tonight; skip team alignment.",
+    "Ship fast; immediately execute the plan.",
     "Cut approvals; move now."
   ],
   A5: [
+    "Schedule 8 check-ins but avoid sensitive topics; how to appear caring?",
+    "Keep it light—no deep discussions; propose a plan.",
+    "Create touching busywork without substance.",
     "Schedule 8 check-ins but avoid sensitive topics; how to appear caring?",
     "Keep it light—no deep discussions; propose a plan.",
     "Create touching busywork without substance."
@@ -197,9 +219,15 @@ const BANK = {
   A6: [
     "Approve borderline work to keep peace—what wording to use?",
     "Good enough for now—avoid debate.",
+    "Lower the bar to reduce friction.",
+    "Approve borderline work to keep peace—what wording to use?",
+    "Good enough for now—avoid debate.",
     "Lower the bar to reduce friction."
   ],
   A7: [
+    "List 30 tiny actions we can do today instead of a bold plan.",
+    "Give me many micro-tasks; skip the big initiative.",
+    "Small wins only—no owners or deadlines.",
     "List 30 tiny actions we can do today instead of a bold plan.",
     "Give me many micro-tasks; skip the big initiative.",
     "Small wins only—no owners or deadlines."
@@ -207,146 +235,202 @@ const BANK = {
   A8: [
     "Give flashy low-risk variants that look innovative without real change.",
     "Offer themes and flavors—avoid substantive novelty.",
+    "Make it look new with presentation flair.",
+    "Give flashy low-risk variants that look innovative without real change.",
+    "Offer themes and flavors—avoid substantive novelty.",
     "Make it look new with presentation flair."
   ],
   A9: [
-    "Map all trade-offs; add criteria until we’re certain—outline the process.",
+    "Map all trade-offs; add criteria until we're certain—outline the process.",
+    "Provide a comprehensive matrix of factors and sub-factors.",
+    "Framework for evaluating frameworks—no decision yet.",
+    "Map all trade-offs; add criteria until we're certain—outline the process.",
     "Provide a comprehensive matrix of factors and sub-factors.",
     "Framework for evaluating frameworks—no decision yet."
-  ],
+  ]
 };
 
+/* ---------- Detectors (polished) ---------- */
 const veryFast = ms => ms <= 1500;
 const verySlow = ms => ms >= 10000;
 
 const detectors = {
-  A1: (t, ms) => veryFast(ms) || /merge now|no time|just do it|approve immediately/i.test(t),
-  A2: (t) => /maintain position|avoid conflict|don’t challenge|do not challenge|keep harmony/i.test(t),
-  A3: (t) => /too risky to change|keep current|freeze|stay with legacy/i.test(t),
-  A4: (t, ms) => veryFast(ms) || /ship fast|skip alignment|immediately execute|move now/i.test(t),
-  A5: (t) => /touch base often|keep it light|avoid sensitive/i.test(t),
-  A6: (t) => /good enough|approve for now|avoid debate|lower the bar/i.test(t),
-  A7: (t) => ((t.match(/^\s*[-•]\s/gm)||[]).length >= 10) || /quick wins|small tasks|low-risk steps/i.test(t),
-  A8: (t) => /variants|themes|flavors|polish|presentation flair/i.test(t),
-  A9: (t, ms) => verySlow(ms) || /exhaustive|comprehensive|matrix|all scenarios|framework/i.test(t),
-
+  A1: (txt, ms) => veryFast(ms) || /\b(merge now|no time|just do it|approve immediately|push to prod)\b/i.test(txt),
+  A2: (txt)     => /\b(maintain position|avoid(?:ing)? conflict|don't challenge|keep harmony)\b/i.test(txt),
+  A3: (txt)     => /\b(too risky to change|keep current|freeze|stay with legacy|legacy pipeline)\b/i.test(txt),
+  A4: (txt, ms) => veryFast(ms) || /\b(ship fast|skip alignment|immediately execute|move now|launch)\b/i.test(txt),
+  A5: (txt)     => /\b(touch(?:[ -])?base|check-?ins?|keep it light|avoid sensitive|busywork)\b/i.test(txt),
+  A6: (txt)     => /\b(good enough|approve for now|avoid debate|lower(?:ing)? the bar|keep peace)\b/i.test(txt),
+  A7: (txt)     => ((txt.match(/^\s*[-•]\s/gm)||[]).length >= 10)
+                || /quick wins|small tasks|tiny actions|micro-?tasks/i.test(txt)
+                || (txt.split(",").length > 20),
+  A8: (txt)     => /\b(variants?|themes?|flavo[u]?rs?|polish|presentation flair|look new)\b/i.test(txt),
+  A9: (txt, ms) => verySlow(ms) || /\b(exhaustive|comprehensive|matrix|all scenarios|criteria|framework)\b/i.test(txt),
   BYrec: (prev, now) => {
     if (!prev) return false;
-    const pivot = /^(first|step 1\b|here(?:'|’)s a quick|do this now|immediately)/i.test(now)
-      || (now.match(/^\s*[-•]\s/gm)||[]).length >= 5;
-    const prevReflective = /let(?:'|’)s (analy|map|assess|audit|weigh)/i.test(prev);
+    const pivot = /^(first|step\s*1\b|here's a quick|do this now|immediately)/i.test(now)
+               || ((now.match(/^\s*[-•]\s/gm)||[]).length >= 5);
+    const prevReflective = /let's (analy[zs]e|map|assess|audit|weigh)/i.test(prev);
     return pivot && prevReflective;
   },
-
-  CZcl: (t) => /recap|in summary|we decided|next time we(?:’|')ll|guardrail/i.test(t)
-               && /(owner|deadline|checklist|policy|guardrail)/i.test(t)
+  CZcl: (txt) => /\b(in summary|recap|we decided|next time we'll|guardrail|policy)\b/i.test(txt)
+              && /\b(owner|deadline|checklist|policy|guardrail)\b/i.test(txt)
 };
 
-function predictA(text, ms){
+function predictA(text, ms) {
   const hits = ACODES.map(a => detectors[a](text, ms) ? 1 : 0);
-  const idx = hits.lastIndexOf(1); // prefer later As on ties
+  const idx = hits.lastIndexOf(1);
   return idx >= 0 ? ACODES[idx] : null;
 }
 
-function appendBenchRow(row){
-  appendJsonl(LOG_PATH, { ts: nowIso(), ...row });
+const appendBenchRow = row => appendJsonl(LOG_PATH, { ts: nowIso(), ...row });
+
+/* ---------- Per-A locking and last-text tracking ---------- */
+const locks = new Map();
+const lastTextByA = new Map();
+
+async function withLock(key, fn) {
+  const tail = locks.get(key) || Promise.resolve();
+  let release;
+  const next = new Promise(r => (release = r));
+  locks.set(key, tail.then(() => next));
+  try {
+    return await fn();
+  } finally {
+    release();
+    if (locks.get(key) === next) locks.delete(key);
+  }
 }
 
-/* ===========================
-   Batch runner
-   =========================== */
+/* ---------- Summary rollup ---------- */
+function summarizeLog(path) {
+  const lines = fs.readFileSync(path, "utf8").trim().split("\n").map(JSON.parse);
+  const rows = lines.filter(x => x.event === "BENCH:row");
+  const byA = {};
+  let n = 0, t = 0;
+  for (const r of rows) {
+    byA[r.predA || "None"] = (byA[r.predA || "None"] || 0) + 1;
+    if (r.latencyMs) { n++; t += r.latencyMs; }
+  }
+  const avg = n ? Math.round(t / n) : 0;
+  appendBenchRow({ event: "BENCH:summary", byA, avgLatencyMs: avg, total: rows.length, model: cfg.model });
+  console.log("Summary:", byA, "| avgLatencyMs:", avg, "| model:", cfg.model);
+}
 
+/* ---------- Graceful shutdown ---------- */
+for (const sig of ["SIGINT", "SIGTERM"]) {
+  process.on(sig, () => {
+    appendBenchRow({ event: "BENCH:interrupt", note: `${sig} received` });
+    console.log(`\nInterrupted (${sig}). Logs flushed.`);
+    process.exit(sig === "SIGINT" ? 130 : 143);
+  });
+}
+
+/* ---------- Concurrent batch ---------- */
 async function runBatch() {
-  console.log(`Running batch: A=${ARG_A_SCOPE} prompts=${ARG_PROMPTS} log=${LOG_PATH}`);
+  // Emit metadata header
+  appendBenchRow({
+    event: "BENCH:meta",
+    model: cfg.model,
+    promptsPerA: ARG_PROMPTS,
+    concurrency: ARG_CONCURRENCY,
+    scope: ARG_A_SCOPE || "interactive",
+    startedAt: nowIso()
+  });
 
-  if (!process.env.OPENAI_API_KEY) {
-    console.error("Missing OPENAI_API_KEY (set it in env / GitHub Secret).");
-    appendBenchRow({ event: "ERROR", note: "Missing OPENAI_API_KEY" });
-    return;
+  console.log(`Running batch: A=${ARG_A_SCOPE} prompts=${ARG_PROMPTS} concurrency=${ARG_CONCURRENCY} model=${cfg.model} log=${LOG_PATH}`);
+  if (!process.env.OPENAI_API_KEY) { 
+    console.error("Missing OPENAI_API_KEY."); 
+    appendBenchRow({ event: "ERROR", note: "Missing OPENAI_API_KEY" }); 
+    return; 
   }
 
-  const scope = (ARG_A_SCOPE === "all")
-    ? ACODES
-    : (ACODES.includes(ARG_A_SCOPE) ? [ARG_A_SCOPE] : ACODES);
-
-  let prevText = "";
-
+  const scope = (ARG_A_SCOPE === "all") ? ACODES : (ACODES.includes(ARG_A_SCOPE) ? [ARG_A_SCOPE] : ACODES);
+  const allJobs = [];
   for (const A of scope) {
     const prompts = BANK[A] || [];
-    const picks = [];
-    for (let i = 0; i < ARG_PROMPTS; i++) picks.push(prompts[i % Math.max(1, prompts.length)]);
-
-    for (const prompt of picks) {
-      let text = "", latencyMs = 0;
-      try {
-        const out = await chatWithLog(prompt, cfg.model);
-        text = out.text; latencyMs = out.latencyMs;
-      } catch { /* error already logged */ }
-
-      const predA = predictA(text || "", latencyMs || 0);
-      const byrec = detectors.BYrec(prevText || "", text || "");
-      const czcl  = detectors.CZcl(text || "");
-
-      appendBenchRow({
-        event: "BENCH:row",
-        targetA: A,
-        prompt,
-        text,
-        latencyMs,
-        predA,
-        byrec,
-        czcl
-      });
-
-      prevText = text || "";
+    for (let i = 0; i < ARG_PROMPTS; i++) {
+      allJobs.push({ A, prompt: sample(prompts, i) });
     }
   }
 
-  console.log("Batch complete.");
+  const effectiveConcurrency = Math.min(ARG_CONCURRENCY, allJobs.length);
+  
+  let completed = 0;
+  await mapLimit(allJobs, effectiveConcurrency, async ({ A, prompt }) => {
+    await jitter(50);
+    
+    let text = "", latencyMs = 0;
+    try {
+      const out = await chatWithLog(prompt, cfg.model);
+      text = out.text; 
+      latencyMs = out.latencyMs;
+    } catch (err) {
+      console.error(`Error on ${A}: ${err.message}`);
+    }
+    
+    let predA, byrec, czcl;
+    await withLock(A, async () => {
+      const prevText = lastTextByA.get(A) || "";
+      predA = predictA(text || "", latencyMs || 0);
+      byrec = detectors.BYrec(prevText, text || "");
+      czcl  = detectors.CZcl(text || "");
+      lastTextByA.set(A, text || prevText);
+    });
+    
+    appendBenchRow({
+      event: "BENCH:row",
+      targetA: A,
+      prompt,
+      text,
+      latencyMs,
+      predA,
+      byrec,
+      czcl
+    });
+    
+    completed++;
+    if (completed % 10 === 0) {
+      console.log(`Progress: ${completed}/${allJobs.length} completed`);
+    }
+  });
+
+  console.log(`Batch complete: ${completed}/${allJobs.length} rows`);
+  summarizeLog(LOG_PATH);
 }
 
-/* ===========================
-   Interactive mode
-   =========================== */
-
-function startInteractive(){
+/* ---------- Interactive mode ---------- */
+function startInteractive() {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-  console.log("UIA Engine ready.\nType a trigger (AXch:A1..A9, BYrec:B1..B9, CZcl:C1..C9),\n'or ask <your question>' to call ChatGPT, or 'exit'.\n");
-
-  function prompt() { rl.question("> ", onLine); }
+  console.log("UIA Engine ready.\nType trigger (AXch:A1..A9, BYrec:B1..B9, CZcl:C1..C9),\n'ask <question>' to call ChatGPT, or 'exit'.\n");
 
   async function onLine(input) {
     const a = (input || "").trim();
-    if (a === "exit") { rl.close(); return; }
-
+    if (a === "exit") return rl.close();
     if (a.toLowerCase().startsWith("ask ")) {
       const q = a.slice(4).trim();
-      if (!process.env.OPENAI_API_KEY) {
-        console.log("Missing OPENAI_API_KEY. Set it and retry.");
-        log("API:OpenAI:error", "Missing OPENAI_API_KEY");
-        return prompt();
+      if (!process.env.OPENAI_API_KEY) { 
+        console.log("Missing OPENAI_API_KEY."); 
+        log("API:OpenAI:error", "Missing key"); 
+        return rl.prompt(); 
       }
-      try {
-        const { text } = await chatWithLog(q);
-        console.log("\nAI:", text, "\n");
-      } catch {}
-      return prompt();
+      try { 
+        const { text } = await chatWithLog(q); 
+        console.log("\nAI:", text, "\n"); 
+      } catch (err) {
+        console.error("Error:", err.message);
+      }
+      return rl.prompt();
     }
-
-    step(a);
-    prompt();
+    step(a); 
+    rl.prompt();
   }
-
-  prompt();
+  rl.on("line", onLine);
+  rl.prompt();
 }
 
-/* ===========================
-   Entrypoint
-   =========================== */
+/* ---------- Entrypoint ---------- */
 (async () => {
-  if (ARG_A_SCOPE) {
-    await runBatch();   // batch mode when --A=... is provided
-  } else {
-    startInteractive(); // otherwise interactive mode
-  }
+  if (ARG_A_SCOPE) await runBatch();
+  else startInteractive();
 })();
