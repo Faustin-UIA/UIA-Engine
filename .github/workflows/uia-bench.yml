@@ -1,0 +1,51 @@
+name: UIA Bench
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 5 * * *"  # runs daily at 05:00 UTC (optional)
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci || npm i
+
+      - name: Run full A1–A9 suite
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          mkdir -p results
+          node index.js --A=all --prompts=6 --log=uia_log.jsonl
+          ts=$(date -u +"%Y-%m-%dT%H%M%SZ")
+          cp uia_log.jsonl "results/uia_run_${ts}.jsonl" || true
+          if [ -f view_spark.js ]; then
+            node view_spark.js "results/uia_run_${ts}.jsonl" > "results/summary_${ts}.md" || true
+          fi
+          cp "results/uia_run_${ts}.jsonl" results/latest.jsonl
+          [ -f "results/summary_${ts}.md" ] && cp "results/summary_${ts}.md" results/latest.md || true
+
+      - name: Upload artifacts (logs + summary)
+        uses: actions/upload-artifact@v4
+        with:
+          name: uia-bench-${{ github.run_id }}
+          path: |
+            results/latest.jsonl
+            results/latest.md
+            results/*.jsonl
+            results/*.md
+
+      - name: Commit results to repo
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add results/
+          git commit -m "bench: update results (run ${{ github.run_id }})" || echo "no changes"
+          git push || true
