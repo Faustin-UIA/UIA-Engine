@@ -30,31 +30,26 @@ jobs:
           mkdir -p results
           ts=$(date -u +"%Y-%m-%dT%H%M%SZ")
 
-          # Run and always capture console output (don’t fail the step if Node exits non-zero)
-          ( node index.js --A=all --prompts=6 --log=uia_log.jsonl 2>&1 | tee "results/console_${ts}.log" ) || true
+          # Write JSONL directly into results/
+          ( node index.js --A=all --prompts=6 --log="results/uia_run_${ts}.jsonl" 2>&1 | tee "results/console_${ts}.log" ) || true
 
-          # Try to locate the log wherever your script wrote it
-          LOG_CANDIDATE="$(find . -maxdepth 3 -type f -name 'uia_log.jsonl' | head -n 1 || true)"
-
-          if [ -n "${LOG_CANDIDATE}" ] && [ -f "${LOG_CANDIDATE}" ]; then
-            echo "✅ Found log at: ${LOG_CANDIDATE}"
-            cp "${LOG_CANDIDATE}" "results/uia_run_${ts}.jsonl"
+          # Stable pointers for artifacts
+          if [ -f "results/uia_run_${ts}.jsonl" ]; then
             cp "results/uia_run_${ts}.jsonl" results/latest.jsonl
           else
-            echo "⚠️ uia_log.jsonl not found. Saving empty JSONL so artifacts still exist."
             echo "" > results/latest.jsonl
           fi
 
-          # Optional summary
+          # Optional summary (if you have view_spark.js)
           if [ -f view_spark.js ]; then
             node view_spark.js results/latest.jsonl > "results/summary_${ts}.md" || true
             cp "results/summary_${ts}.md" results/latest.md || true
           fi
 
-          # Always leave a visible trace file so Artifacts appear
+          # Always leave a visible trace file so artifacts appear
           echo "UIA Bench run completed successfully at $(date -u)" > results/readme.txt
 
-          # Never fail this step due to missing files past this point
+          # Never fail this step due to missing files
           exit 0
 
       - name: Upload artifacts (logs + results)
