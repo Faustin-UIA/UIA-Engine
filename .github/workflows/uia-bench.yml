@@ -18,7 +18,7 @@ jobs:
 
       - run: npm ci || npm i
 
-      -       - name: Run full A1–A9 suite
+      - name: Run full A1–A9 suite
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
