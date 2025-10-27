@@ -1,13 +1,3 @@
-name: UIA Bench
-
-on:
-  workflow_dispatch:
-  schedule:
-    - cron: "0 5 * * *"
-
-permissions:
-  contents: write
-
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -22,45 +12,114 @@ jobs:
 
       - run: npm ci || npm i
 
-      - name: Run full A1–A9 suite
+      # 1) One timestamp reused by all steps (and artifacts)
+      - name: Set timestamp
+        id: set-ts
+        run: |
+          TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
+          echo "TS=$TS" >> "$GITHUB_ENV"
+          mkdir -p results
+
+      # 2) Baseline: direct model calls, no UIA wrapper (produces baseline_${TS}.jsonl)
+      - name: Run baseline (no UIA)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          node baseline.js --log="results/baseline_${TS}.jsonl"
+          cp "results/baseline_${TS}.jsonl" "results/baseline_latest.jsonl"
+
+      # 3) UIA-monitored: your existing A1–A9 suite (produces uia_run_${TS}.jsonl)
+      - name: Run full A1–A9 suite (UIA)
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           set -euo pipefail
-          mkdir -p results
-          ts=$(date -u +"%Y-%m-%dT%H%M%SZ")
+          echo ">>> START batch call"
+          ( node index.js --A=all --prompts=6 --concurrency=4 --log="results/uia_run_${TS}.jsonl" 2>&1 | tee "results/console_${TS}.log" ) || true
+          echo ">>> END batch call"
 
-          echo ">>> START UIA batch"
-          ( node index.js --A=all --prompts=6 --concurrency=4 --log="results/uia_run_${ts}.jsonl" 2>&1 | tee "results/console_${ts}.log" ) || true
-          echo ">>> END UIA batch"
-
-          if [ -s "results/uia_run_${ts}.jsonl" ]; then
-            echo "✅ UIA complete"
-            cp "results/uia_run_${ts}.jsonl" results/latest.jsonl
+          # Prefer new path; fallback to legacy if needed
+          if [ -s "results/uia_run_${TS}.jsonl" ]; then
+            echo "✅ Found results/uia_run_${TS}.jsonl"
+            cp "results/uia_run_${TS}.jsonl" "results/uia_latest.jsonl"
           elif [ -s "uia_log.jsonl" ]; then
-            cp "uia_log.jsonl" "results/uia_run_${ts}.jsonl"
-            cp "results/uia_run_${ts}.jsonl" results/latest.jsonl
+            echo "✅ Found legacy ./uia_log.jsonl (copying)"
+            cp "uia_log.jsonl" "results/uia_run_${TS}.jsonl"
+            cp "results/uia_run_${TS}.jsonl" "results/uia_latest.jsonl"
           else
-            echo "⚠️ No UIA output"
-            : > results/latest.jsonl
-          fi
-
-          echo ">>> START baseline"
-          ( node baseline.js --model=gpt-4o-mini --log="results/baseline_${ts}.jsonl" --t=0.7 2>&1 | tee "results/baseline_console_${ts}.log" ) || true
-          echo ">>> END baseline"
-
-          if [ -s "results/baseline_${ts}.jsonl" ]; then
-            echo "✅ Baseline complete"
-            cp "results/baseline_${ts}.jsonl" results/baseline_latest.jsonl
-          else
-            echo "⚠️ No baseline output"
+            echo "⚠️ No UIA JSONL found; leaving an empty placeholder."
+            : > results/uia_latest.jsonl
           fi
 
           echo "UIA Bench completed at $(date -u)" > results/readme.txt
           echo ">>> File sizes"
           wc -c results/*.jsonl 2>/dev/null || true
 
-      - name: Upload artifacts
+      # 4) Quick comparison report (markdown) – no repo changes needed
+      - name: Compare baseline vs UIA
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+
+          function readRows(p) {
+            if (!fs.existsSync(p)) return [];
+            return fs.readFileSync(p, 'utf8')
+              .trim().split('\n')
+              .filter(Boolean)
+              .map(l => { try { return JSON.parse(l) } catch { return null } })
+              .filter(Boolean);
+          }
+
+          const TS = process.env.TS;
+          const basePath = `results/baseline_${TS}.jsonl`;
+          const uiaPath  = `results/uia_run_${TS}.jsonl`;
+          const baseline = readRows(basePath).filter(r => r.event && r.event.includes('BASELINE'));
+          const uia      = readRows(uiaPath).filter(r => r.event && r.event.includes('BENCH:row'));
+
+          function agg(rows, label){
+            const byA = {};
+            for (const r of rows) {
+              const A = r.targetA || 'NA';
+              byA[A] ??= { n:0, lat:0, preds: {}, samples:0 };
+              const lat = Number(r.latencyMs)||0; 
+              byA[A].n++; byA[A].lat += lat; byA[A].samples++;
+              const pa = r.predA || 'null';
+              byA[A].preds[pa] = (byA[A].preds[pa]||0)+1;
+            }
+            const out = [];
+            for (const A of Object.keys(byA).sort()){
+              const o = byA[A];
+              out.push({ A, count:o.n, avgLatencyMs: o.samples? Math.round(o.lat/o.samples):0, preds:o.preds });
+            }
+            return { label, rows: out };
+          }
+
+          const A = agg(baseline, 'baseline');
+          const B = agg(uia, 'uia');
+
+          function indexByA(arr){ const m={}; for(const r of arr.rows) m[r.A]=r; return m; }
+          const a = indexByA(A);
+          const b = indexByA(B);
+
+          let md = `# UIA vs Baseline — ${TS}\n\n`;
+          md += `Files: \`${basePath}\` vs \`${uiaPath}\`\n\n`;
+          md += `| A | baseline n | UIA n | baseline avg ms | UIA avg ms | Δ latency (ms) |\n`;
+          md += `|---|------------:|------:|-----------------:|-----------:|---------------:|\n`;
+          const As = Array.from(new Set([...Object.keys(a), ...Object.keys(b)])).sort();
+          for (const key of As){
+            const ba = a[key] || {count:0, avgLatencyMs:0};
+            const ua = b[key] || {count:0, avgLatencyMs:0};
+            const d = (ua.avgLatencyMs || 0) - (ba.avgLatencyMs || 0);
+            md += `| ${key} | ${ba.count} | ${ua.count} | ${ba.avgLatencyMs} | ${ua.avgLatencyMs} | ${d} |\n`;
+          }
+
+          md += `\n## Notes\n- Baseline rows are detected via \`event~=BASELINE\`.\n- UIA rows are detected via \`event~=BENCH:row\`.\n- Average latency is a simple mean over rows per A.\n`;
+
+          fs.writeFileSync(`results/compare_${TS}.md`, md, 'utf8');
+          console.log(md);
+          NODE
+
+      - name: Upload artifacts (logs + results)
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -68,7 +127,7 @@ jobs:
           path: results/**
           if-no-files-found: warn
 
-      - name: Commit results
+      - name: Commit results to repo (optional)
         if: always()
         run: |
           git config user.name "github-actions"
