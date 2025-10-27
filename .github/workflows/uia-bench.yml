@@ -46,6 +46,8 @@ jobs:
             node view_spark.js results/latest.jsonl > "results/summary_${ts}.md" || true
             cp "results/summary_${ts}.md" results/latest.md || true
           fi
+          # Always leave a visible trace file so Artifacts appear
+          echo "UIA Bench run completed successfully at $(date -u)" > results/readme.txt
 
           # Never fail this step due to missing files past this point
           exit 0
