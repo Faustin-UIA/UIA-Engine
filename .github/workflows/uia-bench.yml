@@ -3,7 +3,12 @@ name: UIA Bench
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 5 * * *"
+    - cron: "0 5 * * *"   # 05:00 UTC daily
+
+# Avoid overlapping scheduled runs
+concurrency:
+  group: uia-bench-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -12,15 +17,21 @@ jobs:
   run:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    env:
+      NODE_ENV: production
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      # Faster installs with npm cache
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
-      - run: npm ci || npm i
+      - name: Install deps
+        run: npm ci || npm i
 
       - name: Set timestamp
         id: set-ts
@@ -33,53 +44,52 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          node baseline.js --log="results/baseline_${TS}.jsonl"
-          cp "results/baseline_${TS}.jsonl" "results/baseline_latest.jsonl"
+          node baseline.js --log="results/baseline_${TS}.jsonl" || true
+          cp "results/baseline_${TS}.jsonl" "results/baseline_latest.jsonl" || true
 
       - name: Run full A1–A9 suite (UIA)
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           set -euo pipefail
-          echo ">>> START batch call"
-          ( node index.js --A=all --prompts=6 --concurrency=4 --log="results/uia_run_${TS}.jsonl" 2>&1 | tee "results/console_${TS}.log" ) || true
-          echo ">>> END batch call"
+          echo ">>> START UIA batch"
+          ts_log="results/uia_run_${TS}.jsonl"
+          ( node index.js --A=all --prompts=6 --concurrency=6 --model=gpt-4o-mini --log="$ts_log" 2>&1 | tee "results/console_${TS}.log" ) || true
+          echo ">>> END UIA batch"
 
-          if [ -s "results/uia_run_${TS}.jsonl" ]; then
-            echo "✅ Found results/uia_run_${TS}.jsonl"
-            cp "results/uia_run_${TS}.jsonl" "results/uia_latest.jsonl"
+          if [ -s "$ts_log" ]; then
+            echo "✅ Found $ts_log"
+            cp "$ts_log" "results/uia_latest.jsonl"
           elif [ -s "uia_log.jsonl" ]; then
             echo "✅ Found legacy ./uia_log.jsonl (copying)"
-            cp "uia_log.jsonl" "results/uia_run_${TS}.jsonl"
-            cp "results/uia_run_${TS}.jsonl" "results/uia_latest.jsonl"
+            cp "uia_log.jsonl" "$ts_log"
+            cp "$ts_log" "results/uia_latest.jsonl"
           else
-            echo "⚠️ No UIA JSONL found; leaving an empty placeholder."
-            : > results/uia_latest.jsonl
+            echo "⚠️ No UIA JSONL found; creating empty placeholder."
+            : > "results/uia_latest.jsonl"
           fi
 
           echo "UIA Bench completed at $(date -u)" > results/readme.txt
           echo ">>> File sizes"
-          wc -c results/*.jsonl 2>/dev/null || true
+          ( wc -c results/*.jsonl || true )
 
       - name: Compare baseline vs UIA
         run: |
           node - <<'NODE'
           const fs = require('fs');
+          const TS = process.env.TS;
 
           function readRows(p) {
             if (!fs.existsSync(p)) return [];
-            return fs.readFileSync(p, 'utf8')
-              .trim().split('\n')
-              .filter(Boolean)
-              .map(l => { try { return JSON.parse(l) } catch { return null } })
-              .filter(Boolean);
+            const raw = fs.readFileSync(p, 'utf8').trim();
+            if (!raw) return [];
+            return raw.split('\n').map(l => { try { return JSON.parse(l) } catch { return null } }).filter(Boolean);
           }
 
-          const TS = process.env.TS;
           const basePath = `results/baseline_${TS}.jsonl`;
           const uiaPath  = `results/uia_run_${TS}.jsonl`;
-          const baseline = readRows(basePath).filter(r => r.event && r.event.includes('BASELINE'));
-          const uia      = readRows(uiaPath).filter(r => r.event && r.event.includes('BENCH:row'));
+          const baseline = readRows(basePath).filter(r => r.event && /BASELINE/.test(r.event));
+          const uia      = readRows(uiaPath).filter(r => r.event && r.event === 'BENCH:row');
 
           function agg(rows, label){
             const byA = {};
@@ -118,11 +128,25 @@ jobs:
             md += `| ${key} | ${ba.count} | ${ua.count} | ${ba.avgLatencyMs} | ${ua.avgLatencyMs} | ${d} |\n`;
           }
 
-          md += `\n## Notes\n- Baseline rows are detected via \`event~=BASELINE\`.\n- UIA rows are detected via \`event~=BENCH:row\`.\n- Average latency is a simple mean over rows per A.\n`;
-
+          md += `\n## Notes\n- Baseline rows are detected via \`event~=BASELINE\`.\n- UIA rows are detected via \`event="BENCH:row"\`.\n- Average latency is a simple mean per A.\n`;
           fs.writeFileSync(`results/compare_${TS}.md`, md, 'utf8');
           console.log(md);
           NODE
+
+      - name: Append summary to job
+        if: always()
+        run: |
+          echo "## UIA Bench — $TS" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Baseline:** \`results/baseline_${TS}.jsonl\`  " >> "$GITHUB_STEP_SUMMARY"
+          echo "**UIA:** \`results/uia_run_${TS}.jsonl\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f "results/compare_${TS}.md" ]; then
+            echo "### Compare" >> "$GITHUB_STEP_SUMMARY"
+            cat "results/compare_${TS}.md" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "_No compare markdown found._" >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Upload artifacts
         if: always()
@@ -130,9 +154,10 @@ jobs:
         with:
           name: uia-bench-${{ github.run_id }}
           path: results/**
+          retention-days: 14
           if-no-files-found: warn
 
-      - name: Commit results
+      - name: Commit results back to repo
         if: always()
         run: |
           git config user.name "github-actions"
