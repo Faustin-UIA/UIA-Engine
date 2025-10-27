@@ -3,178 +3,159 @@ name: UIA Bench
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 5 * * *"   # 05:00 UTC daily
-
-# Prevent overlapping daily runs from stepping on each other
-concurrency:
-  group: uia-bench-${{ github.ref }}
-  cancel-in-progress: false
+    - cron: "0 5 * * *"
 
 permissions:
   contents: write
 
+# Prevent overlapping runs of this workflow
+concurrency:
+  group: uia-bench
+  cancel-in-progress: true
+
 jobs:
   baseline:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
-    env:
-      NODE_ENV: production
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js 20
-        uses: actions/setup-node@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+
+      # Works whether or not you have a lockfile
       - name: Install deps
         run: npm ci || npm i
-      - name: Run baseline
+
+      - name: Run baseline (fast mode)
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           set -euo pipefail
           mkdir -p results
           TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
-          echo "BASE_TS=$TS" >> "$GITHUB_ENV"
-          node baseline.js --concurrency=6 --model=gpt-4o-mini --log="results/baseline_${TS}.jsonl"
-      - name: Upload baseline artifact
-        if: always()
-        uses: actions/upload-artifact@v4
+          echo "TS=$TS" >> $GITHUB_ENV
+          node baseline.js \
+            --A=all \
+            --concurrency=8 \
+            --model=gpt-4o-mini \
+            --max_tokens=80 \
+            --t=0.2 \
+            --log="results/baseline_${TS}.jsonl"
+          echo "Baseline log: results/baseline_${TS}.jsonl"
+
+      - uses: actions/upload-artifact@v4
         with:
           name: baseline-results
           path: results/baseline_*.jsonl
-          retention-days: 14
           if-no-files-found: warn
 
   uia:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
-    env:
-      NODE_ENV: production
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js 20
-        uses: actions/setup-node@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+
       - name: Install deps
         run: npm ci || npm i
-      - name: Run UIA
+
+      - name: Run UIA (concurrent)
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           set -euo pipefail
           mkdir -p results
           TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
-          echo "UIA_TS=$TS" >> "$GITHUB_ENV"
-          # index.js already implements concurrency; pass model + log
-          node index.js --A=all --prompts=6 --concurrency=6 --model=gpt-4o-mini --log="results/uia_${TS}.jsonl"
-      - name: Upload UIA artifact
-        if: always()
-        uses: actions/upload-artifact@v4
+          echo "TS=$TS" >> $GITHUB_ENV
+          node index.js \
+            --A=all \
+            --prompts=6 \
+            --concurrency=8 \
+            --model=gpt-4o-mini \
+            --log="results/uia_${TS}.jsonl"
+          echo "UIA log: results/uia_${TS}.jsonl"
+
+      - uses: actions/upload-artifact@v4
         with:
           name: uia-results
-          path: |
-            results/uia_*.jsonl
-          retention-days: 14
+          path: results/uia_*.jsonl
           if-no-files-found: warn
 
   compare:
     needs: [baseline, uia]
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: Download baseline artifact
-        uses: actions/download-artifact@v4
+
+      - uses: actions/download-artifact@v4
         with:
           name: baseline-results
           path: results
-      - name: Download UIA artifact
-        uses: actions/download-artifact@v4
+
+      - uses: actions/download-artifact@v4
         with:
           name: uia-results
           path: results
 
-      - name: Compare results (generate Markdown)
+      - name: Generate comparison markdown
         run: |
-          set -euo pipefail
           node - <<'NODE'
           const fs = require('fs');
-          const path = require('path');
-          const dir = 'results';
+          const glob = (pat) => fs.readdirSync('results').filter(f => f.match(pat)).map(f => 'results/'+f);
+          const pickLatest = (files) => files.sort().slice(-1)[0];
 
-          const pickLatest = (prefix) => {
-            const files = fs.readdirSync(dir).filter(f => f.startsWith(prefix) && f.endsWith('.jsonl'));
-            if (!files.length) return null;
-            files.sort(); // ISO timestamps sort lexicographically
-            return path.join(dir, files[files.length - 1]);
-          };
+          const baseFile = pickLatest(glob(/^baseline_.*\.jsonl$/));
+          const uiaFile  = pickLatest(glob(/^uia_.*\.jsonl$/));
 
-          const baseFile = pickLatest('baseline_');
-          const uiaFile  = pickLatest('uia_');
-
-          function readRows(p) {
+          function rows(p) {
             if (!p || !fs.existsSync(p)) return [];
-            const raw = fs.readFileSync(p, 'utf8').trim();
-            if (!raw) return [];
-            return raw.split('\n').map(l => { try { return JSON.parse(l) } catch { return null } }).filter(Boolean);
+            return fs.readFileSync(p,'utf8').trim().split('\n').filter(Boolean).map(l=>{try{return JSON.parse(l)}catch{return null}}).filter(Boolean);
           }
 
-          const baseline = readRows(baseFile).filter(r => r.event && /BASELINE/.test(r.event));
-          const uia      = readRows(uiaFile).filter(r => r.event === 'BENCH:row');
+          const baseline = rows(baseFile).filter(r => (r.event||"").includes("BASELINE:row"));
+          const uia      = rows(uiaFile).filter(r => (r.event||"").includes("BENCH:row"));
 
-          function agg(rows){
-            const byA = {};
+          function agg(rows, key) {
+            const by = {};
             for (const r of rows) {
-              const A = r.targetA || 'NA';
-              const L = Number(r.latencyMs) || 0;
-              byA[A] ??= { n:0, lat:0 };
-              byA[A].n++;
-              byA[A].lat += L;
+              const A = r[key] || r.targetA || 'NA';
+              by[A] ??= { n:0, lat:0 };
+              by[A].n++;
+              by[A].lat += Number(r.latencyMs) || 0;
             }
-            return Object.keys(byA).sort().map(A => ({
-              A, count: byA[A].n, avgLatencyMs: byA[A].n ? Math.round(byA[A].lat / byA[A].n) : 0
-            }));
+            return Object.fromEntries(Object.entries(by).map(([k,v]) => [k, {count:v.n, avgLatencyMs: v.n? Math.round(v.lat/v.n):0}]));
           }
 
-          const A = agg(baseline), B = agg(uia);
-          const mapA = Object.fromEntries(A.map(x => [x.A, x]));
-          const mapB = Object.fromEntries(B.map(x => [x.A, x]));
-          const keys = Array.from(new Set([...Object.keys(mapA), ...Object.keys(mapB)])).sort();
+          const a = agg(baseline, 'targetA');
+          const b = agg(uia, 'targetA');
+          const allKeys = Array.from(new Set([...Object.keys(a), ...Object.keys(b)])).sort();
 
-          const ts = (p) => p ? (p.match(/_(.+)\.jsonl$/)?.[1] || '') : '';
-          let md = `# UIA vs Baseline — ${ts(baseFile) || ts(uiaFile)}\n\n`;
-          md += `Files: \`${baseFile || 'n/a'}\` vs \`${uiaFile || 'n/a'}\`\n\n`;
-          md += `| A | baseline n | UIA n | baseline avg ms | UIA avg ms | Δ latency (ms) |\n`;
-          md += `|---|------------:|------:|-----------------:|-----------:|---------------:|\n`;
-          for (const k of keys) {
-            const ba = mapA[k] || { count: 0, avgLatencyMs: 0 };
-            const ub = mapB[k] || { count: 0, avgLatencyMs: 0 };
-            const delta = (ub.avgLatencyMs || 0) - (ba.avgLatencyMs || 0);
-            md += `| ${k} | ${ba.count} | ${ub.count} | ${ba.avgLatencyMs} | ${ub.avgLatencyMs} | ${delta} |\n`;
+          const ts = (baseFile||'').match(/\d{8}T\d{6}Z/)?.[0] || (uiaFile||'').match(/\d{8}T\d{6}Z/)?.[0] || 'N/A';
+          let md = `# UIA Bench — ${ts}\n\n`;
+          md += `Baseline: \`${baseFile||'n/a'}\`\n\nUIA: \`${uiaFile||'n/a'}\`\n\n`;
+          md += `| A | baseline n | UIA n | baseline avg ms | UIA avg ms | Δ (UIA-baseline) |\n`;
+          md += `|---|------------:|------:|-----------------:|-----------:|-----------------:|\n`;
+          for (const k of allKeys) {
+            const ba = a[k] || {count:0, avgLatencyMs:0};
+            const ub = b[k] || {count:0, avgLatencyMs:0};
+            const d = (ub.avgLatencyMs||0) - (ba.avgLatencyMs||0);
+            md += `| ${k} | ${ba.count} | ${ub.count} | ${ba.avgLatencyMs} | ${ub.avgLatencyMs} | ${d} |\n`;
           }
-
-          fs.writeFileSync(path.join(dir, 'compare.md'), md, 'utf8');
+          fs.writeFileSync('results/compare.md', md, 'utf8');
           console.log(md);
           NODE
 
-      - name: Append summary to Job
-        run: |
-          echo "## UIA Bench — Compare" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          if [ -f "results/compare.md" ]; then
-            cat results/compare.md >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "_No compare markdown found._" >> "$GITHUB_STEP_SUMMARY"
-          fi
+      - name: List results
+        run: ls -lah results/
 
-      - name: Upload compare artifact
-        if: always()
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: uia-compare-${{ github.run_id }}
+          name: all-results
           path: results/**
-          retention-days: 14
           if-no-files-found: warn
