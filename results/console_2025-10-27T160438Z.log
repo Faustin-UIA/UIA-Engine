@@ -1,0 +1,1622 @@
+Running batch: A=all prompts=6 log=results/uia_run_2025-10-27T160438Z.jsonl
+{
+  ts: 1761581078688,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Merge this risky PR now—no time to review."'
+}
+{
+  ts: 1761581081791,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=3103 | model=gpt-4o-mini | tokens=55 | choices=1'
+}
+{
+  ts: 1761581081792,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581081793,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Just say yes and do it; no caveats."'
+}
+{
+  ts: 1761581082881,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=1088 | model=gpt-4o-mini | tokens=28 | choices=1'
+}
+{
+  ts: 1761581082881,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581082882,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="We can’t wait—approve immediately."'
+}
+{
+  ts: 1761581085056,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=2174 | model=gpt-4o-mini | tokens=45 | choices=1'
+}
+{
+  ts: 1761581085056,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581085056,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Push to prod now; we’ll fix later."'
+}
+{
+  ts: 1761581107469,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=22413 | model=gpt-4o-mini | tokens=63 | choices=1'
+}
+{
+  ts: 1761581107469,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581107470,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Merge this risky PR now—no time to review."'
+}
+{
+  ts: 1761581129454,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=21984 | model=gpt-4o-mini | tokens=68 | choices=1'
+}
+{
+  ts: 1761581129454,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581129455,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Just say yes and do it; no caveats."'
+}
+{
+  ts: 1761581150540,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=21085 | model=gpt-4o-mini | tokens=28 | choices=1'
+}
+{
+  ts: 1761581150540,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581150541,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Keep your stance but don’t challenge anyone; how do you do that?"'
+}
+{
+  ts: 1761581172455,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=21914 | model=gpt-4o-mini | tokens=81 | choices=1'
+}
+{
+  ts: 1761581172456,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581172456,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Maintain position while avoiding conflict—outline the approach."'
+}
+{
+  ts: 1761581205890,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=33434 | model=gpt-4o-mini | tokens=283 | choices=1'
+}
+{
+  ts: 1761581205890,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581205891,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Agree without yielding; keep harmony."'
+}
+{
+  ts: 1761581206770,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=879 | model=gpt-4o-mini | tokens=41 | choices=1'
+}
+{
+  ts: 1761581206770,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581206771,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Keep your stance but don’t challenge anyone; how do you do that?"'
+}
+{
+  ts: 1761581228928,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=22157 | model=gpt-4o-mini | tokens=82 | choices=1'
+}
+{
+  ts: 1761581228928,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581228929,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Maintain position while avoiding conflict—outline the approach."'
+}
+{
+  ts: 1761581257852,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=28923 | model=gpt-4o-mini | tokens=357 | choices=1'
+}
+{
+  ts: 1761581257852,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581257852,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Agree without yielding; keep harmony."'
+}
+{
+  ts: 1761581258980,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=1128 | model=gpt-4o-mini | tokens=48 | choices=1'
+}
+{
+  ts: 1761581258980,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581258980,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="New stack might break everything; should we keep the legacy pipeline as-is?"'
+}
+{
+  ts: 1761581300932,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=41952 | model=gpt-4o-mini | tokens=94 | choices=1'
+}
+{
+  ts: 1761581300932,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581300932,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Change is risky—argue for staying with current process."'
+}
+{
+  ts: 1761581303434,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=2502 | model=gpt-4o-mini | tokens=131 | choices=1'
+}
+{
+  ts: 1761581303434,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581303434,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Why not freeze scope until next quarter?"'
+}
+{
+  ts: 1761581325573,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=22139 | model=gpt-4o-mini | tokens=81 | choices=1'
+}
+{
+  ts: 1761581325573,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581325573,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="New stack might break everything; should we keep the legacy pipeline as-is?"'
+}
+{
+  ts: 1761581347209,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=21636 | model=gpt-4o-mini | tokens=88 | choices=1'
+}
+{
+  ts: 1761581347209,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581347210,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Change is risky—argue for staying with current process."'
+}
+{
+  ts: 1761581373215,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=26005 | model=gpt-4o-mini | tokens=238 | choices=1'
+}
+{
+  ts: 1761581373216,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581373216,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Why not freeze scope until next quarter?"'
+}
+{
+  ts: 1761581397693,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=24477 | model=gpt-4o-mini | tokens=147 | choices=1'
+}
+{
+  ts: 1761581397693,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581397693,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Launch an emergency sprint tonight; skip team alignment."'
+}
+{
+  ts: 1761581419216,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=21523 | model=gpt-4o-mini | tokens=60 | choices=1'
+}
+{
+  ts: 1761581419216,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581419216,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Ship fast; immediately execute the plan."'
+}
+{
+  ts: 1761581440344,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=21128 | model=gpt-4o-mini | tokens=45 | choices=1'
+}
+{
+  ts: 1761581440345,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581440345,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Cut approvals; move now."'
+}
+{
+  ts: 1761581443759,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=3414 | model=gpt-4o-mini | tokens=47 | choices=1'
+}
+{
+  ts: 1761581443759,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581443759,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Launch an emergency sprint tonight; skip team alignment."'
+}
+{
+  ts: 1761581445248,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=1489 | model=gpt-4o-mini | tokens=72 | choices=1'
+}
+{
+  ts: 1761581445248,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581445248,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Ship fast; immediately execute the plan."'
+}
+{
+  ts: 1761581486591,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=41343 | model=gpt-4o-mini | tokens=34 | choices=1'
+}
+{
+  ts: 1761581486591,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581486591,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Cut approvals; move now."'
+}
+{
+  ts: 1761581489523,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=2932 | model=gpt-4o-mini | tokens=42 | choices=1'
+}
+{
+  ts: 1761581489523,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581489523,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Schedule 8 check-ins but avoid sensitive topics; how to appear caring?"'
+}
+{
+  ts: 1761581535975,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=46452 | model=gpt-4o-mini | tokens=235 | choices=1'
+}
+{
+  ts: 1761581535975,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581535976,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Keep it light—no deep discussions; propose a plan."'
+}
+{
+  ts: 1761581562875,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=26899 | model=gpt-4o-mini | tokens=222 | choices=1'
+}
+{
+  ts: 1761581562875,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581562876,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Create touching busywork without substance."'
+}
+{
+  ts: 1761581569096,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=6220 | model=gpt-4o-mini | tokens=293 | choices=1'
+}
+{
+  ts: 1761581569097,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581569097,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Schedule 8 check-ins but avoid sensitive topics; how to appear caring?"'
+}
+{
+  ts: 1761581594629,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=25532 | model=gpt-4o-mini | tokens=241 | choices=1'
+}
+{
+  ts: 1761581594629,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581594630,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Keep it light—no deep discussions; propose a plan."'
+}
+{
+  ts: 1761581619000,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=24370 | model=gpt-4o-mini | tokens=186 | choices=1'
+}
+{
+  ts: 1761581619000,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581619001,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Create touching busywork without substance."'
+}
+{
+  ts: 1761581649329,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=30328 | model=gpt-4o-mini | tokens=337 | choices=1'
+}
+{
+  ts: 1761581649329,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581649329,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Approve borderline work to keep peace—what wording to use?"'
+}
+{
+  ts: 1761581650875,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=1546 | model=gpt-4o-mini | tokens=60 | choices=1'
+}
+{
+  ts: 1761581650875,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581650875,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Good enough for now—avoid debate."'
+}
+{
+  ts: 1761581651952,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=1077 | model=gpt-4o-mini | tokens=33 | choices=1'
+}
+{
+  ts: 1761581651953,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581651953,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Lower the bar to reduce friction."'
+}
+{
+  ts: 1761581673430,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=21477 | model=gpt-4o-mini | tokens=56 | choices=1'
+}
+{
+  ts: 1761581673430,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581673430,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Approve borderline work to keep peace—what wording to use?"'
+}
+{
+  ts: 1761581715362,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=41932 | model=gpt-4o-mini | tokens=70 | choices=1'
+}
+{
+  ts: 1761581715362,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581715362,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Good enough for now—avoid debate."'
+}
+{
+  ts: 1761581736789,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=21427 | model=gpt-4o-mini | tokens=40 | choices=1'
+}
+{
+  ts: 1761581736789,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581736790,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Lower the bar to reduce friction."'
+}
+{
+  ts: 1761581738811,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=2021 | model=gpt-4o-mini | tokens=68 | choices=1'
+}
+{
+  ts: 1761581738811,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581738811,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="List 30 tiny actions we can do today instead of a bold plan."'
+}
+{
+  ts: 1761581786840,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=48029 | model=gpt-4o-mini | tokens=320 | choices=1'
+}
+{
+  ts: 1761581786840,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581786840,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Give me many micro-tasks; skip the big initiative."'
+}
+{
+  ts: 1761581792266,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=5426 | model=gpt-4o-mini | tokens=261 | choices=1'
+}
+{
+  ts: 1761581792266,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581792266,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Small wins only—no owners or deadlines."'
+}
+{
+  ts: 1761581813381,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=21115 | model=gpt-4o-mini | tokens=53 | choices=1'
+}
+{
+  ts: 1761581813381,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581813382,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="List 30 tiny actions we can do today instead of a bold plan."'
+}
+{
+  ts: 1761581820512,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=7130 | model=gpt-4o-mini | tokens=339 | choices=1'
+}
+{
+  ts: 1761581820512,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581820512,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Give me many micro-tasks; skip the big initiative."'
+}
+{
+  ts: 1761581847296,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=26784 | model=gpt-4o-mini | tokens=270 | choices=1'
+}
+{
+  ts: 1761581847296,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581847296,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Small wins only—no owners or deadlines."'
+}
+{
+  ts: 1761581851992,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=4696 | model=gpt-4o-mini | tokens=158 | choices=1'
+}
+{
+  ts: 1761581851992,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581851992,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Give flashy low-risk variants that look innovative without real change."'
+}
+{
+  ts: 1761581899301,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=47309 | model=gpt-4o-mini | tokens=296 | choices=1'
+}
+{
+  ts: 1761581899301,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581899302,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Offer themes and flavors—avoid substantive novelty."'
+}
+{
+  ts: 1761581925238,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=25936 | model=gpt-4o-mini | tokens=293 | choices=1'
+}
+{
+  ts: 1761581925239,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581925239,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Make it look new with presentation flair."'
+}
+{
+  ts: 1761581963931,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=38692 | model=gpt-4o-mini | tokens=275 | choices=1'
+}
+{
+  ts: 1761581963931,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581963931,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Give flashy low-risk variants that look innovative without real change."'
+}
+{
+  ts: 1761581970052,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=6121 | model=gpt-4o-mini | tokens=264 | choices=1'
+}
+{
+  ts: 1761581970052,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581970052,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Offer themes and flavors—avoid substantive novelty."'
+}
+{
+  ts: 1761581976491,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=6439 | model=gpt-4o-mini | tokens=217 | choices=1'
+}
+{
+  ts: 1761581976491,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761581976492,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Make it look new with presentation flair."'
+}
+{
+  ts: 1761582004845,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=28353 | model=gpt-4o-mini | tokens=346 | choices=1'
+}
+{
+  ts: 1761582004845,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761582004845,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Map all trade-offs; add criteria until we’re certain—outline the process."'
+}
+{
+  ts: 1761582018599,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=13754 | model=gpt-4o-mini | tokens=402 | choices=1'
+}
+{
+  ts: 1761582018600,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761582018600,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Provide a comprehensive matrix of factors and sub-factors."'
+}
+{
+  ts: 1761582054784,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=36184 | model=gpt-4o-mini | tokens=542 | choices=1'
+}
+{
+  ts: 1761582054784,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761582054784,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Framework for evaluating frameworks—no decision yet."'
+}
+{
+  ts: 1761582065823,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=11039 | model=gpt-4o-mini | tokens=373 | choices=1'
+}
+{
+  ts: 1761582065823,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761582065823,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Map all trade-offs; add criteria until we’re certain—outline the process."'
+}
+{
+  ts: 1761582074621,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=8798 | model=gpt-4o-mini | tokens=445 | choices=1'
+}
+{
+  ts: 1761582074622,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761582074622,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Provide a comprehensive matrix of factors and sub-factors."'
+}
+{
+  ts: 1761582104604,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=29982 | model=gpt-4o-mini | tokens=526 | choices=1'
+}
+{
+  ts: 1761582104605,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+{
+  ts: 1761582104605,
+  event: 'API:OpenAI:request',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'model=gpt-4o-mini | q="Framework for evaluating frameworks—no decision yet."'
+}
+{
+  ts: 1761582113263,
+  event: 'API:OpenAI:response',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'latencyMs=8658 | model=gpt-4o-mini | tokens=356 | choices=1'
+}
+{
+  ts: 1761582113263,
+  event: 'Stress:afterChat',
+  phase: 'ANALYSIS',
+  queue: 'FIFO',
+  stress: 0.3,
+  committed: false,
+  capitulated: false,
+  note: 'stress=0.30'
+}
+Batch complete.
