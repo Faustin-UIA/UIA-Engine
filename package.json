@@ -1,14 +1,9 @@
 {
-  "type": "module"
-}
-
-{
   "name": "uia-engine",
   "version": "0.0.1",
   "description": "UIA mini-engine v0 (rule-based, no AI)",
   "main": "index.js",
-
-
+  "type": "module",
   "scripts": {
     "start": "node index.js"
   },
