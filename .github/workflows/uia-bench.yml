@@ -30,26 +30,33 @@ jobs:
           mkdir -p results
           ts=$(date -u +"%Y-%m-%dT%H%M%SZ")
 
-          # Write JSONL directly into results/
+          echo ">>> START batch call"
           ( node index.js --A=all --prompts=6 --log="results/uia_run_${ts}.jsonl" 2>&1 | tee "results/console_${ts}.log" ) || true
+          echo ">>> END batch call"
 
-          # Stable pointers for artifacts
-          if [ -f "results/uia_run_${ts}.jsonl" ]; then
+          echo ">>> List results/"
+          ls -la results || true
+
+          # Primary target (new code path)
+          if [ -s "results/uia_run_${ts}.jsonl" ]; then
+            echo "✅ Found results/uia_run_${ts}.jsonl"
+            cp "results/uia_run_${ts}.jsonl" results/latest.jsonl
+          # Fallback to legacy path (old index.js writes here)
+          elif [ -s "uia_log.jsonl" ]; then
+            echo "✅ Found legacy ./uia_log.jsonl (copying)"
+            cp "uia_log.jsonl" "results/uia_run_${ts}.jsonl"
             cp "results/uia_run_${ts}.jsonl" results/latest.jsonl
           else
-            echo "" > results/latest.jsonl
+            echo "⚠️ No JSONL found; leaving an empty placeholder."
+            : > results/latest.jsonl
           fi
 
-          # Optional summary (if you have view_spark.js)
-          if [ -f view_spark.js ]; then
-            node view_spark.js results/latest.jsonl > "results/summary_${ts}.md" || true
-            cp "results/summary_${ts}.md" results/latest.md || true
-          fi
+          # Tiny proof so Artifacts always exist
+          echo "UIA Bench completed at $(date -u)" > results/readme.txt
 
-          # Always leave a visible trace file so artifacts appear
-          echo "UIA Bench run completed successfully at $(date -u)" > results/readme.txt
-
-          # Never fail this step due to missing files
+          # Show sizes for debugging
+          echo ">>> File sizes"
+          wc -c results/*.jsonl 2>/dev/null || true
           exit 0
 
       - name: Upload artifacts (logs + results)
