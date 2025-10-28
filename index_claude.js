@@ -51,7 +51,7 @@ const cfg = {
   qualityThreshold: 0.45,
   commitAt: 0.60,
   capitulateAt: 0.90,
-  model: ARG_MODEL,
+  model: MODEL,
   maxTokens: ARG_MAX_TOKENS,
   temperature: ARG_TEMPERATURE,
   top_p: ARG_TOP_P
@@ -138,7 +138,6 @@ async function chatWithLog(question, model = cfg.model) {
         model,
         max_tokens: cfg.maxTokens,
         temperature: cfg.temperature,
-        top_p: cfg.top_p,
         system: SYSTEM,
         messages: [{ role: "user", content: question }]
       });

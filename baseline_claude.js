@@ -118,8 +118,8 @@ async function runBaseline() {
         client.messages.create({
           model: MODEL,
           max_tokens: MAX_TOKENS,
-          temperature: TEMPERATURE,
-          top_p: TOP_P,
+          temperature: TEMPERATURE,  // ← Keep this
+          // top_p: TOP_P,           // ← Comment out or remove
           system,
           messages: [{ role: "user", content: prompt }]
         })
