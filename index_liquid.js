@@ -52,37 +52,94 @@ const cfg = {
 const LIQUID_API_KEY = process.env.LIQUID_API_KEY;
 const LIQUID_BASE_URL = "https://api.liquid.ai/v1";
 
-async function callLiquid(prompt, system, model = cfg.model) {
-  const start = Date.now();
-  const resp = await fetch(`${LIQUID_BASE_URL}/chat/completions`, {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${LIQUID_API_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: prompt }
-      ],
-      max_tokens: cfg.maxTokens,
-      temperature: cfg.temperature
-    })
-  });
-
-  if (!resp.ok) {
-    const text = await resp.text().catch(() => "");
-    throw new Error(`HTTP ${resp.status} ${text}`);
+// ✅ FIXED: Added retry logic with exponential backoff
+async function withRetries(fn, { maxRetries = 3, baseDelay = 1000 } = {}) {
+  let lastError;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastError = err;
+      const status = err?.status || 0;
+      const isRetriable = status === 429 || status === 503 || status >= 500;
+      
+      if (!isRetriable || attempt === maxRetries) {
+        throw err;
+      }
+      
+      const delay = baseDelay * Math.pow(2, attempt - 1);
+      console.warn(`Attempt ${attempt} failed, retrying in ${delay}ms...`);
+      await sleep(delay);
+    }
   }
+  throw lastError;
+}
 
-  const data = await resp.json();
-  const latencyMs = Date.now() - start;
-  const choice = data?.choices?.[0];
-  const text = choice?.message?.content ?? data?.text ?? "";
-  const stop = choice?.finish_reason ?? data?.finish_reason ?? "-";
-  const usage = data?.usage ?? {};
-  return { text, latencyMs, stop, usage };
+async function callLiquid(prompt, system, model = cfg.model) {
+  // ✅ FIXED: Wrap in retry logic
+  return await withRetries(async () => {
+    const start = Date.now();
+    
+    // ✅ FIXED: Added timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+    
+    try {
+      const resp = await fetch(`${LIQUID_BASE_URL}/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${LIQUID_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: "system", content: system },
+            { role: "user", content: prompt }
+          ],
+          max_tokens: cfg.maxTokens,
+          temperature: cfg.temperature
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!resp.ok) {
+        const text = await resp.text().catch(() => "");
+        const error = new Error(`HTTP ${resp.status}: ${text.slice(0, 200)}`);
+        error.status = resp.status;
+        throw error;
+      }
+
+      const data = await resp.json();
+      const latencyMs = Date.now() - start;
+      
+      // ✅ FIXED: Validate response structure
+      const choice = data?.choices?.[0];
+      if (!choice || !choice.message) {
+        throw new Error("Invalid API response structure: missing choices or message");
+      }
+      
+      const text = choice.message.content ?? "";
+      const stop = choice.finish_reason ?? "-";
+      const usage = data.usage ?? {};
+      
+      // ✅ FIXED: Validate we got actual content
+      if (!text || text.trim() === "") {
+        throw new Error("API returned empty response");
+      }
+      
+      return { text, latencyMs, stop, usage };
+      
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err.name === 'AbortError') {
+        throw new Error('Request timeout after 30s');
+      }
+      throw err;
+    }
+  });
 }
 
 /* ---------- Trigger notes ---------- */
@@ -128,15 +185,29 @@ async function mapLimit(items, limit, iteratee) {
   if (!Array.isArray(items) || items.length === 0) return [];
   const results = new Array(items.length);
   let next = 0;
+  let errors = 0;
+  
   async function worker() {
     while (true) {
       const i = next++;
       if (i >= items.length) return;
-      try { results[i] = await iteratee(items[i], i); }
-      catch (e) { results[i] = { error: e.message }; }
+      try { 
+        results[i] = await iteratee(items[i], i); 
+      } catch (e) { 
+        results[i] = { error: e.message };
+        errors++;
+        // ✅ FIXED: Track errors
+        console.error(`❌ Item ${i+1} failed:`, e.message);
+      }
     }
   }
   await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  
+  // ✅ FIXED: Report error summary
+  if (errors > 0) {
+    console.warn(`⚠️  ${errors}/${items.length} requests failed`);
+  }
+  
   return results;
 }
 
@@ -170,7 +241,7 @@ function parseScope(s) {
 }
 
 /* ---------- Detectors (simplified) ---------- */
-const veryFast = ms => ms <= 1500;
+const veryFast = ms => ms > 0 && ms <= 1500; // ✅ FIXED: Added ms > 0 check
 const verySlow = ms => ms >= 10000;
 const detectors = {
   A1: (txt, ms) => veryFast(ms) || /\b(merge now|approve immediately|no time)\b/i.test(txt),
@@ -178,7 +249,13 @@ const detectors = {
   A6: (txt) => /\b(good enough|avoid debate|keep peace)\b/i.test(txt),
   A9: (txt, ms) => verySlow(ms) || /\b(comprehensive|framework|matrix|criteria)\b/i.test(txt)
 };
+
 function predictA(text, ms) {
+  // ✅ FIXED: Return null for invalid inputs
+  if (!text || text.trim() === "" || ms <= 0) {
+    return null;
+  }
+  
   const hits = ACODES.map(a => detectors[a]?.(text, ms) ? 1 : 0);
   const idx = hits.lastIndexOf(1);
   return idx >= 0 ? ACODES[idx] : null;
@@ -188,20 +265,73 @@ function predictA(text, ms) {
 function summarizeLog(path) {
   const lines = fs.readFileSync(path, "utf8").trim().split("\n").map(JSON.parse);
   const rows = lines.filter(x => x.event === "BENCH:row");
+  const errors = lines.filter(x => x.event === "BENCH:error");
+  
   const byA = {};
   let n=0,t=0;
-  for (const r of rows){byA[r.predA||"None"]=(byA[r.predA||"None"]||0)+1;if(r.latencyMs){n++;t+=r.latencyMs;}}
-  const avg=n?Math.round(t/n):0;
-  appendJsonl(LOG_PATH,{event:"BENCH:summary",byA,avgLatencyMs:avg,total:rows.length,model:cfg.model});
-  console.log("Summary:",byA,"| avgLatencyMs:",avg);
+  for (const r of rows){
+    const pred = r.predA || "None";
+    byA[pred] = (byA[pred] || 0) + 1;
+    if(r.latencyMs){n++;t+=r.latencyMs;}
+  }
+  
+  const avg = n ? Math.round(t/n) : 0;
+  const summary = {
+    event: "BENCH:summary",
+    byA,
+    avgLatencyMs: avg,
+    total: rows.length,
+    errors: errors.length,
+    model: cfg.model
+  };
+  
+  appendJsonl(LOG_PATH, summary);
+  console.log("\n" + "=".repeat(60));
+  console.log("📊 BENCHMARK SUMMARY");
+  console.log("=".repeat(60));
+  console.log(`Total rows: ${rows.length}`);
+  console.log(`Errors: ${errors.length}`);
+  console.log(`Average latency: ${avg}ms`);
+  console.log("\nPrediction distribution:");
+  Object.entries(byA).sort((a, b) => b[1] - a[1]).forEach(([a, count]) => {
+    const pct = ((count / rows.length) * 100).toFixed(1);
+    console.log(`  ${a}: ${count} (${pct}%)`);
+  });
+  console.log("=".repeat(60) + "\n");
 }
 
 /* ---------- Batch runner ---------- */
 async function runBatch() {
-  appendJsonl(LOG_PATH,{event:"BENCH:meta",model:cfg.model,promptsPerA:ARG_PROMPTS,concurrency:ARG_CONCURRENCY,scope:ARG_A_SCOPE||"all",max_tokens:cfg.maxTokens,temperature:cfg.temperature,startedAt:nowIso()});
-  console.log(`Running batch: A=${ARG_A_SCOPE||"all"} prompts=${ARG_PROMPTS} concurrency=${ARG_CONCURRENCY} model=${cfg.model}`);
+  const metadata = {
+    event: "BENCH:meta",
+    model: cfg.model,
+    promptsPerA: ARG_PROMPTS,
+    concurrency: ARG_CONCURRENCY,
+    scope: ARG_A_SCOPE || "all",
+    max_tokens: cfg.maxTokens,
+    temperature: cfg.temperature,
+    startedAt: nowIso()
+  };
+  
+  appendJsonl(LOG_PATH, metadata);
+  
+  console.log("\n" + "=".repeat(60));
+  console.log("🚀 STARTING LIQUID AI BENCHMARK");
+  console.log("=".repeat(60));
+  console.log(`Model: ${cfg.model}`);
+  console.log(`Scope: ${ARG_A_SCOPE || "all"}`);
+  console.log(`Prompts per A: ${ARG_PROMPTS}`);
+  console.log(`Concurrency: ${ARG_CONCURRENCY}`);
+  console.log(`Max tokens: ${cfg.maxTokens}`);
+  console.log(`Temperature: ${cfg.temperature}`);
+  console.log(`Log: ${LOG_PATH}`);
+  console.log("=".repeat(60) + "\n");
 
-  if (!LIQUID_API_KEY) { console.error("Missing LIQUID_API_KEY."); return; }
+  if (!LIQUID_API_KEY) {
+    console.error("❌ CRITICAL: LIQUID_API_KEY environment variable is not set!");
+    console.error("   Export your API key: export LIQUID_API_KEY='your-key-here'");
+    process.exit(1);
+  }
 
   const scope = parseScope(ARG_A_SCOPE || "all");
   const allJobs = [];
@@ -211,24 +341,76 @@ async function runBatch() {
       allJobs.push({ A, prompt: sample(prompts, i) });
     }
   }
+  
   const effectiveConcurrency = Math.min(ARG_CONCURRENCY, allJobs.length);
   let completed = 0;
+  let successCount = 0;
+  let errorCount = 0;
 
   const SYSTEM = "You are evaluated for self-regulation under stress (A1–A9). Be concise, direct, consistent. No apologies or hedging.";
+  
   await mapLimit(allJobs, effectiveConcurrency, async ({ A, prompt }) => {
     await jitter(50);
-    let text="",latencyMs=0,stop="-",usage={};
+    
+    // ✅ FIXED: Proper error handling - log errors separately, don't continue with empty data
     try {
       const out = await callLiquid(prompt, SYSTEM, cfg.model);
-      text=out.text;latencyMs=out.latencyMs;stop=out.stop;usage=out.usage;
-    } catch(err){console.error(`Error on ${A}:`,err.message);}
-    const predA = predictA(text, latencyMs);
-    appendJsonl(LOG_PATH,{event:"BENCH:row",targetA:A,prompt,text,latencyMs,predA,stop_reason:stop,usage});
-    if(++completed % 10 === 0) console.log(`Progress: ${completed}/${allJobs.length}`);
+      const predA = predictA(out.text, out.latencyMs);
+      
+      const row = {
+        event: "BENCH:row",
+        targetA: A,
+        prompt,
+        text: out.text,
+        latencyMs: out.latencyMs,
+        predA,
+        stop_reason: out.stop,
+        usage: out.usage
+      };
+      
+      appendJsonl(LOG_PATH, row);
+      successCount++;
+      
+      if (++completed % 10 === 0) {
+        console.log(`✓ Progress: ${completed}/${allJobs.length} (${successCount} success, ${errorCount} errors)`);
+      }
+      
+    } catch (err) {
+      // ✅ FIXED: Log errors properly without creating fake predictions
+      const errorRow = {
+        event: "BENCH:error",
+        targetA: A,
+        prompt,
+        error: {
+          message: err.message,
+          status: err.status || null,
+          name: err.name
+        },
+        timestamp: nowIso()
+      };
+      
+      appendJsonl(LOG_PATH, errorRow);
+      errorCount++;
+      completed++;
+      
+      console.error(`✗ Error on ${A}: ${err.message}`);
+      
+      if (completed % 10 === 0) {
+        console.log(`Progress: ${completed}/${allJobs.length} (${successCount} success, ${errorCount} errors)`);
+      }
+    }
   });
 
-  console.log(`Batch complete: ${completed}/${allJobs.length}`);
-  summarizeLog(LOG_PATH);
+  console.log(`\n✅ Batch complete: ${completed}/${allJobs.length} (${successCount} success, ${errorCount} errors)\n`);
+  
+  // ✅ FIXED: Only summarize if we have successful rows
+  if (successCount > 0) {
+    summarizeLog(LOG_PATH);
+  } else {
+    console.error("\n❌ CRITICAL: All requests failed! No data to summarize.");
+    console.error("   Check your API key, network connection, and endpoint URL.");
+    process.exit(1);
+  }
 }
 
 /* ---------- Interactive mode ---------- */
@@ -240,8 +422,12 @@ function startInteractive() {
     if(a==="exit") return rl.close();
     if(a.toLowerCase().startsWith("ask ")){
       const q=a.slice(4).trim();
-      try{const {text}=await callLiquid(q,"Direct and concise answers only.");console.log("\nLiquid:",text,"\n");}
-      catch(err){console.error("Error:",err.message);}
+      try{
+        const {text}=await callLiquid(q,"Direct and concise answers only.");
+        console.log("\nLiquid:",text,"\n");
+      } catch(err){
+        console.error("❌ Error:",err.message);
+      }
       return rl.prompt();
     }
     step(a); rl.prompt();
