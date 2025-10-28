@@ -38,9 +38,9 @@ jobs:
           echo "TS=$TS" >> $GITHUB_ENV
           node baseline.js \
             --A=all \
-            --concurrency=8 \
+            --concurrency=6 \
             --model=gpt-4o-mini \
-            --max_tokens=80 \
+            --max_tokens=120 \
             --t=0.2 \
             --log="results/baseline_${TS}.jsonl"
           echo "Baseline log: results/baseline_${TS}.jsonl"
@@ -75,7 +75,7 @@ jobs:
           node index.js \
             --A=all \
             --prompts=6 \
-            --concurrency=8 \
+            --concurrency=6 \
             --model=gpt-4o-mini \
             --log="results/uia_${TS}.jsonl"
           echo "UIA log: results/uia_${TS}.jsonl"

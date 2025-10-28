@@ -74,7 +74,7 @@ jobs:
             --A=all \
             --prompts=6 \
             --concurrency=6 \
-            --max_tokens=180 \
+            --max_tokens=120 \
             --temperature=0.2 \
             --log="results/uia_claude_${TS}.jsonl" \
             2>&1 | tee "results/uia_claude_console_${TS}.log"
