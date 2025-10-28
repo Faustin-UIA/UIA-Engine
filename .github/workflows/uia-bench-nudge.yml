@@ -1,0 +1,26 @@
+name: UIA Nudge Bench
+
+on:
+  workflow_dispatch:
+
+jobs:
+  nudge-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Run UIA Nudge Test
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python3 uia_nudge_test.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nudge-results
+          path: results/
