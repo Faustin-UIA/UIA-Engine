@@ -1,4 +1,4 @@
-name: UIA Bench
+name: UIA Bench (OpenAI)   # ← Change from "UIA Bench"
 
 on:
   workflow_dispatch:
