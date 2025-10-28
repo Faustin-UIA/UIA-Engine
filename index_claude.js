@@ -1,7 +1,7 @@
 // =====================================================
 // UIA Engine v3.2 (Claude) – Production-ready concurrent batch
 // Usage:
-//   node index_claude.js --A=all --prompts=6 --concurrency=6 --model=claude-3-5-sonnet-20241022 --max_tokens=180 --temperature=0.2 --log=results/uia_claude.jsonl
+//   node index_claude.js --A=all --prompts=6 --concurrency=6 --model=claude-4-5-sonnet-20241022 --max_tokens=180 --temperature=0.2 --log=results/uia_claude.jsonl
 //   node index_claude.js            (interactive mode)
 // =====================================================
 
@@ -18,7 +18,7 @@ function arg(name, def = null) {
 const ARG_A_SCOPE = arg("A", null);
 const ARG_PROMPTS = parseInt(arg("prompts", "6"), 10) || 6;
 const ARG_CONCURRENCY = Math.max(1, Number(arg("concurrency", 4)) || 4);
-const ARG_MODEL = arg("model", "claude-3-5-sonnet-20241022");
+const MODEL = arg("model", "claude-sonnet-4-5-20250929"); // current model
 const ARG_MAX_TOKENS = Math.max(32, parseInt(arg("max_tokens", "180"), 10) || 180);
 const ARG_TEMPERATURE = Number(arg("temperature", "0.2"));
 const ARG_TOP_P = Number(arg("top_p", "0.95"));

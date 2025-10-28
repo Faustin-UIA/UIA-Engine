@@ -11,7 +11,7 @@ const arg = (k, d = null) => {
   const m = process.argv.find(a => a.startsWith(`--${k}=`));
   return m ? m.split("=").slice(1).join("=") : d;
 };
-const MODEL           = arg("model", "claude-3-5-sonnet-20241022"); // newer default
+const MODEL           = arg("model", "claude-sonnet-4-5-20250929"); // current model
 const LOG             = arg("log", `results/baseline_claude_${Date.now()}.jsonl`);
 const MAX_TOKENS      = parseInt(arg("max_tokens", "120"), 10);
 const ARG_CONCURRENCY = Math.max(1, parseInt(arg("concurrency", "6"), 10) || 6);
