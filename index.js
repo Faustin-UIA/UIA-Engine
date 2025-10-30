@@ -315,6 +315,7 @@ async function runOne(client, { A, idx, text }) {
   };
 }
 
+
 // ---------- Main ----------
 run().catch(e => {
   appendJsonl(LOG_PATH, { event: "FATAL", ts: new Date().toISOString(), error: String(e?.message || e) });
