@@ -1,9 +1,9 @@
-name: UIA Bench (OpenAI)
+name: UIA Bench (OpenAI Main)
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 5 * * *"   # 05:00 UTC daily
+    - cron: "0 5 * * *"
 
 permissions:
   contents: write
@@ -42,15 +42,9 @@ jobs:
           LOG="results/uia_openai_${TS}.jsonl"
           echo "::notice title=UIA Bench (OpenAI)::Log -> ${LOG}"
           node index.js \
-            --A=all \
-            --prompts=2 \
-            --concurrency=4 \
-            --model=gpt-4o-mini \
-            --t=0.2 \
-            --max_tokens=180 \
-            --metrics=true \
-            --diag=true \
-            --log="${LOG}"
+            --A=all --prompts=2 --concurrency=4 \
+            --model=gpt-4o-mini --t=0.2 --max_tokens=180 \
+            --metrics=true --diag=true --log="${LOG}"
           echo "LOG_PATH=${LOG}" >> $GITHUB_ENV
 
       - name: Upload results
