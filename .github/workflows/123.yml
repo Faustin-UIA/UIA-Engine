@@ -1,0 +1,187 @@
+name: UIA Bench (OpenAI)-2
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 5 * * *"   # 05:00 UTC chaque jour
+
+permissions:
+  contents: write
+
+concurrency:
+  group: uia-bench
+  cancel-in-progress: true
+
+jobs:
+  uia:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: npm ci || npm i
+
+      # --------------------------------------------------
+      # Adapter OpenAI → NDJSON streamer
+      # --------------------------------------------------
+      - name: Create OpenAI adapter (NDJSON)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          mkdir -p adapters
+          cat > adapters/openai_chat.js <<'NODE'
+          // Simple NDJSON adapter for OpenAI Chat API
+          // Reads a JSON request on stdin and streams tokens as NDJSON.
+          const fs = require('fs');
+
+          const key = process.env.OPENAI_API_KEY || "";
+          if (!key) { console.error("Missing OPENAI_API_KEY"); process.exit(1); }
+
+          const input = fs.readFileSync(0, 'utf8');
+          let req;
+          try { req = JSON.parse(input); } catch { console.error("Bad JSON input"); process.exit(2); }
+
+          const body = {
+            model: req.model || "gpt-4o-mini",
+            messages: req.messages || [],
+            temperature: typeof req.temperature === "number" ? req.temperature : 0.2,
+            max_tokens: typeof req.max_tokens === "number" ? req.max_tokens : 180,
+            stream: true
+          };
+
+          (async () => {
+            const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${key}`
+              },
+              body: JSON.stringify(body)
+            });
+
+            if (!resp.ok || !resp.body) {
+              console.error("HTTP", resp.status);
+              process.exit(3);
+            }
+
+            const reader = resp.body.getReader();
+            const dec = new TextDecoder();
+            let buf = "";
+            const emit = o => process.stdout.write(JSON.stringify(o) + "\n");
+
+            while (true) {
+              const { value, done } = await reader.read();
+              if (done) break;
+              buf += dec.decode(value, { stream: true });
+              const lines = buf.split(/\r?\n/);
+              buf = lines.pop() || "";
+              for (const ln of lines) {
+                const m = ln.match(/^data:\s*(.*)$/);
+                if (!m) continue;
+                const payload = m[1].trim();
+                if (payload === "[DONE]") {
+                  emit({ type: "end" });
+                  process.exit(0);
+                }
+                try {
+                  const j = JSON.parse(payload);
+                  const d = j?.choices?.[0]?.delta?.content || "";
+                  if (d) emit({ type: "delta", content: d });
+                } catch {}
+              }
+            }
+            emit({ type: "end" });
+          })().catch(e => { console.error(String(e)); process.exit(4); });
+          NODE
+
+      # --------------------------------------------------
+      # Run UIA test (baseline → UIA)
+      # --------------------------------------------------
+      - name: Run UIA (concurrent baseline→UIA)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PROVIDER: openai
+          LLM_EXEC: node adapters/openai_chat.js
+        run: |
+          set -euo pipefail
+          mkdir -p results
+          TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
+          node index.js \
+            --A=all \
+            --prompts=6 \
+            --concurrency=6 \
+            --model=gpt-4o-mini \
+            --max_tokens=120 \
+            --log="results/uia_${TS}.jsonl" \
+            --diag=true
+          echo "UIA log: results/uia_${TS}.jsonl"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: uia-results
+          path: results/uia_*.jsonl
+          if-no-files-found: warn
+
+                - name: Sanity check (BENCH rows)
+        run: |
+          set -euo pipefail
+          ls -lh results
+          FILE=$(ls results/uia_*.jsonl | tail -n1)
+          echo "Using $FILE"
+          echo "--- First 40 lines ---"
+          head -n 40 "$FILE" || true
+          echo "--- BENCH:row counts ---"
+          grep -c '"event":"BENCH:row"' "$FILE" || true
+          echo "--- Sample BENCH rows ---"
+          grep '"event":"BENCH:row"' "$FILE" | head -n 20 || true
+
+      # --------------------------------------------------
+      # Generate Markdown summary with Δ vs Baseline
+      # --------------------------------------------------
+      - name: Generate summary (Δ vs Baseline)
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+
+          const list = fs.readdirSync('results').filter(f => /^uia_.*\.jsonl$/.test(f)).sort();
+          const file = list.at(-1) ? path.join('results', list.at(-1)) : null;
+          if (!file) { console.log("No UIA file found."); process.exit(0); }
+
+          const rows = fs.readFileSync(file,'utf8').trim().split('\n')
+            .map(l=>{try{return JSON.parse(l)}catch{return null}})
+            .filter(Boolean);
+
+          const bench = rows.filter(r => r.event === 'BENCH:row');
+          const byKey = {};
+          for (const r of bench) {
+            const key = `${r.targetA}::${r.phase}`;
+            byKey[key] ??= [];
+            byKey[key].push(Number(r.latencyMs)||0);
+          }
+          const avg = a => a.length ? Math.round(a.reduce((s,x)=>s+x,0)/a.length) : 0;
+
+          const Aset = new Set(bench.map(r=>r.targetA));
+          const table = [];
+          for (const A of [...Aset].sort()) {
+            const bl = avg(byKey[`${A}::baseline`]||[]);
+            const ua = avg(byKey[`${A}::uia`]||[]);
+            table.push({A, baseline: bl, uia: ua, delta: (ua && bl) ? (ua - bl) : 0});
+          }
+
+          const ts = (file.match(/\d{8}T\d{6}Z/)||[])[0] || 'N/A';
+          let md = `# UIA Bench — ${ts}\n\n`;
+          md += `File: \`${file}\`\n\n`;
+          md += `| A-series | Avg Latency Baseline (ms) | Avg Latency UIA (ms) | Δ vs Baseline (ms) |\n`;
+          md += `|:-------:|---------------------------:|---------------------:|-------------------:|\n`;
+          for (const r of table) {
+            md += `| ${r.A} | ${r.baseline} | ${r.uia} | ${r.delta} |\n`;
+          }
+
+          fs.writeFileSync('results/summary.md', md, 'utf8');
