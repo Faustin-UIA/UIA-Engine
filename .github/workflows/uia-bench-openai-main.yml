@@ -1,0 +1,12 @@
+name: UIA Bench (OpenAI)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 5 * * *"
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Workflow is alive"
