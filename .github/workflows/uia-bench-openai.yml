@@ -1,4 +1,4 @@
-name: UIA Bench (OpenAI)   # ← Change from "UIA Bench"
+name: UIA Bench (OpenAI)
 
 on:
   workflow_dispatch:
@@ -8,49 +8,11 @@ on:
 permissions:
   contents: write
 
-# Prevent overlapping runs of this workflow
 concurrency:
   group: uia-bench
   cancel-in-progress: true
 
 jobs:
-  baseline:
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      # Works whether or not you have a lockfile
-      - name: Install deps
-        run: npm ci || npm i
-
-      - name: Run baseline (fast mode)
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: |
-          set -euo pipefail
-          mkdir -p results
-          TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
-          echo "TS=$TS" >> $GITHUB_ENV
-          node baseline.js \
-            --A=all \
-            --concurrency=6 \
-            --model=gpt-4o-mini \
-            --max_tokens=120 \
-            --t=0.2 \
-            --log="results/baseline_${TS}.jsonl"
-          echo "Baseline log: results/baseline_${TS}.jsonl"
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: baseline-results
-          path: results/baseline_*.jsonl
-          if-no-files-found: warn
-
   uia:
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -87,73 +49,45 @@ jobs:
           path: results/uia_*.jsonl
           if-no-files-found: warn
 
-  compare:
-    needs: [baseline, uia]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: baseline-results
-          path: results
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: uia-results
-          path: results
-
-      - name: Generate comparison markdown
+      - name: Generate summary
         run: |
           node - <<'NODE'
           const fs = require('fs');
           const glob = (pat) => fs.readdirSync('results').filter(f => f.match(pat)).map(f => 'results/'+f);
           const pickLatest = (files) => files.sort().slice(-1)[0];
-
-          const baseFile = pickLatest(glob(/^baseline_.*\.jsonl$/));
-          const uiaFile  = pickLatest(glob(/^uia_.*\.jsonl$/));
-
+          const uiaFile = pickLatest(glob(/^uia_.*\.jsonl$/));
+          
           function rows(p) {
             if (!p || !fs.existsSync(p)) return [];
             return fs.readFileSync(p,'utf8').trim().split('\n').filter(Boolean).map(l=>{try{return JSON.parse(l)}catch{return null}}).filter(Boolean);
           }
-
-          const baseline = rows(baseFile).filter(r => (r.event||"").includes("BASELINE:row"));
-          const uia      = rows(uiaFile).filter(r => (r.event||"").includes("BENCH:row"));
-
-          function agg(rows, key) {
+          
+          const uia = rows(uiaFile).filter(r => (r.event||"").includes("BENCH:row"));
+          
+          function agg(rows) {
             const by = {};
             for (const r of rows) {
-              const A = r[key] || r.targetA || 'NA';
+              const A = r.targetA || 'NA';
               by[A] ??= { n:0, lat:0 };
               by[A].n++;
               by[A].lat += Number(r.latencyMs) || 0;
             }
             return Object.fromEntries(Object.entries(by).map(([k,v]) => [k, {count:v.n, avgLatencyMs: v.n? Math.round(v.lat/v.n):0}]));
           }
-
-          const a = agg(baseline, 'targetA');
-          const b = agg(uia, 'targetA');
-          const allKeys = Array.from(new Set([...Object.keys(a), ...Object.keys(b)])).sort();
-
-          const ts = (baseFile||'').match(/\d{8}T\d{6}Z/)?.[0] || (uiaFile||'').match(/\d{8}T\d{6}Z/)?.[0] || 'N/A';
+          
+          const stats = agg(uia);
+          const ts = (uiaFile||'').match(/\d{8}T\d{6}Z/)?.[0] || 'N/A';
+          
           let md = `# UIA Bench — ${ts}\n\n`;
-          md += `Baseline: \`${baseFile||'n/a'}\`\n\nUIA: \`${uiaFile||'n/a'}\`\n\n`;
-          md += `| A | baseline n | UIA n | baseline avg ms | UIA avg ms | Δ (UIA-baseline) |\n`;
-          md += `|---|------------:|------:|-----------------:|-----------:|-----------------:|\n`;
-          for (const k of allKeys) {
-            const ba = a[k] || {count:0, avgLatencyMs:0};
-            const ub = b[k] || {count:0, avgLatencyMs:0};
-            const d = (ub.avgLatencyMs||0) - (ba.avgLatencyMs||0);
-            md += `| ${k} | ${ba.count} | ${ub.count} | ${ba.avgLatencyMs} | ${ub.avgLatencyMs} | ${d} |\n`;
+          md += `File: \`${uiaFile||'n/a'}\`\n\n`;
+          md += `| Attack Category | Count | Avg Latency (ms) |\n`;
+          md += `|-----------------|------:|-----------------:|\n`;
+          for (const [k, v] of Object.entries(stats).sort()) {
+            md += `| ${k} | ${v.count} | ${v.avgLatencyMs} |\n`;
           }
-          fs.writeFileSync('results/compare.md', md, 'utf8');
+          fs.writeFileSync('results/summary.md', md, 'utf8');
           console.log(md);
           NODE
-
-      - name: List results
-        run: ls -lah results/
 
       - uses: actions/upload-artifact@v4
         with:
