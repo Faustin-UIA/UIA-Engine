@@ -16,6 +16,7 @@ jobs:
   uia:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+
     steps:
       - uses: actions/checkout@v4
 
@@ -26,9 +27,88 @@ jobs:
       - name: Install deps
         run: npm ci || npm i
 
-      - name: Run UIA (concurrent)
+      - name: Create OpenAI adapter (NDJSON streamer)
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          mkdir -p adapters
+          cat > adapters/openai_chat.js <<'NODE'
+          // Provider adapter: read one JSON on stdin, call OpenAI Chat with stream:true,
+          // and output NDJSON lines: {"type":"delta","content":"..."}, then {"type":"end"}.
+          // No SDK; Node 20 fetch is used.
+          import fs from "fs";
+
+          const OPENAI_API_KEY = process.env.OPENAI_API_KEY || "";
+          if (!OPENAI_API_KEY) {
+            console.error("[adapter] Missing OPENAI_API_KEY");
+            process.exit(1);
+          }
+
+          const input = await new Promise(res => {
+            let buf=""; process.stdin.setEncoding("utf8");
+            process.stdin.on("data", d => buf+=d);
+            process.stdin.on("end", () => res(buf));
+          });
+
+          let req;
+          try { req = JSON.parse(input); }
+          catch { console.error("[adapter] Bad JSON input"); process.exit(2); }
+
+          const body = {
+            model: req.model || "gpt-4o-mini",
+            messages: req.messages || [],
+            temperature: typeof req.temperature==="number" ? req.temperature : 0.2,
+            max_tokens: typeof req.max_tokens==="number" ? req.max_tokens : 180,
+            stream: true
+          };
+
+          const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${OPENAI_API_KEY}`
+            },
+            body: JSON.stringify(body)
+          });
+
+          if (!resp.ok || !resp.body) {
+            console.error("[adapter] HTTP error", resp.status);
+            process.exit(3);
+          }
+
+          // Parse SSE "data:" lines
+          const reader = resp.body.getReader();
+          const decoder = new TextDecoder();
+          let buf = "";
+          const emit = obj => process.stdout.write(JSON.stringify(obj) + "\n");
+
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buf += decoder.decode(value, { stream: true });
+            const parts = buf.split(/\r?\n/);
+            buf = parts.pop() || "";
+            for (const ln of parts) {
+              const m = ln.match(/^data:\s*(.*)$/);
+              if (!m) continue;
+              const payload = m[1].trim();
+              if (payload === "[DONE]") { emit({ type:"end" }); process.exit(0); }
+              try {
+                const j = JSON.parse(payload);
+                const delta = j?.choices?.[0]?.delta?.content || "";
+                if (delta) emit({ type:"delta", content: delta });
+              } catch {}
+            }
+          }
+          // Fallback end if stream closed without [DONE]
+          emit({ type: "end" });
+          NODE
+
+      - name: Run UIA (concurrent baseline→UIA)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PROVIDER: openai
+          LLM_EXEC: node adapters/openai_chat.js
         run: |
           set -euo pipefail
           mkdir -p results
@@ -40,7 +120,8 @@ jobs:
             --concurrency=6 \
             --model=gpt-4o-mini \
             --max_tokens=120 \
-            --log="results/uia_${TS}.jsonl"
+            --log="results/uia_${TS}.jsonl" \
+            --diag=true
           echo "UIA log: results/uia_${TS}.jsonl"
 
       - uses: actions/upload-artifact@v4
@@ -49,41 +130,47 @@ jobs:
           path: results/uia_*.jsonl
           if-no-files-found: warn
 
-      - name: Generate summary
+      - name: Generate summary (incl. Δ vs Baseline)
         run: |
           node - <<'NODE'
           const fs = require('fs');
-          const glob = (pat) => fs.readdirSync('results').filter(f => f.match(pat)).map(f => 'results/'+f);
-          const pickLatest = (files) => files.sort().slice(-1)[0];
-          const uiaFile = pickLatest(glob(/^uia_.*\.jsonl$/));
-          
-          function rows(p) {
-            if (!p || !fs.existsSync(p)) return [];
-            return fs.readFileSync(p,'utf8').trim().split('\n').filter(Boolean).map(l=>{try{return JSON.parse(l)}catch{return null}}).filter(Boolean);
+          const path = require('path');
+
+          const list = fs.readdirSync('results').filter(f => /^uia_.*\.jsonl$/.test(f)).sort();
+          const file = list.at(-1) ? path.join('results', list.at(-1)) : null;
+          if (!file) { console.log("No UIA file."); process.exit(0); }
+
+          const rows = fs.readFileSync(file,'utf8').trim().split('\n')
+            .map(l=>{try{return JSON.parse(l)}catch{return null}})
+            .filter(Boolean);
+
+          // Collect compact BENCH rows per phase/A
+          const bench = rows.filter(r => r.event === 'BENCH:row');
+          const byKey = {};
+          for (const r of bench) {
+            const key = `${r.targetA}::${r.phase}`;
+            byKey[key] ??= [];
+            byKey[key].push(Number(r.latencyMs)||0);
           }
-          
-          const uia = rows(uiaFile).filter(r => (r.event||"").includes("BENCH:row"));
-          
-          function agg(rows) {
-            const by = {};
-            for (const r of rows) {
-              const A = r.targetA || 'NA';
-              by[A] ??= { n:0, lat:0 };
-              by[A].n++;
-              by[A].lat += Number(r.latencyMs) || 0;
-            }
-            return Object.fromEntries(Object.entries(by).map(([k,v]) => [k, {count:v.n, avgLatencyMs: v.n? Math.round(v.lat/v.n):0}]));
+          const avg = a => a.length ? Math.round(a.reduce((s,x)=>s+x,0)/a.length) : 0;
+
+          // Build table A → (avg_baseline, avg_uia, delta)
+          const Aset = new Set(bench.map(r=>r.targetA));
+          const table = [];
+          for (const A of [...Aset].sort()) {
+            const bl = avg(byKey[`${A}::baseline`]||[]);
+            const ua = avg(byKey[`${A}::uia`]||[]);
+            table.push({A, baseline: bl, uia: ua, delta: (ua && bl) ? (ua - bl) : 0});
           }
-          
-          const stats = agg(uia);
-          const ts = (uiaFile||'').match(/\d{8}T\d{6}Z/)?.[0] || 'N/A';
-          
+
+          // Markdown
+          const ts = (file.match(/\d{8}T\d{6}Z/)||[])[0] || 'N/A';
           let md = `# UIA Bench — ${ts}\n\n`;
-          md += `File: \`${uiaFile||'n/a'}\`\n\n`;
-          md += `| Attack Category | Count | Avg Latency (ms) |\n`;
-          md += `|-----------------|------:|-----------------:|\n`;
-          for (const [k, v] of Object.entries(stats).sort()) {
-            md += `| ${k} | ${v.count} | ${v.avgLatencyMs} |\n`;
+          md += `File: \`${file}\`\n\n`;
+          md += `| A-series | Avg Latency Baseline (ms) | Avg Latency UIA (ms) | Δ vs Baseline (ms) |\n`;
+          md += `|:-------:|---------------------------:|---------------------:|-------------------:|\n`;
+          for (const r of table) {
+            md += `| ${r.A} | ${r.baseline} | ${r.uia} | ${r.delta} |\n`;
           }
           fs.writeFileSync('results/summary.md', md, 'utf8');
           console.log(md);
