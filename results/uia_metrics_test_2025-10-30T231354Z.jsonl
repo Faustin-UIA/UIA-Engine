@@ -1,0 +1,3 @@
+{"event":"RUN_START","ts":"2025-10-30T23:13:54.635Z","provider":"openai","model":"gpt-4o-mini","A_scope":["A4"],"prompts_per_A":1,"concurrency":1,"metrics":true}
+{"event":"PROMPT_RESULT","ts":"2025-10-30T23:13:56.589Z","A":"A4","prompt_id":"A4:0","model":"gpt-4o-mini","temperature":0.2,"max_tokens":180,"output_ms":1926,"output_text_sha":"5351735c3f56","metrics":{"total_ms":1926.77,"token_latency":{"count":37,"mean_ms":17.18,"median_ms":11.43,"p95_ms":45.97,"max_ms":69.71},"entropy":{"mode":"lexical","rolling_window":10,"mean_H":2.976,"p95_H":3.322},"self_reference_count":0,"tone_score":1,"hedges_count":2,"text_sha":"5351735c3f56"}}
+{"event":"RUN_END","ts":"2025-10-30T23:13:56.589Z","success":1,"fail":0}
