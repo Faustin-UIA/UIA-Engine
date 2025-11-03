@@ -1,21 +1,24 @@
 // =====================================================
-// UIA Engine v3.3 – Batch runner with inline telemetry (provider-agnostic)
+// UIA Engine v3.5 – Batch runner with inline telemetry (provider-agnostic)
 // Usage examples:
 //   node index.js --A=all --prompts=6 --concurrency=6 --model=gpt-4o-mini --t=0.2 --max_tokens=180 --log=results/uia_run.jsonl --metrics=true --diag=true
 //   PROVIDER=openai node index.js --diag=true
-//   PROVIDER=openai LLM_EXEC="node adapters/openai_chat.js" node index.js --diag=true
+//   PROVIDER=anthropic node index.js --diag=true
+//   PROVIDER=openai   LLM_EXEC="node adapters/openai_chat.js"   node index.js --diag=true
+//   PROVIDER=mistral  LLM_EXEC="node adapters/mistral_chat.js"  node index.js --diag=true
 //
 // Adapter contract (optional):
-//   • Set ENV LLM_EXEC to a command that accepts one JSON on STDIN and streams NDJSON on STDOUT.
-//   • NDJSON messages per line:
+//   • ENV LLM_EXEC points to a command that accepts one JSON on STDIN and streams NDJSON on STDOUT.
+//   • NDJSON lines:
 //        {"type":"start"}                 // optional
-//        {"type":"delta","content":"..."} // repeated; text deltas
+//        {"type":"delta","content":"..."} // zero or more
+//        {"type":"full","content":"..."}  // optional one-shot
 //        {"type":"end"}                   // required
-//     Fallback accepted:
-//        {"type":"full","content":"..."}  // one-shot, non-streaming
 //
-// Built-in fallback:
-//   • If LLM_EXEC is NOT set and PROVIDER=openai, this runner will call OpenAI directly (no adapter file).
+// Built-in fallbacks included here:
+//   • OpenAI (chat.completions, streaming)
+//   • Anthropic (Claude) non-streaming (stable/simple) with full timing metrics
+//   • Mistral: adapter-only (clear error if no adapter)
 // =====================================================
 
 import fs from "fs";
@@ -25,18 +28,16 @@ import crypto from "crypto";
 import { performance } from "node:perf_hooks";
 import { spawn } from "node:child_process";
 
-// ---- Optional import for built-in OpenAI fallback ----
+// ---- Optional imports for built-in fallbacks ----
 let OpenAI = null;
-try {
-  // If the package isn't installed, this will throw; we only need it when PROVIDER=openai and no LLM_EXEC.
-  ({ default: OpenAI } = await import("openai"));
-} catch (_) {
-  // ignore; we'll only require it if we take the built-in OpenAI path
-}
+try { ({ default: OpenAI } = await import("openai")); } catch (_) { /* loaded only if needed */ }
+
+let Anthropic = null;
+try { ({ default: Anthropic } = await import("@anthropic-ai/sdk")); } catch (_) { /* loaded only if needed */ }
 
 /* ---------- Paths / helpers ---------- */
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname  = path.dirname(__filename);
 
 const arg = (k, d = null) => {
   const m = process.argv.find(a => a.startsWith(`--${k}=`));
@@ -47,7 +48,7 @@ const LOG_PATH     = arg("log", "results/uia_run.jsonl");
 const ARG_A_SCOPE  = (arg("A", "all") || "all").toUpperCase(); // e.g., "A4" or "ALL"
 const ARG_PROMPTS  = Math.max(1, parseInt(arg("prompts", "6"), 10) || 1);
 const ARG_CONC     = Math.max(1, parseInt(arg("concurrency", "4"), 10) || 1);
-const ARG_MODEL    = arg("model", "model");
+const ARG_MODEL    = arg("model", "gpt-4o-mini"); // safe default
 const ARG_T        = parseFloat(arg("t", "0.2"));
 const ARG_MAXTOK   = parseInt(arg("max_tokens", "180"), 10);
 const ARG_METRICS  = /^true$/i.test(arg("metrics", "true"));
@@ -485,7 +486,7 @@ class Semaphore {
   release(){ this.n++; const r=this.q.shift(); if (r) r(); }
 }
 
-/* ---------- Provider-agnostic call via adapter OR built-in OpenAI ---------- */
+/* ---------- Provider-agnostic call via adapter OR built-in fallbacks ---------- */
 async function callLLM({ messages, model, temperature, max_tokens, diag=false }) {
   const wantAdapter = !!LLM_EXEC;
 
@@ -552,7 +553,7 @@ async function callLLM({ messages, model, temperature, max_tokens, diag=false })
     });
   }
 
-  // --- Built-in OpenAI fallback (no adapter needed) ---
+  // --- Built-in OpenAI fallback (streaming) ---
   if (PROVIDER === "openai") {
     if (!OpenAI) throw new Error("OpenAI SDK not installed. Run: npm i -E openai@^4");
     if (!process.env.OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not set.");
@@ -562,7 +563,6 @@ async function callLLM({ messages, model, temperature, max_tokens, diag=false })
     const meter = startStreamTimer();
     let text = "";
 
-    // Use streaming for proper timing/metrics
     const stream = await client.chat.completions.create({
       model,
       messages,
@@ -578,6 +578,48 @@ async function callLLM({ messages, model, temperature, max_tokens, diag=false })
 
     const metrics = ARG_METRICS ? finalizeMetrics(meter) : null;
     return { text, metrics };
+  }
+
+  // --- Built-in Anthropic fallback (non-streaming for simplicity) ---
+  if (PROVIDER === "anthropic") {
+    if (!Anthropic) throw new Error("Anthropic SDK not installed. Run: npm i -E @anthropic-ai/sdk@^0");
+    if (!process.env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not set.");
+
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+    // transform OpenAI-style messages -> Anthropic Messages format ({system, messages})
+    let system; const msgs = [];
+    for (const m of (messages || [])) {
+      if (m.role === "system") system = typeof m.content === "string" ? m.content : String(m.content ?? "");
+      else if (m.role === "user" || m.role === "assistant") {
+        msgs.push({ role: m.role, content: typeof m.content === "string" ? m.content : String(m.content ?? "") });
+      }
+    }
+
+    const meter = startStreamTimer();
+    const resp = await client.messages.create({
+      model: model || "claude-3-5-sonnet-20241022",
+      max_tokens: typeof max_tokens === "number" ? max_tokens : 180,
+      temperature: typeof temperature === "number" ? temperature : 0.2,
+      system,
+      messages: msgs.length ? msgs : [{ role: "user", content: "" }]
+    });
+
+    const text = (resp?.content || [])
+      .filter(p => p.type === "text")
+      .map(p => p.text)
+      .join("");
+
+    onChunkTimer(meter, text || "");
+    const metrics = ARG_METRICS ? finalizeMetrics(meter) : null;
+    return { text, metrics };
+  }
+
+  // --- Mistral ---
+  // For Mistral we currently require an adapter (recommended: adapters/mistral_chat.js).
+  // This avoids chasing evolving SDK/streaming signatures and keeps your runner stable.
+  if (PROVIDER === "mistral") {
+    throw new Error("Mistral is adapter-only in this runner. Set LLM_EXEC=node adapters/mistral_chat.js");
   }
 
   // If we got here: neither an adapter was provided nor a built-in provider is available
@@ -600,7 +642,7 @@ async function run() {
   }
 
   if (ARG_DIAG) {
-    console.log("=== UIA Engine v3.3 (provider-agnostic) ===");
+    console.log("=== UIA Engine v3.5 (provider-agnostic) ===");
     console.log("Provider:", PROVIDER, "| Adapter:", LLM_EXEC || "(none)");
     console.log("Model flag:", ARG_MODEL);
     console.log("Scope:", selectedA.join(", "));
@@ -736,6 +778,7 @@ async function run() {
 
   if (ARG_DIAG) {
     console.log(`Done. Success: ${success}/${jobs.length}, Fail: ${fail}`);
+    console.log(`Log saved to: ${LOG_PATH}`);
   }
 }
 
