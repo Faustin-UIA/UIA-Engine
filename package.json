@@ -1,17 +1,29 @@
 {
   "name": "uia-engine",
-  "version": "0.0.1",
-  "description": "UIA mini-engine v0 (rule-based, no AI)",
+  "version": "0.0.2",
+  "description": "UIA Engine v3.6 – unified OpenAI, Anthropic, and Mistral benchmark runner",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "node index.js --A=all --prompts=2 --diag=true"
   },
   "license": "MIT",
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.67.0",
-    "openai": "^6.7.0"
+    "@anthropic-ai/sdk": "^0.68.0",
+    "@mistralai/mistralai": "^0.5.0",
+    "openai": "^4.104.0"
   },
-  "keywords": [],
-  "author": ""
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "uia",
+    "benchmark",
+    "openai",
+    "anthropic",
+    "mistral",
+    "telemetry"
+  ],
+  "author": "Faustin-UIA"
 }
