@@ -3,7 +3,7 @@ name: UIA Bench (Claude Main)
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 6 * * *"  # Offset by 1 hour from OpenAI to avoid overlap
+    - cron: "0 6 * * *"  # 06:00 UTC, one hour after OpenAI job
 
 permissions:
   contents: write
@@ -15,7 +15,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 30  # Slightly longer for potential Claude latency
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
@@ -25,7 +25,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: npm
 
       - name: Install deps
         run: npm ci || npm i
@@ -34,146 +34,30 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PROVIDER: anthropic
-          LLM_EXEC: node adapters/anthropic_chat.js
+          MODEL: claude-3-5-sonnet-20241022
+          # If you later add an adapter (e.g., adapters/anthropic_chat.js), uncomment:
+          # LLM_EXEC: node adapters/anthropic_chat.js
         run: |
           set -euo pipefail
           mkdir -p results
           TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
           LOG="results/uia_claude_${TS}.jsonl"
           echo "::notice title=UIA Bench (Claude)::Log -> ${LOG}"
-          
-          # Run with Claude 3.5 Sonnet (fast, good balance)
           node index.js \
-            --A=all --prompts=2 --concurrency=3 \
-            --model=claude-3-5-sonnet-20241022 --t=0.2 --max_tokens=180 \
+            --A=all --prompts=2 --concurrency=4 \
+            --model="${MODEL}" --t=0.2 --max_tokens=180 \
             --metrics=true --diag=true --log="${LOG}"
-          
-          echo "LOG_PATH=${LOG}" >> $GITHUB_ENV
+          echo "LOG_PATH=${LOG}" >> "$GITHUB_ENV"
 
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
-          name: uia-claude-results-${{ github.run_number }}
+          name: uia-claude-results
           path: ${{ env.LOG_PATH }}
           if-no-files-found: error
-          retention-days: 30
 
-      - name: Parse metrics summary
-        if: success()
+      - name: Summarize
         run: |
-          echo "## UIA Bench Results (Claude)" >> $GITHUB_STEP_SUMMARY
-          echo "**Model**: claude-3-5-sonnet-20241022" >> $GITHUB_STEP_SUMMARY
-          echo "**Log**: \`${{ env.LOG_PATH }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Extract basic stats
-          TOTAL=$(grep '"event":"PROMPT_RESULT"' "${{ env.LOG_PATH }}" | wc -l || echo 0)
-          SUCCESS=$(grep '"event":"RUN_END"' "${{ env.LOG_PATH }}" | jq -r '.success' || echo 0)
-          FAIL=$(grep '"event":"RUN_END"' "${{ env.LOG_PATH }}" | jq -r '.fail' || echo 0)
-          
-          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Total Tests | $TOTAL |" >> $GITHUB_STEP_SUMMARY
-          echo "| Success | $SUCCESS |" >> $GITHUB_STEP_SUMMARY
-          echo "| Failed | $FAIL |" >> $GITHUB_STEP_SUMMARY
-          
-          # Extract latency stats if available
-          if [ -f "${{ env.LOG_PATH }}" ]; then
-            AVG_BASELINE=$(grep '"phase":"baseline"' "${{ env.LOG_PATH }}" | \
-              jq -r '.output_ms' 2>/dev/null | \
-              awk '{s+=$1; n++} END {if(n>0) printf "%.0f", s/n; else print "N/A"}')
-            
-            AVG_UIA=$(grep '"phase":"uia"' "${{ env.LOG_PATH }}" | \
-              jq -r '.output_ms' 2>/dev/null | \
-              awk '{s+=$1; n++} END {if(n>0) printf "%.0f", s/n; else print "N/A"}')
-            
-            echo "| Avg Baseline Latency | ${AVG_BASELINE}ms |" >> $GITHUB_STEP_SUMMARY
-            echo "| Avg UIA Latency | ${AVG_UIA}ms |" >> $GITHUB_STEP_SUMMARY
-          fi
-
-      # Optional: Compare with OpenAI results if both exist
-      - name: Cross-provider comparison
-        if: success()
-        continue-on-error: true
-        run: |
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Cross-Provider Insights" >> $GITHUB_STEP_SUMMARY
-          
-          # Find most recent OpenAI run for comparison
-          LATEST_OPENAI=$(ls -t results/uia_openai_*.jsonl 2>/dev/null | head -1 || echo "")
-          
-          if [ -n "$LATEST_OPENAI" ] && [ -f "$LATEST_OPENAI" ]; then
-            echo "Comparing with OpenAI run: \`$(basename $LATEST_OPENAI)\`" >> $GITHUB_STEP_SUMMARY
-            
-            # Extract self-reference counts for comparison
-            CLAUDE_SELF_REF=$(grep '"self_reference_count"' "${{ env.LOG_PATH }}" | \
-              jq -r '.metrics.self_reference_count' 2>/dev/null | \
-              awk '{s+=$1} END {print s}')
-            
-            OPENAI_SELF_REF=$(grep '"self_reference_count"' "$LATEST_OPENAI" | \
-              jq -r '.metrics.self_reference_count' 2>/dev/null | \
-              awk '{s+=$1} END {print s}')
-            
-            echo "| Provider | Total Self-References |" >> $GITHUB_STEP_SUMMARY
-            echo "|----------|----------------------|" >> $GITHUB_STEP_SUMMARY
-            echo "| Claude | ${CLAUDE_SELF_REF:-0} |" >> $GITHUB_STEP_SUMMARY
-            echo "| OpenAI | ${OPENAI_SELF_REF:-0} |" >> $GITHUB_STEP_SUMMARY
-          fi
-
-  # Run variant tests with different Claude models
-  variant-tests:
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    needs: run  # Run after main test
-    if: github.event_name == 'workflow_dispatch'  # Only on manual trigger
-    
-    strategy:
-      matrix:
-        model:
-          - claude-3-5-sonnet-20241022  # Latest Sonnet
-          - claude-3-5-haiku-20241022   # Fast, economical
-          - claude-3-opus-20240229       # Most capable
-        temperature: [0.0, 0.5, 1.0]
-      max-parallel: 2  # Rate limit protection
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Install deps
-        run: npm ci || npm i
-
-      - name: Run variant test
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          PROVIDER: anthropic
-          LLM_EXEC: node adapters/anthropic_chat.js
-        run: |
-          set -euo pipefail
-          mkdir -p results/variants
-          
-          MODEL_SHORT=$(echo "${{ matrix.model }}" | sed 's/claude-3-5-/c35-/;s/claude-3-/c3-/;s/-20[0-9]*//g')
-          TEMP_SHORT=$(echo "${{ matrix.temperature }}" | tr '.' '_')
-          TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
-          LOG="results/variants/uia_${MODEL_SHORT}_t${TEMP_SHORT}_${TS}.jsonl"
-          
-          echo "Testing: ${{ matrix.model }} @ t=${{ matrix.temperature }}"
-          
-          node index.js \
-            --A=A4 --prompts=1 --concurrency=1 \
-            --model="${{ matrix.model }}" --t=${{ matrix.temperature }} --max_tokens=180 \
-            --metrics=true --log="${LOG}"
-
-      - name: Upload variant results
-        uses: actions/upload-artifact@v4
-        with:
-          name: uia-claude-variant-${{ strategy.job-index }}
-          path: results/variants/
-          if-no-files-found: warn
-          retention-days: 7
+          echo "### UIA Bench (Claude)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Model: claude-3-5-sonnet-20241022" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Log: \`${{ env.LOG_PATH }}\`" >> "$GITHUB_STEP_SUMMARY"
