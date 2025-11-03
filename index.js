@@ -545,54 +545,72 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
   }
 
   // --- Mistral (non-streaming) ---
-  if (PROVIDER === "mistral") {
-    let MistralClient;
-    try { ({ MistralClient } = await import("@mistralai/mistralai")); }
-    catch { throw new Error("Mistral SDK not installed. Run: npm i -E @mistralai/mistralai@^0"); }
-
-    if (!process.env.MISTRAL_API_KEY) throw new Error("MISTRAL_API_KEY is not set.");
-    const client = new MistralClient({ apiKey: process.env.MISTRAL_API_KEY });
-
-    const normalizeMessages = (msgs = []) =>
-      msgs
-        .filter(m => m && (m.role === "system" || m.role === "user" || m.role === "assistant"))
-        .map(m => ({ role: m.role, content: typeof m.content === "string" ? m.content : String(m.content ?? "") }));
-
-    const extractText = (resp) => {
-      if (typeof resp?.output_text === "string") return resp.output_text;
-      const choice = resp?.choices?.[0];
-      const msg = choice?.message;
-      if (!msg) return "";
-      if (typeof msg.content === "string") return msg.content;
-      if (Array.isArray(msg.content)) {
-        return msg.content
-          .map(x => (typeof x === "string" ? x : (x?.text ?? "")))
-          .filter(Boolean)
-          .join("");
-      }
-      return "";
-    };
-
-    const meter = startStreamTimer();
-    const req = {
-      model: model || "mistral-large-latest",
-      messages: normalizeMessages(messages),
-      temperature: temperature ?? 0.2,
-      // IMPORTANT: camelCase for Mistral:
-      maxTokens: (typeof max_tokens === "number" ? max_tokens : 180)
-    };
-
-    let resp;
-    try { resp = await client.chat.complete(req); }
-    catch { resp = await client.chat(req); }
-
-    const text = extractText(resp) || "";
-    onChunkTimer(meter, text);
-    const metrics = ARG_METRICS ? finalizeMetrics(meter) : null;
-    return { text, metrics };
+  // --- Mistral (non-streaming) ---
+if (PROVIDER === "mistral") {
+  // IMPORTANT: default export, not a named export
+  let MistralClient;
+  try {
+    ({ default: MistralClient } = await import("@mistralai/mistralai"));
+  } catch {
+    throw new Error("Mistral SDK not installed. Run: npm i -E @mistralai/mistralai@^0");
   }
 
-  throw new Error("Unknown or unsupported PROVIDER: " + PROVIDER);
+  if (!process.env.MISTRAL_API_KEY) throw new Error("MISTRAL_API_KEY is not set.");
+  const client = new MistralClient({ apiKey: process.env.MISTRAL_API_KEY });
+
+  const normalizeMessages = (msgs = []) =>
+    msgs
+      .filter(m => m && (m.role === "system" || m.role === "user" || m.role === "assistant"))
+      .map(m => ({ role: m.role, content: typeof m.content === "string" ? m.content : String(m.content ?? "") }));
+
+  const extractText = (resp) => {
+    // Handle multiple SDK shapes
+    if (typeof resp?.output_text === "string") return resp.output_text;
+    if (Array.isArray(resp?.output) && resp.output.length) {
+      // Some SDKs return { output: [ { content: [{ type:'text', text:'...' }] } ] }
+      const items = resp.output.flatMap(o => Array.isArray(o?.content) ? o.content : []);
+      return items.map(c => c?.text || (typeof c === "string" ? c : "")).filter(Boolean).join("");
+    }
+    const choice = resp?.choices?.[0];
+    const msg = choice?.message;
+    if (!msg) return "";
+    if (typeof msg.content === "string") return msg.content;
+    if (Array.isArray(msg.content)) {
+      return msg.content
+        .map(x => (typeof x === "string" ? x : (x?.text ?? "")))
+        .filter(Boolean)
+        .join("");
+    }
+    return "";
+  };
+
+  const meter = startStreamTimer();
+  const req = {
+    model: model || "mistral-large-latest",
+    messages: normalizeMessages(messages),
+    temperature: (typeof temperature === "number" ? temperature : 0.2),
+    // Be liberal: support both spellings across SDK versions
+    max_tokens: (typeof max_tokens === "number" ? max_tokens : 180),
+    maxTokens:  (typeof max_tokens === "number" ? max_tokens : 180)
+  };
+
+  let resp;
+  try {
+    // Newer SDKs
+    resp = await client.chat.complete(req);
+  } catch {
+    try {
+      // Older SDKs
+      resp = await client.chat(req);
+    } catch (e2) {
+      throw new Error(`Mistral chat call failed: ${e2?.message || e2}`);
+    }
+  }
+
+  const text = extractText(resp) || "";
+  onChunkTimer(meter, text);
+  const metrics = ARG_METRICS ? finalizeMetrics(meter) : null;
+  return { text, metrics };
 }
 
 /* ---------- Selection & sanity ---------- */
