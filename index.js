@@ -598,7 +598,7 @@ async function run() {
   const jobs = [];
   for (const A of selectedA) {
     const arr = Array.isArray(PROMPTS[A]) ? PROMPTS[A] : [];
-    for (let i=0;i<Math.min(ARG_PROMPTS, arr.length); i++){
+    for (let i = 0; i < arr.length; i++){
       jobs.push({ A, idx: i, text: arr[i] });
     }
   }
