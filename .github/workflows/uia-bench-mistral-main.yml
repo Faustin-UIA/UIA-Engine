@@ -2,6 +2,11 @@ name: UIA Bench (Mistral Main)
 
 on:
   workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch or tag to run from"
+        required: false
+        default: ""
   schedule:
     - cron: "0 7 * * *"  # 07:00 UTC
 
@@ -20,6 +25,28 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # If the workflow was manually dispatched with a ref, honor it; else use the default.
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - name: Show commit, ref, and file snapshot
+        run: |
+          echo "GITHUB_REF=${GITHUB_REF}"
+          echo "GITHUB_SHA=${GITHUB_SHA}"
+          git log --oneline -1
+          echo "Repo root:"
+          ls -la
+          echo "index.js md5 + head:"
+          (md5sum index.js || gmd5sum index.js || shasum index.js) 2>/dev/null || true
+          head -n 8 index.js || true
+
+      - name: Assert index.js version marker (v3.8)
+        run: |
+          if ! grep -q "UIA Engine v3.8" index.js; then
+            echo "::error ::index.js is not the expected version (missing 'UIA Engine v3.8' marker)."
+            exit 1
+          fi
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -27,18 +54,16 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Install deps (lockfile) + force Mistral SDK
+      - name: Install deps + force Mistral SDK
         run: |
           set -e
           npm ci || npm i
-          # Force-install Mistral SDK in CI even if lockfile missed it:
           npm i -E @mistralai/mistralai@^0
 
-      - name: Verify Mistral SDK is resolvable
+      - name: Sanity import Mistral (same node context)
         run: |
-          node -e "import('@mistralai/mistralai').then(()=>console.log('Mistral SDK: OK')).catch(e=>{console.error('Mistral SDK: MISSING');process.exit(1)})"
+          node -e "import('@mistralai/mistralai').then(m=>{console.log('Mistral OK:', Object.keys(m))}).catch(e=>{console.error(e);process.exit(1)})"
 
-      # Optional: list models to confirm key works
       - name: List Mistral models (debug)
         env:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
