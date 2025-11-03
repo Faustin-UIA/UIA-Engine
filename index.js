@@ -618,9 +618,52 @@ async function callLLM({ messages, model, temperature, max_tokens, diag=false })
   // --- Mistral ---
   // For Mistral we currently require an adapter (recommended: adapters/mistral_chat.js).
   // This avoids chasing evolving SDK/streaming signatures and keeps your runner stable.
-  if (PROVIDER === "mistral") {
-    throw new Error("Mistral is adapter-only in this runner. Set LLM_EXEC=node adapters/mistral_chat.js");
+  // --- Built-in Mistral fallback (non-streaming, simple & stable) ---
+if (PROVIDER === "mistral") {
+  if (!MistralClient) throw new Error("Mistral SDK not installed. Run: npm i -E @mistralai/mistralai@^0");
+  if (!process.env.MISTRAL_API_KEY) throw new Error("MISTRAL_API_KEY is not set.");
+
+  // helpers local to this block
+  const normalizeMessages = (msgs = []) =>
+    msgs
+      .filter(m => m && (m.role === "system" || m.role === "user" || m.role === "assistant"))
+      .map(m => ({ role: m.role, content: typeof m.content === "string" ? m.content : String(m.content ?? "") }));
+
+  const extractText = (resp) => {
+    if (typeof resp?.output_text === "string") return resp.output_text;
+    const choice = resp?.choices?.[0];
+    const msg = choice?.message;
+    if (!msg) return "";
+    if (typeof msg.content === "string") return msg.content;
+    if (Array.isArray(msg.content)) {
+      return msg.content.map(x => (typeof x === "string" ? x : (x?.text ?? ""))).filter(Boolean).join("");
+    }
+    return "";
+  };
+
+  const client = new MistralClient({ apiKey: process.env.MISTRAL_API_KEY });
+  const meter = startStreamTimer();
+
+  const req = {
+    model: model || "mistral-large-latest",
+    messages: normalizeMessages(messages),
+    temperature: typeof temperature === "number" ? temperature : 0.2,
+    max_tokens: typeof max_tokens === "number" ? max_tokens : 180
+  };
+
+  // prefer chat.complete; fall back if SDK version differs
+  let resp;
+  try {
+    resp = await client.chat.complete(req);
+  } catch {
+    resp = await client.chat(req);
   }
+
+  const text = extractText(resp) || "";
+  onChunkTimer(meter, text);
+  const metrics = ARG_METRICS ? finalizeMetrics(meter) : null;
+  return { text, metrics };
+}
 
   // If we got here: neither an adapter was provided nor a built-in provider is available
   throw new Error("LLM_EXEC is not set and no built-in provider fallback is available for: " + PROVIDER);
