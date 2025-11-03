@@ -1,0 +1,70 @@
+name: UIA Bench (Mistral Main)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 7 * * *"  # 07:00 UTC, after Claude
+
+permissions:
+  contents: write
+
+concurrency:
+  group: uia-bench-mistral-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps
+        run: npm ci || npm i
+
+      # Optional: quick visibility on what models your key can use
+      - name: List Mistral models (debug)
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: |
+          curl -s https://api.mistral.ai/v1/models \
+            -H "Authorization: Bearer $MISTRAL_API_KEY" | jq '.data[].id' || true
+
+      - name: Run UIA Bench (Mistral Large)
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          PROVIDER: mistral
+          MODEL: mistral-large-latest          # Mistral Large agent
+          LLM_EXEC: node adapters/mistral_chat.js
+        run: |
+          set -euo pipefail
+          mkdir -p results
+          TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
+          LOG="results/uia_mistral_${TS}.jsonl"
+          echo "::notice title=UIA Bench (Mistral)::Log -> ${LOG}"
+          node index.js \
+            --A=all --prompts=2 --concurrency=4 \
+            --model="${MODEL}" --t=0.2 --max_tokens=180 \
+            --metrics=true --diag=true --log="${LOG}"
+          echo "LOG_PATH=${LOG}" >> "$GITHUB_ENV"
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: uia-mistral-results
+          path: ${{ env.LOG_PATH }}
+          if-no-files-found: error
+
+      - name: Summarize
+        run: |
+          echo "### UIA Bench (Mistral)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Model: mistral-large-latest" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Log: \`${{ env.LOG_PATH }}\`" >> "$GITHUB_STEP_SUMMARY"
