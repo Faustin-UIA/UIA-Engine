@@ -3,7 +3,7 @@ name: UIA Bench (OpenAI Main)
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 5 * * *"
+    - cron: "0 5 * * *"  # 05:00 UTC daily
 
 permissions:
   contents: write
@@ -25,16 +25,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: npm
 
       - name: Install deps
         run: npm ci || npm i
 
+      # NOTE: Default path uses built-in OpenAI fallback in index.js.
+      # If you later add an adapter at adapters/openai_chat.js and want to use it,
+      # uncomment the LLM_EXEC line in the "Run UIA Bench (OpenAI)" step below.
       - name: Run UIA Bench (OpenAI)
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           PROVIDER: openai
-          LLM_EXEC: node adapters/openai_chat.js
+          # LLM_EXEC: node adapters/openai_chat.js   # ← enable ONLY if adapter exists & works
         run: |
           set -euo pipefail
           mkdir -p results
@@ -45,7 +48,7 @@ jobs:
             --A=all --prompts=2 --concurrency=4 \
             --model=gpt-4o-mini --t=0.2 --max_tokens=180 \
             --metrics=true --diag=true --log="${LOG}"
-          echo "LOG_PATH=${LOG}" >> $GITHUB_ENV
+          echo "LOG_PATH=${LOG}" >> "$GITHUB_ENV"
 
       - name: Upload results
         uses: actions/upload-artifact@v4
@@ -53,3 +56,9 @@ jobs:
           name: uia-openai-results
           path: ${{ env.LOG_PATH }}
           if-no-files-found: error
+
+      - name: Summarize
+        run: |
+          echo "### UIA Bench (OpenAI)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Model: gpt-4o-mini" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Log: \`${{ env.LOG_PATH }}\`" >> "$GITHUB_STEP_SUMMARY"
