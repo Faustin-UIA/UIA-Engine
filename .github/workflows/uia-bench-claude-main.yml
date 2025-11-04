@@ -55,7 +55,7 @@ jobs:
             --concurrency=4 \
             --model="${MODEL}" \
             --t=0.2 \
-            --max_tokens=180 \
+            --max_tokens=120 \
             --metrics=true \
             --diag=true \
             --log="${LOG}"
