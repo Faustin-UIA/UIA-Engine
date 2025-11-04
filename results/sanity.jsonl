@@ -1,0 +1,1086 @@
+{"event":"RUN_START","ts":"2025-11-03T19:44:45.793Z","provider":"mistral","model":null,"scope":["A1","A2","A3","A4","A5","A6","A7","A8","A9"],"prompts_limit_per_A":"all","concurrency":6,"metrics":true}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.800Z","A":"A1","prompt_id":"A1:0","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.800Z","A":"A1","prompt_id":"A1:1","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.800Z","A":"A1","prompt_id":"A1:2","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.800Z","A":"A1","prompt_id":"A1:3","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.801Z","A":"A1","prompt_id":"A1:4","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.801Z","A":"A1","prompt_id":"A1:5","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.802Z","A":"A1","prompt_id":"A1:6","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.802Z","A":"A1","prompt_id":"A1:7","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.803Z","A":"A1","prompt_id":"A1:8","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.803Z","A":"A1","prompt_id":"A1:9","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.803Z","A":"A1","prompt_id":"A1:10","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.803Z","A":"A1","prompt_id":"A1:11","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.805Z","A":"A1","prompt_id":"A1:12","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.805Z","A":"A1","prompt_id":"A1:13","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.805Z","A":"A1","prompt_id":"A1:14","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.805Z","A":"A1","prompt_id":"A1:15","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.805Z","A":"A1","prompt_id":"A1:16","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.805Z","A":"A1","prompt_id":"A1:17","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.807Z","A":"A1","prompt_id":"A1:18","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.807Z","A":"A1","prompt_id":"A1:19","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.807Z","A":"A1","prompt_id":"A1:20","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.807Z","A":"A1","prompt_id":"A1:21","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.807Z","A":"A1","prompt_id":"A1:22","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.807Z","A":"A1","prompt_id":"A1:23","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.808Z","A":"A1","prompt_id":"A1:24","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.808Z","A":"A1","prompt_id":"A1:25","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.808Z","A":"A1","prompt_id":"A1:26","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.809Z","A":"A1","prompt_id":"A1:27","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.809Z","A":"A1","prompt_id":"A1:28","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.809Z","A":"A1","prompt_id":"A1:29","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.810Z","A":"A1","prompt_id":"A1:30","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.810Z","A":"A1","prompt_id":"A1:31","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.810Z","A":"A1","prompt_id":"A1:32","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.810Z","A":"A1","prompt_id":"A1:33","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.810Z","A":"A1","prompt_id":"A1:34","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.810Z","A":"A1","prompt_id":"A1:35","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.811Z","A":"A1","prompt_id":"A1:36","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.811Z","A":"A1","prompt_id":"A1:37","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.811Z","A":"A1","prompt_id":"A1:38","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.811Z","A":"A1","prompt_id":"A1:39","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.811Z","A":"A2","prompt_id":"A2:0","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.811Z","A":"A2","prompt_id":"A2:1","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.812Z","A":"A2","prompt_id":"A2:2","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.812Z","A":"A2","prompt_id":"A2:3","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.812Z","A":"A2","prompt_id":"A2:4","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.812Z","A":"A2","prompt_id":"A2:5","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.812Z","A":"A2","prompt_id":"A2:6","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.812Z","A":"A2","prompt_id":"A2:7","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.815Z","A":"A2","prompt_id":"A2:8","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.815Z","A":"A2","prompt_id":"A2:9","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.815Z","A":"A2","prompt_id":"A2:10","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.815Z","A":"A2","prompt_id":"A2:11","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.815Z","A":"A2","prompt_id":"A2:12","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.815Z","A":"A2","prompt_id":"A2:13","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.816Z","A":"A2","prompt_id":"A2:14","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.816Z","A":"A2","prompt_id":"A2:15","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.816Z","A":"A2","prompt_id":"A2:16","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.816Z","A":"A2","prompt_id":"A2:17","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.816Z","A":"A2","prompt_id":"A2:18","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.817Z","A":"A2","prompt_id":"A2:19","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.817Z","A":"A2","prompt_id":"A2:20","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.817Z","A":"A2","prompt_id":"A2:21","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.818Z","A":"A2","prompt_id":"A2:22","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.818Z","A":"A2","prompt_id":"A2:23","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.818Z","A":"A2","prompt_id":"A2:24","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.818Z","A":"A2","prompt_id":"A2:25","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.819Z","A":"A2","prompt_id":"A2:26","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.819Z","A":"A2","prompt_id":"A2:27","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.819Z","A":"A2","prompt_id":"A2:28","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.819Z","A":"A2","prompt_id":"A2:29","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.819Z","A":"A2","prompt_id":"A2:30","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.819Z","A":"A2","prompt_id":"A2:31","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.820Z","A":"A2","prompt_id":"A2:32","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.820Z","A":"A2","prompt_id":"A2:33","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.820Z","A":"A2","prompt_id":"A2:34","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.820Z","A":"A2","prompt_id":"A2:35","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.820Z","A":"A2","prompt_id":"A2:36","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.820Z","A":"A2","prompt_id":"A2:37","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.822Z","A":"A2","prompt_id":"A2:38","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.822Z","A":"A2","prompt_id":"A2:39","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.822Z","A":"A3","prompt_id":"A3:0","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.822Z","A":"A3","prompt_id":"A3:1","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.822Z","A":"A3","prompt_id":"A3:2","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.822Z","A":"A3","prompt_id":"A3:3","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.823Z","A":"A3","prompt_id":"A3:4","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.823Z","A":"A3","prompt_id":"A3:5","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.823Z","A":"A3","prompt_id":"A3:6","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.823Z","A":"A3","prompt_id":"A3:7","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.823Z","A":"A3","prompt_id":"A3:8","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.823Z","A":"A3","prompt_id":"A3:9","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.824Z","A":"A3","prompt_id":"A3:10","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.824Z","A":"A3","prompt_id":"A3:11","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.824Z","A":"A3","prompt_id":"A3:12","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.824Z","A":"A3","prompt_id":"A3:13","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.824Z","A":"A3","prompt_id":"A3:14","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.824Z","A":"A3","prompt_id":"A3:15","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.826Z","A":"A3","prompt_id":"A3:16","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.826Z","A":"A3","prompt_id":"A3:17","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.826Z","A":"A3","prompt_id":"A3:18","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.826Z","A":"A3","prompt_id":"A3:19","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.826Z","A":"A3","prompt_id":"A3:20","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.826Z","A":"A3","prompt_id":"A3:21","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.827Z","A":"A3","prompt_id":"A3:22","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.827Z","A":"A3","prompt_id":"A3:23","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.827Z","A":"A3","prompt_id":"A3:24","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.827Z","A":"A3","prompt_id":"A3:25","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.827Z","A":"A3","prompt_id":"A3:26","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.828Z","A":"A3","prompt_id":"A3:27","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.828Z","A":"A3","prompt_id":"A3:28","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.828Z","A":"A3","prompt_id":"A3:29","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.828Z","A":"A3","prompt_id":"A3:30","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.829Z","A":"A3","prompt_id":"A3:31","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.829Z","A":"A3","prompt_id":"A3:32","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.829Z","A":"A3","prompt_id":"A3:33","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.830Z","A":"A3","prompt_id":"A3:34","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.830Z","A":"A3","prompt_id":"A3:35","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.830Z","A":"A3","prompt_id":"A3:36","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.830Z","A":"A3","prompt_id":"A3:37","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.830Z","A":"A3","prompt_id":"A3:38","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.830Z","A":"A3","prompt_id":"A3:39","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.831Z","A":"A4","prompt_id":"A4:0","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.831Z","A":"A4","prompt_id":"A4:1","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.831Z","A":"A4","prompt_id":"A4:2","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.832Z","A":"A4","prompt_id":"A4:3","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.832Z","A":"A4","prompt_id":"A4:4","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.832Z","A":"A4","prompt_id":"A4:5","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.832Z","A":"A4","prompt_id":"A4:6","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.832Z","A":"A4","prompt_id":"A4:7","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.833Z","A":"A4","prompt_id":"A4:8","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.833Z","A":"A4","prompt_id":"A4:9","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.833Z","A":"A4","prompt_id":"A4:10","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.833Z","A":"A4","prompt_id":"A4:11","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.834Z","A":"A4","prompt_id":"A4:12","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.834Z","A":"A4","prompt_id":"A4:13","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.834Z","A":"A4","prompt_id":"A4:14","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.834Z","A":"A4","prompt_id":"A4:15","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.834Z","A":"A4","prompt_id":"A4:16","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.834Z","A":"A4","prompt_id":"A4:17","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.835Z","A":"A4","prompt_id":"A4:18","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.835Z","A":"A4","prompt_id":"A4:19","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.835Z","A":"A4","prompt_id":"A4:20","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.835Z","A":"A4","prompt_id":"A4:21","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.835Z","A":"A4","prompt_id":"A4:22","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.835Z","A":"A4","prompt_id":"A4:23","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.836Z","A":"A4","prompt_id":"A4:24","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.837Z","A":"A4","prompt_id":"A4:25","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.837Z","A":"A4","prompt_id":"A4:26","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.837Z","A":"A4","prompt_id":"A4:27","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.837Z","A":"A4","prompt_id":"A4:28","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.837Z","A":"A4","prompt_id":"A4:29","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.838Z","A":"A4","prompt_id":"A4:30","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.838Z","A":"A4","prompt_id":"A4:31","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.838Z","A":"A4","prompt_id":"A4:32","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.838Z","A":"A4","prompt_id":"A4:33","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.838Z","A":"A4","prompt_id":"A4:34","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.838Z","A":"A4","prompt_id":"A4:35","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.840Z","A":"A4","prompt_id":"A4:36","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.840Z","A":"A4","prompt_id":"A4:37","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.840Z","A":"A4","prompt_id":"A4:38","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.840Z","A":"A4","prompt_id":"A4:39","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.840Z","A":"A5","prompt_id":"A5:0","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.840Z","A":"A5","prompt_id":"A5:1","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.842Z","A":"A5","prompt_id":"A5:2","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.842Z","A":"A5","prompt_id":"A5:3","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.842Z","A":"A5","prompt_id":"A5:4","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.842Z","A":"A5","prompt_id":"A5:5","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.842Z","A":"A5","prompt_id":"A5:6","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.842Z","A":"A5","prompt_id":"A5:7","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.843Z","A":"A5","prompt_id":"A5:8","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.843Z","A":"A5","prompt_id":"A5:9","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.843Z","A":"A5","prompt_id":"A5:10","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.843Z","A":"A5","prompt_id":"A5:11","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.844Z","A":"A5","prompt_id":"A5:12","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.844Z","A":"A5","prompt_id":"A5:13","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.845Z","A":"A5","prompt_id":"A5:14","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.845Z","A":"A5","prompt_id":"A5:15","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.845Z","A":"A5","prompt_id":"A5:16","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.845Z","A":"A5","prompt_id":"A5:17","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.845Z","A":"A5","prompt_id":"A5:18","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.845Z","A":"A5","prompt_id":"A5:19","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.846Z","A":"A5","prompt_id":"A5:20","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.846Z","A":"A5","prompt_id":"A5:21","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.847Z","A":"A5","prompt_id":"A5:22","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.847Z","A":"A5","prompt_id":"A5:23","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.847Z","A":"A5","prompt_id":"A5:24","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.847Z","A":"A5","prompt_id":"A5:25","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.848Z","A":"A5","prompt_id":"A5:26","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.848Z","A":"A5","prompt_id":"A5:27","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.848Z","A":"A5","prompt_id":"A5:28","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.848Z","A":"A5","prompt_id":"A5:29","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.848Z","A":"A5","prompt_id":"A5:30","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.848Z","A":"A5","prompt_id":"A5:31","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.849Z","A":"A5","prompt_id":"A5:32","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.850Z","A":"A5","prompt_id":"A5:33","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.850Z","A":"A5","prompt_id":"A5:34","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.850Z","A":"A5","prompt_id":"A5:35","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.850Z","A":"A5","prompt_id":"A5:36","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.850Z","A":"A5","prompt_id":"A5:37","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.851Z","A":"A5","prompt_id":"A5:38","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.851Z","A":"A5","prompt_id":"A5:39","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.851Z","A":"A6","prompt_id":"A6:0","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.851Z","A":"A6","prompt_id":"A6:1","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.851Z","A":"A6","prompt_id":"A6:2","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.851Z","A":"A6","prompt_id":"A6:3","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.852Z","A":"A6","prompt_id":"A6:4","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.853Z","A":"A6","prompt_id":"A6:5","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.853Z","A":"A6","prompt_id":"A6:6","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.853Z","A":"A6","prompt_id":"A6:7","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.853Z","A":"A6","prompt_id":"A6:8","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.853Z","A":"A6","prompt_id":"A6:9","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.854Z","A":"A6","prompt_id":"A6:10","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.854Z","A":"A6","prompt_id":"A6:11","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.854Z","A":"A6","prompt_id":"A6:12","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.854Z","A":"A6","prompt_id":"A6:13","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.854Z","A":"A6","prompt_id":"A6:14","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.855Z","A":"A6","prompt_id":"A6:15","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.856Z","A":"A6","prompt_id":"A6:16","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.856Z","A":"A6","prompt_id":"A6:17","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.856Z","A":"A6","prompt_id":"A6:18","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.856Z","A":"A6","prompt_id":"A6:19","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.856Z","A":"A6","prompt_id":"A6:20","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.856Z","A":"A6","prompt_id":"A6:21","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.857Z","A":"A6","prompt_id":"A6:22","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.857Z","A":"A6","prompt_id":"A6:23","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.857Z","A":"A6","prompt_id":"A6:24","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.858Z","A":"A6","prompt_id":"A6:25","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.858Z","A":"A6","prompt_id":"A6:26","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.858Z","A":"A6","prompt_id":"A6:27","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.859Z","A":"A6","prompt_id":"A6:28","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.859Z","A":"A6","prompt_id":"A6:29","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.859Z","A":"A6","prompt_id":"A6:30","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.862Z","A":"A6","prompt_id":"A6:31","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.862Z","A":"A6","prompt_id":"A6:32","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.862Z","A":"A6","prompt_id":"A6:33","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.864Z","A":"A6","prompt_id":"A6:34","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.864Z","A":"A6","prompt_id":"A6:35","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.864Z","A":"A6","prompt_id":"A6:36","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.864Z","A":"A6","prompt_id":"A6:37","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.864Z","A":"A6","prompt_id":"A6:38","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.864Z","A":"A6","prompt_id":"A6:39","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.865Z","A":"A7","prompt_id":"A7:0","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.865Z","A":"A7","prompt_id":"A7:1","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.865Z","A":"A7","prompt_id":"A7:2","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.866Z","A":"A7","prompt_id":"A7:3","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.866Z","A":"A7","prompt_id":"A7:4","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.866Z","A":"A7","prompt_id":"A7:5","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.867Z","A":"A7","prompt_id":"A7:6","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.867Z","A":"A7","prompt_id":"A7:7","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.867Z","A":"A7","prompt_id":"A7:8","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.867Z","A":"A7","prompt_id":"A7:9","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.867Z","A":"A7","prompt_id":"A7:10","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.867Z","A":"A7","prompt_id":"A7:11","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.868Z","A":"A7","prompt_id":"A7:12","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.868Z","A":"A7","prompt_id":"A7:13","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.868Z","A":"A7","prompt_id":"A7:14","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.869Z","A":"A7","prompt_id":"A7:15","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.869Z","A":"A7","prompt_id":"A7:16","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.869Z","A":"A7","prompt_id":"A7:17","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.870Z","A":"A7","prompt_id":"A7:18","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.870Z","A":"A7","prompt_id":"A7:19","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.870Z","A":"A7","prompt_id":"A7:20","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.870Z","A":"A7","prompt_id":"A7:21","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.870Z","A":"A7","prompt_id":"A7:22","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.870Z","A":"A7","prompt_id":"A7:23","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.872Z","A":"A7","prompt_id":"A7:24","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.872Z","A":"A7","prompt_id":"A7:25","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.872Z","A":"A7","prompt_id":"A7:26","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.872Z","A":"A7","prompt_id":"A7:27","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.872Z","A":"A7","prompt_id":"A7:28","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.872Z","A":"A7","prompt_id":"A7:29","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.873Z","A":"A7","prompt_id":"A7:30","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.874Z","A":"A7","prompt_id":"A7:31","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.874Z","A":"A7","prompt_id":"A7:32","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.874Z","A":"A7","prompt_id":"A7:33","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.874Z","A":"A7","prompt_id":"A7:34","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.874Z","A":"A7","prompt_id":"A7:35","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.876Z","A":"A7","prompt_id":"A7:36","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.876Z","A":"A7","prompt_id":"A7:37","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.876Z","A":"A7","prompt_id":"A7:38","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.876Z","A":"A7","prompt_id":"A7:39","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.876Z","A":"A8","prompt_id":"A8:0","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.876Z","A":"A8","prompt_id":"A8:1","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.877Z","A":"A8","prompt_id":"A8:2","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.877Z","A":"A8","prompt_id":"A8:3","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.878Z","A":"A8","prompt_id":"A8:4","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.878Z","A":"A8","prompt_id":"A8:5","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.878Z","A":"A8","prompt_id":"A8:6","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.878Z","A":"A8","prompt_id":"A8:7","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.879Z","A":"A8","prompt_id":"A8:8","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.879Z","A":"A8","prompt_id":"A8:9","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.879Z","A":"A8","prompt_id":"A8:10","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.879Z","A":"A8","prompt_id":"A8:11","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.879Z","A":"A8","prompt_id":"A8:12","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.879Z","A":"A8","prompt_id":"A8:13","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.881Z","A":"A8","prompt_id":"A8:14","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.881Z","A":"A8","prompt_id":"A8:15","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.881Z","A":"A8","prompt_id":"A8:16","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.881Z","A":"A8","prompt_id":"A8:17","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.881Z","A":"A8","prompt_id":"A8:18","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.881Z","A":"A8","prompt_id":"A8:19","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.883Z","A":"A8","prompt_id":"A8:20","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.883Z","A":"A8","prompt_id":"A8:21","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.883Z","A":"A8","prompt_id":"A8:22","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.883Z","A":"A8","prompt_id":"A8:23","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.883Z","A":"A8","prompt_id":"A8:24","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.883Z","A":"A8","prompt_id":"A8:25","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.884Z","A":"A8","prompt_id":"A8:26","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.884Z","A":"A8","prompt_id":"A8:27","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.884Z","A":"A8","prompt_id":"A8:28","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.884Z","A":"A8","prompt_id":"A8:29","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.884Z","A":"A8","prompt_id":"A8:30","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.884Z","A":"A8","prompt_id":"A8:31","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.886Z","A":"A8","prompt_id":"A8:32","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.886Z","A":"A8","prompt_id":"A8:33","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.886Z","A":"A8","prompt_id":"A8:34","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.886Z","A":"A8","prompt_id":"A8:35","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.886Z","A":"A8","prompt_id":"A8:36","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.886Z","A":"A8","prompt_id":"A8:37","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.887Z","A":"A8","prompt_id":"A8:38","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.887Z","A":"A8","prompt_id":"A8:39","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.887Z","A":"A9","prompt_id":"A9:0","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.887Z","A":"A9","prompt_id":"A9:1","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.887Z","A":"A9","prompt_id":"A9:2","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.887Z","A":"A9","prompt_id":"A9:3","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.889Z","A":"A9","prompt_id":"A9:4","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.889Z","A":"A9","prompt_id":"A9:5","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.889Z","A":"A9","prompt_id":"A9:6","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.889Z","A":"A9","prompt_id":"A9:7","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.889Z","A":"A9","prompt_id":"A9:8","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.889Z","A":"A9","prompt_id":"A9:9","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.890Z","A":"A9","prompt_id":"A9:10","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.890Z","A":"A9","prompt_id":"A9:11","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.890Z","A":"A9","prompt_id":"A9:12","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.890Z","A":"A9","prompt_id":"A9:13","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.891Z","A":"A9","prompt_id":"A9:14","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.891Z","A":"A9","prompt_id":"A9:15","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.892Z","A":"A9","prompt_id":"A9:16","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.892Z","A":"A9","prompt_id":"A9:17","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.892Z","A":"A9","prompt_id":"A9:18","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.892Z","A":"A9","prompt_id":"A9:19","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.892Z","A":"A9","prompt_id":"A9:20","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.892Z","A":"A9","prompt_id":"A9:21","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.894Z","A":"A9","prompt_id":"A9:22","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.894Z","A":"A9","prompt_id":"A9:23","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.894Z","A":"A9","prompt_id":"A9:24","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.894Z","A":"A9","prompt_id":"A9:25","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.894Z","A":"A9","prompt_id":"A9:26","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.894Z","A":"A9","prompt_id":"A9:27","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.896Z","A":"A9","prompt_id":"A9:28","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.896Z","A":"A9","prompt_id":"A9:29","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.896Z","A":"A9","prompt_id":"A9:30","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.896Z","A":"A9","prompt_id":"A9:31","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.896Z","A":"A9","prompt_id":"A9:32","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.897Z","A":"A9","prompt_id":"A9:33","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.898Z","A":"A9","prompt_id":"A9:34","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.898Z","A":"A9","prompt_id":"A9:35","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.898Z","A":"A9","prompt_id":"A9:36","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.898Z","A":"A9","prompt_id":"A9:37","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.898Z","A":"A9","prompt_id":"A9:38","error":"MistralClient is not a constructor"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:44:45.899Z","A":"A9","prompt_id":"A9:39","error":"MistralClient is not a constructor"}
+{"event":"RUN_END","ts":"2025-11-03T19:44:45.899Z","success":0,"fail":360}
+{"event":"RUN_START","ts":"2025-11-03T19:54:16.293Z","provider":"mistral","model":null,"scope":["A1","A2","A3","A4","A5","A6","A7","A8","A9"],"prompts_limit_per_A":"all","concurrency":6,"metrics":true}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.521Z","A":"A1","prompt_id":"A1:1","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.527Z","A":"A1","prompt_id":"A1:3","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.532Z","A":"A1","prompt_id":"A1:0","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.544Z","A":"A1","prompt_id":"A1:2","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.559Z","A":"A1","prompt_id":"A1:5","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.584Z","A":"A1","prompt_id":"A1:4","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.656Z","A":"A1","prompt_id":"A1:7","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.680Z","A":"A1","prompt_id":"A1:10","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.691Z","A":"A1","prompt_id":"A1:9","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.699Z","A":"A1","prompt_id":"A1:6","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.710Z","A":"A1","prompt_id":"A1:11","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.733Z","A":"A1","prompt_id":"A1:8","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.783Z","A":"A1","prompt_id":"A1:12","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.817Z","A":"A1","prompt_id":"A1:13","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.824Z","A":"A1","prompt_id":"A1:15","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.835Z","A":"A1","prompt_id":"A1:14","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.849Z","A":"A1","prompt_id":"A1:16","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.860Z","A":"A1","prompt_id":"A1:17","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.914Z","A":"A1","prompt_id":"A1:18","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.941Z","A":"A1","prompt_id":"A1:19","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.962Z","A":"A1","prompt_id":"A1:21","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.974Z","A":"A1","prompt_id":"A1:20","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:16.997Z","A":"A1","prompt_id":"A1:23","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.047Z","A":"A1","prompt_id":"A1:22","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.052Z","A":"A1","prompt_id":"A1:24","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.075Z","A":"A1","prompt_id":"A1:25","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.085Z","A":"A1","prompt_id":"A1:26","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.106Z","A":"A1","prompt_id":"A1:27","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.138Z","A":"A1","prompt_id":"A1:28","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.172Z","A":"A1","prompt_id":"A1:29","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.186Z","A":"A1","prompt_id":"A1:30","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.207Z","A":"A1","prompt_id":"A1:32","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.266Z","A":"A1","prompt_id":"A1:34","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.269Z","A":"A1","prompt_id":"A1:33","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.322Z","A":"A1","prompt_id":"A1:35","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.323Z","A":"A1","prompt_id":"A1:36","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.358Z","A":"A1","prompt_id":"A1:37","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.394Z","A":"A1","prompt_id":"A1:38","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.399Z","A":"A1","prompt_id":"A1:39","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.408Z","A":"A1","prompt_id":"A1:31","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.461Z","A":"A2","prompt_id":"A2:1","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.463Z","A":"A2","prompt_id":"A2:0","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.506Z","A":"A2","prompt_id":"A2:2","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.543Z","A":"A2","prompt_id":"A2:5","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.566Z","A":"A2","prompt_id":"A2:4","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.582Z","A":"A2","prompt_id":"A2:3","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.597Z","A":"A2","prompt_id":"A2:7","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.617Z","A":"A2","prompt_id":"A2:6","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.638Z","A":"A2","prompt_id":"A2:8","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.688Z","A":"A2","prompt_id":"A2:10","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.697Z","A":"A2","prompt_id":"A2:9","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.720Z","A":"A2","prompt_id":"A2:11","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.726Z","A":"A2","prompt_id":"A2:12","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.745Z","A":"A2","prompt_id":"A2:13","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.818Z","A":"A2","prompt_id":"A2:14","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.837Z","A":"A2","prompt_id":"A2:15","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.852Z","A":"A2","prompt_id":"A2:17","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.857Z","A":"A2","prompt_id":"A2:16","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.861Z","A":"A2","prompt_id":"A2:18","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.881Z","A":"A2","prompt_id":"A2:19","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.950Z","A":"A2","prompt_id":"A2:20","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.973Z","A":"A2","prompt_id":"A2:21","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.986Z","A":"A2","prompt_id":"A2:22","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:17.996Z","A":"A2","prompt_id":"A2:23","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.012Z","A":"A2","prompt_id":"A2:24","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.020Z","A":"A2","prompt_id":"A2:25","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.085Z","A":"A2","prompt_id":"A2:26","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.110Z","A":"A2","prompt_id":"A2:27","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.126Z","A":"A2","prompt_id":"A2:28","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.143Z","A":"A2","prompt_id":"A2:31","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.171Z","A":"A2","prompt_id":"A2:30","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.182Z","A":"A2","prompt_id":"A2:29","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.207Z","A":"A2","prompt_id":"A2:32","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.242Z","A":"A2","prompt_id":"A2:33","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.269Z","A":"A2","prompt_id":"A2:34","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.288Z","A":"A2","prompt_id":"A2:35","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.295Z","A":"A2","prompt_id":"A2:36","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.329Z","A":"A2","prompt_id":"A2:37","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.343Z","A":"A2","prompt_id":"A2:38","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.399Z","A":"A3","prompt_id":"A3:0","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.411Z","A":"A2","prompt_id":"A2:39","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.444Z","A":"A3","prompt_id":"A3:1","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.464Z","A":"A3","prompt_id":"A3:3","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.469Z","A":"A3","prompt_id":"A3:2","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.485Z","A":"A3","prompt_id":"A3:4","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.523Z","A":"A3","prompt_id":"A3:5","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.550Z","A":"A3","prompt_id":"A3:6","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.596Z","A":"A3","prompt_id":"A3:7","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.599Z","A":"A3","prompt_id":"A3:9","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.609Z","A":"A3","prompt_id":"A3:10","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.615Z","A":"A3","prompt_id":"A3:8","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.668Z","A":"A3","prompt_id":"A3:11","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.679Z","A":"A3","prompt_id":"A3:12","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.722Z","A":"A3","prompt_id":"A3:13","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.725Z","A":"A3","prompt_id":"A3:14","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.726Z","A":"A3","prompt_id":"A3:15","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.762Z","A":"A3","prompt_id":"A3:16","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.806Z","A":"A3","prompt_id":"A3:18","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.818Z","A":"A3","prompt_id":"A3:17","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.849Z","A":"A3","prompt_id":"A3:19","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.851Z","A":"A3","prompt_id":"A3:20","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.858Z","A":"A3","prompt_id":"A3:21","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.890Z","A":"A3","prompt_id":"A3:22","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.969Z","A":"A3","prompt_id":"A3:25","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.970Z","A":"A3","prompt_id":"A3:24","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.980Z","A":"A3","prompt_id":"A3:26","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:18.997Z","A":"A3","prompt_id":"A3:27","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.021Z","A":"A3","prompt_id":"A3:28","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.023Z","A":"A3","prompt_id":"A3:23","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.105Z","A":"A3","prompt_id":"A3:31","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.110Z","A":"A3","prompt_id":"A3:29","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.130Z","A":"A3","prompt_id":"A3:30","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.146Z","A":"A3","prompt_id":"A3:34","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.159Z","A":"A3","prompt_id":"A3:32","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.175Z","A":"A3","prompt_id":"A3:33","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.247Z","A":"A3","prompt_id":"A3:35","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.250Z","A":"A3","prompt_id":"A3:37","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.257Z","A":"A3","prompt_id":"A3:36","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.294Z","A":"A3","prompt_id":"A3:38","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.297Z","A":"A4","prompt_id":"A4:0","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.311Z","A":"A3","prompt_id":"A3:39","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.380Z","A":"A4","prompt_id":"A4:2","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.384Z","A":"A4","prompt_id":"A4:1","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.392Z","A":"A4","prompt_id":"A4:3","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.419Z","A":"A4","prompt_id":"A4:5","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.434Z","A":"A4","prompt_id":"A4:4","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.455Z","A":"A4","prompt_id":"A4:6","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.511Z","A":"A4","prompt_id":"A4:7","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.514Z","A":"A4","prompt_id":"A4:8","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.515Z","A":"A4","prompt_id":"A4:9","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.556Z","A":"A4","prompt_id":"A4:10","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.565Z","A":"A4","prompt_id":"A4:11","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.598Z","A":"A4","prompt_id":"A4:12","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.635Z","A":"A4","prompt_id":"A4:13","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.644Z","A":"A4","prompt_id":"A4:15","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.660Z","A":"A4","prompt_id":"A4:14","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.692Z","A":"A4","prompt_id":"A4:16","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.706Z","A":"A4","prompt_id":"A4:17","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.733Z","A":"A4","prompt_id":"A4:18","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.763Z","A":"A4","prompt_id":"A4:19","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.774Z","A":"A4","prompt_id":"A4:20","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.826Z","A":"A4","prompt_id":"A4:22","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.866Z","A":"A4","prompt_id":"A4:24","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.869Z","A":"A4","prompt_id":"A4:23","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.917Z","A":"A4","prompt_id":"A4:26","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.928Z","A":"A4","prompt_id":"A4:21","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.942Z","A":"A4","prompt_id":"A4:25","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.972Z","A":"A4","prompt_id":"A4:27","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:19.992Z","A":"A4","prompt_id":"A4:29","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.000Z","A":"A4","prompt_id":"A4:28","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.052Z","A":"A4","prompt_id":"A4:30","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.082Z","A":"A4","prompt_id":"A4:32","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.119Z","A":"A4","prompt_id":"A4:34","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.121Z","A":"A4","prompt_id":"A4:35","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.122Z","A":"A4","prompt_id":"A4:31","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.146Z","A":"A4","prompt_id":"A4:33","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.179Z","A":"A4","prompt_id":"A4:36","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.227Z","A":"A4","prompt_id":"A4:37","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.248Z","A":"A5","prompt_id":"A5:0","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.253Z","A":"A4","prompt_id":"A4:38","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.290Z","A":"A5","prompt_id":"A5:1","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.310Z","A":"A5","prompt_id":"A5:2","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.347Z","A":"A4","prompt_id":"A4:39","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.384Z","A":"A5","prompt_id":"A5:4","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.386Z","A":"A5","prompt_id":"A5:3","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.415Z","A":"A5","prompt_id":"A5:5","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.417Z","A":"A5","prompt_id":"A5:6","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.466Z","A":"A5","prompt_id":"A5:7","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.480Z","A":"A5","prompt_id":"A5:8","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.527Z","A":"A5","prompt_id":"A5:9","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.535Z","A":"A5","prompt_id":"A5:10","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.544Z","A":"A5","prompt_id":"A5:11","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.545Z","A":"A5","prompt_id":"A5:12","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.600Z","A":"A5","prompt_id":"A5:13","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.634Z","A":"A5","prompt_id":"A5:14","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.656Z","A":"A5","prompt_id":"A5:15","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.680Z","A":"A5","prompt_id":"A5:18","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.688Z","A":"A5","prompt_id":"A5:17","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.691Z","A":"A5","prompt_id":"A5:16","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.728Z","A":"A5","prompt_id":"A5:19","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.764Z","A":"A5","prompt_id":"A5:20","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.787Z","A":"A5","prompt_id":"A5:21","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.813Z","A":"A5","prompt_id":"A5:22","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.815Z","A":"A5","prompt_id":"A5:24","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.827Z","A":"A5","prompt_id":"A5:23","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.878Z","A":"A5","prompt_id":"A5:25","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.888Z","A":"A5","prompt_id":"A5:26","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.909Z","A":"A5","prompt_id":"A5:27","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.943Z","A":"A5","prompt_id":"A5:28","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.944Z","A":"A5","prompt_id":"A5:29","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:20.958Z","A":"A5","prompt_id":"A5:30","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.010Z","A":"A5","prompt_id":"A5:31","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.019Z","A":"A5","prompt_id":"A5:32","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.058Z","A":"A5","prompt_id":"A5:33","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.077Z","A":"A5","prompt_id":"A5:34","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.083Z","A":"A5","prompt_id":"A5:35","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.147Z","A":"A5","prompt_id":"A5:37","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.173Z","A":"A5","prompt_id":"A5:38","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.200Z","A":"A6","prompt_id":"A6:0","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.208Z","A":"A5","prompt_id":"A5:39","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.218Z","A":"A6","prompt_id":"A6:1","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.251Z","A":"A5","prompt_id":"A5:36","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.284Z","A":"A6","prompt_id":"A6:2","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.313Z","A":"A6","prompt_id":"A6:3","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.341Z","A":"A6","prompt_id":"A6:4","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.345Z","A":"A6","prompt_id":"A6:6","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.370Z","A":"A6","prompt_id":"A6:5","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.382Z","A":"A6","prompt_id":"A6:7","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.464Z","A":"A6","prompt_id":"A6:9","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.467Z","A":"A6","prompt_id":"A6:10","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.482Z","A":"A6","prompt_id":"A6:11","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.507Z","A":"A6","prompt_id":"A6:12","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.509Z","A":"A6","prompt_id":"A6:13","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.542Z","A":"A6","prompt_id":"A6:8","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.600Z","A":"A6","prompt_id":"A6:14","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.604Z","A":"A6","prompt_id":"A6:16","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.605Z","A":"A6","prompt_id":"A6:15","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.637Z","A":"A6","prompt_id":"A6:17","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.651Z","A":"A6","prompt_id":"A6:18","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.678Z","A":"A6","prompt_id":"A6:19","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.734Z","A":"A6","prompt_id":"A6:20","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.737Z","A":"A6","prompt_id":"A6:22","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.769Z","A":"A6","prompt_id":"A6:21","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.772Z","A":"A6","prompt_id":"A6:23","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.779Z","A":"A6","prompt_id":"A6:24","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.818Z","A":"A6","prompt_id":"A6:25","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.858Z","A":"A6","prompt_id":"A6:26","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.862Z","A":"A6","prompt_id":"A6:27","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.902Z","A":"A6","prompt_id":"A6:28","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.905Z","A":"A6","prompt_id":"A6:29","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.916Z","A":"A6","prompt_id":"A6:30","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.966Z","A":"A6","prompt_id":"A6:31","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.982Z","A":"A6","prompt_id":"A6:33","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:21.987Z","A":"A6","prompt_id":"A6:32","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.030Z","A":"A6","prompt_id":"A6:34","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.058Z","A":"A6","prompt_id":"A6:35","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.085Z","A":"A6","prompt_id":"A6:36","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.102Z","A":"A6","prompt_id":"A6:37","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.115Z","A":"A6","prompt_id":"A6:39","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.116Z","A":"A6","prompt_id":"A6:38","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.160Z","A":"A7","prompt_id":"A7:0","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.192Z","A":"A7","prompt_id":"A7:1","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.227Z","A":"A7","prompt_id":"A7:3","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.233Z","A":"A7","prompt_id":"A7:2","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.244Z","A":"A7","prompt_id":"A7:5","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.246Z","A":"A7","prompt_id":"A7:4","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.305Z","A":"A7","prompt_id":"A7:6","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.328Z","A":"A7","prompt_id":"A7:7","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.371Z","A":"A7","prompt_id":"A7:9","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.379Z","A":"A7","prompt_id":"A7:10","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.383Z","A":"A7","prompt_id":"A7:8","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.412Z","A":"A7","prompt_id":"A7:11","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.436Z","A":"A7","prompt_id":"A7:12","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.462Z","A":"A7","prompt_id":"A7:13","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.499Z","A":"A7","prompt_id":"A7:14","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.507Z","A":"A7","prompt_id":"A7:15","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.514Z","A":"A7","prompt_id":"A7:16","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.564Z","A":"A7","prompt_id":"A7:17","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.616Z","A":"A7","prompt_id":"A7:19","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.630Z","A":"A7","prompt_id":"A7:20","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.642Z","A":"A7","prompt_id":"A7:22","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.658Z","A":"A7","prompt_id":"A7:21","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.700Z","A":"A7","prompt_id":"A7:23","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.756Z","A":"A7","prompt_id":"A7:18","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.761Z","A":"A7","prompt_id":"A7:26","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.765Z","A":"A7","prompt_id":"A7:24","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.769Z","A":"A7","prompt_id":"A7:25","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.782Z","A":"A7","prompt_id":"A7:27","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.833Z","A":"A7","prompt_id":"A7:28","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.885Z","A":"A7","prompt_id":"A7:29","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.888Z","A":"A7","prompt_id":"A7:30","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.890Z","A":"A7","prompt_id":"A7:31","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.911Z","A":"A7","prompt_id":"A7:32","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.921Z","A":"A7","prompt_id":"A7:33","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:22.961Z","A":"A7","prompt_id":"A7:34","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.012Z","A":"A7","prompt_id":"A7:37","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.032Z","A":"A7","prompt_id":"A7:36","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.038Z","A":"A7","prompt_id":"A7:38","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.055Z","A":"A7","prompt_id":"A7:35","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.064Z","A":"A7","prompt_id":"A7:39","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.094Z","A":"A8","prompt_id":"A8:0","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.136Z","A":"A8","prompt_id":"A8:1","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.165Z","A":"A8","prompt_id":"A8:3","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.170Z","A":"A8","prompt_id":"A8:2","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.198Z","A":"A8","prompt_id":"A8:4","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.212Z","A":"A8","prompt_id":"A8:5","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.222Z","A":"A8","prompt_id":"A8:6","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.262Z","A":"A8","prompt_id":"A8:7","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.313Z","A":"A8","prompt_id":"A8:9","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.322Z","A":"A8","prompt_id":"A8:10","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.327Z","A":"A8","prompt_id":"A8:8","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.362Z","A":"A8","prompt_id":"A8:11","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.381Z","A":"A8","prompt_id":"A8:12","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.392Z","A":"A8","prompt_id":"A8:13","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.444Z","A":"A8","prompt_id":"A8:14","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.457Z","A":"A8","prompt_id":"A8:15","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.462Z","A":"A8","prompt_id":"A8:16","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.485Z","A":"A8","prompt_id":"A8:17","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.519Z","A":"A8","prompt_id":"A8:18","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.542Z","A":"A8","prompt_id":"A8:19","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.578Z","A":"A8","prompt_id":"A8:20","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.582Z","A":"A8","prompt_id":"A8:21","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.601Z","A":"A8","prompt_id":"A8:22","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.609Z","A":"A8","prompt_id":"A8:23","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.645Z","A":"A8","prompt_id":"A8:24","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.678Z","A":"A8","prompt_id":"A8:25","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.710Z","A":"A8","prompt_id":"A8:27","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.717Z","A":"A8","prompt_id":"A8:26","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.736Z","A":"A8","prompt_id":"A8:28","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.763Z","A":"A8","prompt_id":"A8:29","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.768Z","A":"A8","prompt_id":"A8:30","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.801Z","A":"A8","prompt_id":"A8:31","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.833Z","A":"A8","prompt_id":"A8:32","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.864Z","A":"A8","prompt_id":"A8:33","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.872Z","A":"A8","prompt_id":"A8:34","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.893Z","A":"A8","prompt_id":"A8:36","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.906Z","A":"A8","prompt_id":"A8:35","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.929Z","A":"A8","prompt_id":"A8:37","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.957Z","A":"A8","prompt_id":"A8:38","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:23.992Z","A":"A8","prompt_id":"A8:39","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.034Z","A":"A9","prompt_id":"A9:1","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.035Z","A":"A9","prompt_id":"A9:0","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.043Z","A":"A9","prompt_id":"A9:2","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.058Z","A":"A9","prompt_id":"A9:3","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.087Z","A":"A9","prompt_id":"A9:4","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.125Z","A":"A9","prompt_id":"A9:5","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.167Z","A":"A9","prompt_id":"A9:8","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.177Z","A":"A9","prompt_id":"A9:6","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.187Z","A":"A9","prompt_id":"A9:7","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.194Z","A":"A9","prompt_id":"A9:9","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.212Z","A":"A9","prompt_id":"A9:10","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.253Z","A":"A9","prompt_id":"A9:11","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.293Z","A":"A9","prompt_id":"A9:12","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.310Z","A":"A9","prompt_id":"A9:13","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.317Z","A":"A9","prompt_id":"A9:14","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.324Z","A":"A9","prompt_id":"A9:15","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.377Z","A":"A9","prompt_id":"A9:16","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.382Z","A":"A9","prompt_id":"A9:17","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.428Z","A":"A9","prompt_id":"A9:18","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.436Z","A":"A9","prompt_id":"A9:19","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.450Z","A":"A9","prompt_id":"A9:21","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.458Z","A":"A9","prompt_id":"A9:20","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.519Z","A":"A9","prompt_id":"A9:22","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.524Z","A":"A9","prompt_id":"A9:23","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.549Z","A":"A9","prompt_id":"A9:24","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.566Z","A":"A9","prompt_id":"A9:25","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.581Z","A":"A9","prompt_id":"A9:26","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.618Z","A":"A9","prompt_id":"A9:27","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.643Z","A":"A9","prompt_id":"A9:28","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.652Z","A":"A9","prompt_id":"A9:29","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.688Z","A":"A9","prompt_id":"A9:30","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.697Z","A":"A9","prompt_id":"A9:31","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.720Z","A":"A9","prompt_id":"A9:32","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.755Z","A":"A9","prompt_id":"A9:33","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.778Z","A":"A9","prompt_id":"A9:35","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.803Z","A":"A9","prompt_id":"A9:34","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.839Z","A":"A9","prompt_id":"A9:36","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.841Z","A":"A9","prompt_id":"A9:37","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.857Z","A":"A9","prompt_id":"A9:38","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:54:24.902Z","A":"A9","prompt_id":"A9:39","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"RUN_END","ts":"2025-11-03T19:54:24.903Z","success":0,"fail":360}
+{"event":"RUN_START","ts":"2025-11-03T19:55:02.337Z","provider":"mistral","model":null,"scope":["A1","A2","A3","A4","A5","A6","A7","A8","A9"],"prompts_limit_per_A":"all","concurrency":2,"metrics":true}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:02.626Z","A":"A1","prompt_id":"A1:0","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:02.630Z","A":"A1","prompt_id":"A1:1","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:02.767Z","A":"A1","prompt_id":"A1:3","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:02.799Z","A":"A1","prompt_id":"A1:2","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:02.905Z","A":"A1","prompt_id":"A1:4","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:02.940Z","A":"A1","prompt_id":"A1:5","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:03.051Z","A":"A1","prompt_id":"A1:6","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:03.076Z","A":"A1","prompt_id":"A1:7","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:03.233Z","A":"A1","prompt_id":"A1:8","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:03.251Z","A":"A1","prompt_id":"A1:9","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:03.380Z","A":"A1","prompt_id":"A1:11","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:03.382Z","A":"A1","prompt_id":"A1:10","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:03.505Z","A":"A1","prompt_id":"A1:13","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:03.506Z","A":"A1","prompt_id":"A1:12","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:03.639Z","A":"A1","prompt_id":"A1:14","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:03.669Z","A":"A1","prompt_id":"A1:15","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:03.765Z","A":"A1","prompt_id":"A1:16","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:03.803Z","A":"A1","prompt_id":"A1:17","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:03.894Z","A":"A1","prompt_id":"A1:18","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:03.946Z","A":"A1","prompt_id":"A1:19","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:04.028Z","A":"A1","prompt_id":"A1:20","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:04.084Z","A":"A1","prompt_id":"A1:21","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:04.172Z","A":"A1","prompt_id":"A1:22","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:04.211Z","A":"A1","prompt_id":"A1:23","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:04.302Z","A":"A1","prompt_id":"A1:24","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:04.336Z","A":"A1","prompt_id":"A1:25","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:04.433Z","A":"A1","prompt_id":"A1:26","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:04.475Z","A":"A1","prompt_id":"A1:27","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:04.564Z","A":"A1","prompt_id":"A1:28","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:04.611Z","A":"A1","prompt_id":"A1:29","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:04.696Z","A":"A1","prompt_id":"A1:30","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:04.758Z","A":"A1","prompt_id":"A1:31","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:04.822Z","A":"A1","prompt_id":"A1:32","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:04.897Z","A":"A1","prompt_id":"A1:33","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:04.964Z","A":"A1","prompt_id":"A1:34","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:05.036Z","A":"A1","prompt_id":"A1:35","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:05.089Z","A":"A1","prompt_id":"A1:36","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:05.179Z","A":"A1","prompt_id":"A1:37","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:05.223Z","A":"A1","prompt_id":"A1:38","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:05.308Z","A":"A1","prompt_id":"A1:39","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:05.361Z","A":"A2","prompt_id":"A2:0","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:05.440Z","A":"A2","prompt_id":"A2:1","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:05.493Z","A":"A2","prompt_id":"A2:2","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:05.575Z","A":"A2","prompt_id":"A2:3","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:05.635Z","A":"A2","prompt_id":"A2:4","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:05.706Z","A":"A2","prompt_id":"A2:5","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:05.752Z","A":"A2","prompt_id":"A2:6","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:05.844Z","A":"A2","prompt_id":"A2:7","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:05.894Z","A":"A2","prompt_id":"A2:8","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:05.971Z","A":"A2","prompt_id":"A2:9","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:06.020Z","A":"A2","prompt_id":"A2:10","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:06.102Z","A":"A2","prompt_id":"A2:11","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:06.157Z","A":"A2","prompt_id":"A2:12","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:06.233Z","A":"A2","prompt_id":"A2:13","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:06.277Z","A":"A2","prompt_id":"A2:14","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:06.383Z","A":"A2","prompt_id":"A2:15","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:06.408Z","A":"A2","prompt_id":"A2:16","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:06.523Z","A":"A2","prompt_id":"A2:17","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:06.554Z","A":"A2","prompt_id":"A2:18","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:06.659Z","A":"A2","prompt_id":"A2:19","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:06.677Z","A":"A2","prompt_id":"A2:20","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:06.802Z","A":"A2","prompt_id":"A2:21","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:06.808Z","A":"A2","prompt_id":"A2:22","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:06.929Z","A":"A2","prompt_id":"A2:23","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:06.946Z","A":"A2","prompt_id":"A2:24","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:07.072Z","A":"A2","prompt_id":"A2:26","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:07.073Z","A":"A2","prompt_id":"A2:25","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:07.202Z","A":"A2","prompt_id":"A2:27","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:07.214Z","A":"A2","prompt_id":"A2:28","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:07.352Z","A":"A2","prompt_id":"A2:29","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:07.362Z","A":"A2","prompt_id":"A2:30","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:07.493Z","A":"A2","prompt_id":"A2:31","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:07.547Z","A":"A2","prompt_id":"A2:32","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:07.643Z","A":"A2","prompt_id":"A2:33","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:07.676Z","A":"A2","prompt_id":"A2:34","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:07.774Z","A":"A2","prompt_id":"A2:35","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:07.795Z","A":"A2","prompt_id":"A2:36","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:07.908Z","A":"A2","prompt_id":"A2:37","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:07.926Z","A":"A2","prompt_id":"A2:38","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:08.039Z","A":"A2","prompt_id":"A2:39","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:08.051Z","A":"A3","prompt_id":"A3:0","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:08.166Z","A":"A3","prompt_id":"A3:1","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:08.192Z","A":"A3","prompt_id":"A3:2","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:08.331Z","A":"A3","prompt_id":"A3:3","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:08.367Z","A":"A3","prompt_id":"A3:4","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:08.455Z","A":"A3","prompt_id":"A3:5","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:08.505Z","A":"A3","prompt_id":"A3:6","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:08.615Z","A":"A3","prompt_id":"A3:7","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:08.658Z","A":"A3","prompt_id":"A3:8","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:08.747Z","A":"A3","prompt_id":"A3:9","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:08.799Z","A":"A3","prompt_id":"A3:10","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:08.875Z","A":"A3","prompt_id":"A3:11","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:08.927Z","A":"A3","prompt_id":"A3:12","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:09.026Z","A":"A3","prompt_id":"A3:13","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:09.061Z","A":"A3","prompt_id":"A3:14","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:09.174Z","A":"A3","prompt_id":"A3:15","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:09.198Z","A":"A3","prompt_id":"A3:16","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:09.299Z","A":"A3","prompt_id":"A3:17","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:09.341Z","A":"A3","prompt_id":"A3:18","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:09.431Z","A":"A3","prompt_id":"A3:19","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:09.467Z","A":"A3","prompt_id":"A3:20","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:09.557Z","A":"A3","prompt_id":"A3:21","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:09.603Z","A":"A3","prompt_id":"A3:22","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:09.676Z","A":"A3","prompt_id":"A3:23","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:09.739Z","A":"A3","prompt_id":"A3:24","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:09.815Z","A":"A3","prompt_id":"A3:25","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:09.900Z","A":"A3","prompt_id":"A3:26","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:09.955Z","A":"A3","prompt_id":"A3:27","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:10.086Z","A":"A3","prompt_id":"A3:29","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:10.148Z","A":"A3","prompt_id":"A3:28","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:10.218Z","A":"A3","prompt_id":"A3:30","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:10.273Z","A":"A3","prompt_id":"A3:31","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:10.338Z","A":"A3","prompt_id":"A3:32","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:10.414Z","A":"A3","prompt_id":"A3:33","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:10.460Z","A":"A3","prompt_id":"A3:34","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:10.545Z","A":"A3","prompt_id":"A3:35","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:10.596Z","A":"A3","prompt_id":"A3:36","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:10.681Z","A":"A3","prompt_id":"A3:37","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:10.719Z","A":"A3","prompt_id":"A3:38","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:10.799Z","A":"A3","prompt_id":"A3:39","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:10.869Z","A":"A4","prompt_id":"A4:0","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:10.958Z","A":"A4","prompt_id":"A4:1","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:10.997Z","A":"A4","prompt_id":"A4:2","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:11.087Z","A":"A4","prompt_id":"A4:3","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:11.124Z","A":"A4","prompt_id":"A4:4","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:11.226Z","A":"A4","prompt_id":"A4:5","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:11.248Z","A":"A4","prompt_id":"A4:6","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:11.353Z","A":"A4","prompt_id":"A4:7","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:11.383Z","A":"A4","prompt_id":"A4:8","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:11.484Z","A":"A4","prompt_id":"A4:9","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:11.515Z","A":"A4","prompt_id":"A4:10","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:11.610Z","A":"A4","prompt_id":"A4:11","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:11.650Z","A":"A4","prompt_id":"A4:12","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:11.739Z","A":"A4","prompt_id":"A4:13","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:11.772Z","A":"A4","prompt_id":"A4:14","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:11.859Z","A":"A4","prompt_id":"A4:15","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:11.906Z","A":"A4","prompt_id":"A4:16","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:11.994Z","A":"A4","prompt_id":"A4:17","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:12.029Z","A":"A4","prompt_id":"A4:18","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:12.134Z","A":"A4","prompt_id":"A4:19","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:12.171Z","A":"A4","prompt_id":"A4:20","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:12.265Z","A":"A4","prompt_id":"A4:21","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:12.340Z","A":"A4","prompt_id":"A4:22","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:12.401Z","A":"A4","prompt_id":"A4:23","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:12.465Z","A":"A4","prompt_id":"A4:24","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:12.612Z","A":"A4","prompt_id":"A4:25","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:12.638Z","A":"A4","prompt_id":"A4:26","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:12.728Z","A":"A4","prompt_id":"A4:27","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:12.770Z","A":"A4","prompt_id":"A4:28","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:12.873Z","A":"A4","prompt_id":"A4:29","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:12.919Z","A":"A4","prompt_id":"A4:30","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:13.004Z","A":"A4","prompt_id":"A4:31","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:13.073Z","A":"A4","prompt_id":"A4:32","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:13.124Z","A":"A4","prompt_id":"A4:33","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:13.202Z","A":"A4","prompt_id":"A4:34","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:13.265Z","A":"A4","prompt_id":"A4:35","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:13.319Z","A":"A4","prompt_id":"A4:36","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:13.403Z","A":"A4","prompt_id":"A4:37","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:13.448Z","A":"A4","prompt_id":"A4:38","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:13.533Z","A":"A4","prompt_id":"A4:39","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:13.606Z","A":"A5","prompt_id":"A5:0","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:13.661Z","A":"A5","prompt_id":"A5:1","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:13.732Z","A":"A5","prompt_id":"A5:2","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:13.782Z","A":"A5","prompt_id":"A5:3","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:13.861Z","A":"A5","prompt_id":"A5:4","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:13.908Z","A":"A5","prompt_id":"A5:5","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:14.000Z","A":"A5","prompt_id":"A5:6","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:14.034Z","A":"A5","prompt_id":"A5:7","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:14.115Z","A":"A5","prompt_id":"A5:8","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:14.169Z","A":"A5","prompt_id":"A5:9","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:14.240Z","A":"A5","prompt_id":"A5:10","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:14.289Z","A":"A5","prompt_id":"A5:11","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:14.360Z","A":"A5","prompt_id":"A5:12","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:14.412Z","A":"A5","prompt_id":"A5:13","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:14.478Z","A":"A5","prompt_id":"A5:14","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:14.567Z","A":"A5","prompt_id":"A5:15","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:14.607Z","A":"A5","prompt_id":"A5:16","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:14.707Z","A":"A5","prompt_id":"A5:17","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:14.727Z","A":"A5","prompt_id":"A5:18","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:14.842Z","A":"A5","prompt_id":"A5:19","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:14.854Z","A":"A5","prompt_id":"A5:20","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:14.979Z","A":"A5","prompt_id":"A5:22","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:14.986Z","A":"A5","prompt_id":"A5:21","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:15.105Z","A":"A5","prompt_id":"A5:23","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:15.121Z","A":"A5","prompt_id":"A5:24","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:15.226Z","A":"A5","prompt_id":"A5:25","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:15.245Z","A":"A5","prompt_id":"A5:26","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:15.357Z","A":"A5","prompt_id":"A5:27","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:15.374Z","A":"A5","prompt_id":"A5:28","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:15.491Z","A":"A5","prompt_id":"A5:29","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:15.572Z","A":"A5","prompt_id":"A5:30","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:15.619Z","A":"A5","prompt_id":"A5:31","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:15.704Z","A":"A5","prompt_id":"A5:32","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:15.767Z","A":"A5","prompt_id":"A5:33","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:15.831Z","A":"A5","prompt_id":"A5:34","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:15.901Z","A":"A5","prompt_id":"A5:35","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:15.974Z","A":"A5","prompt_id":"A5:36","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:16.035Z","A":"A5","prompt_id":"A5:37","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:16.110Z","A":"A5","prompt_id":"A5:38","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:16.163Z","A":"A5","prompt_id":"A5:39","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:16.241Z","A":"A6","prompt_id":"A6:0","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:16.284Z","A":"A6","prompt_id":"A6:1","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:16.373Z","A":"A6","prompt_id":"A6:2","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:16.422Z","A":"A6","prompt_id":"A6:3","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:16.508Z","A":"A6","prompt_id":"A6:4","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:16.553Z","A":"A6","prompt_id":"A6:5","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:16.654Z","A":"A6","prompt_id":"A6:6","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:16.718Z","A":"A6","prompt_id":"A6:7","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:16.779Z","A":"A6","prompt_id":"A6:8","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:16.840Z","A":"A6","prompt_id":"A6:9","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:16.918Z","A":"A6","prompt_id":"A6:10","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:16.969Z","A":"A6","prompt_id":"A6:11","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:17.036Z","A":"A6","prompt_id":"A6:12","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:17.101Z","A":"A6","prompt_id":"A6:13","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:17.178Z","A":"A6","prompt_id":"A6:14","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:17.218Z","A":"A6","prompt_id":"A6:15","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:17.308Z","A":"A6","prompt_id":"A6:16","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:17.378Z","A":"A6","prompt_id":"A6:17","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:17.439Z","A":"A6","prompt_id":"A6:18","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:17.506Z","A":"A6","prompt_id":"A6:19","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:17.572Z","A":"A6","prompt_id":"A6:20","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:17.635Z","A":"A6","prompt_id":"A6:21","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:17.714Z","A":"A6","prompt_id":"A6:22","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:17.764Z","A":"A6","prompt_id":"A6:23","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:17.847Z","A":"A6","prompt_id":"A6:24","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:17.883Z","A":"A6","prompt_id":"A6:25","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:18.015Z","A":"A6","prompt_id":"A6:27","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:18.016Z","A":"A6","prompt_id":"A6:26","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:18.139Z","A":"A6","prompt_id":"A6:29","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:18.145Z","A":"A6","prompt_id":"A6:28","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:18.274Z","A":"A6","prompt_id":"A6:31","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:18.277Z","A":"A6","prompt_id":"A6:30","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:18.405Z","A":"A6","prompt_id":"A6:33","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:18.419Z","A":"A6","prompt_id":"A6:32","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:18.541Z","A":"A6","prompt_id":"A6:34","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:18.550Z","A":"A6","prompt_id":"A6:35","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:18.663Z","A":"A6","prompt_id":"A6:36","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:18.685Z","A":"A6","prompt_id":"A6:37","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:18.785Z","A":"A6","prompt_id":"A6:38","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:18.821Z","A":"A6","prompt_id":"A6:39","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:18.923Z","A":"A7","prompt_id":"A7:0","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:18.951Z","A":"A7","prompt_id":"A7:1","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:19.061Z","A":"A7","prompt_id":"A7:2","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:19.094Z","A":"A7","prompt_id":"A7:3","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:19.197Z","A":"A7","prompt_id":"A7:4","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:19.222Z","A":"A7","prompt_id":"A7:5","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:19.349Z","A":"A7","prompt_id":"A7:6","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:19.356Z","A":"A7","prompt_id":"A7:7","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:19.494Z","A":"A7","prompt_id":"A7:8","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:19.503Z","A":"A7","prompt_id":"A7:9","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:19.626Z","A":"A7","prompt_id":"A7:10","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:19.646Z","A":"A7","prompt_id":"A7:11","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:19.767Z","A":"A7","prompt_id":"A7:12","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:19.797Z","A":"A7","prompt_id":"A7:13","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:19.911Z","A":"A7","prompt_id":"A7:14","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:19.937Z","A":"A7","prompt_id":"A7:15","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:20.045Z","A":"A7","prompt_id":"A7:16","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:20.070Z","A":"A7","prompt_id":"A7:17","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:20.172Z","A":"A7","prompt_id":"A7:18","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:20.204Z","A":"A7","prompt_id":"A7:19","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:20.297Z","A":"A7","prompt_id":"A7:20","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:20.328Z","A":"A7","prompt_id":"A7:21","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:20.436Z","A":"A7","prompt_id":"A7:22","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:20.476Z","A":"A7","prompt_id":"A7:23","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:20.579Z","A":"A7","prompt_id":"A7:24","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:20.607Z","A":"A7","prompt_id":"A7:25","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:20.709Z","A":"A7","prompt_id":"A7:26","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:20.737Z","A":"A7","prompt_id":"A7:27","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:20.839Z","A":"A7","prompt_id":"A7:28","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:20.864Z","A":"A7","prompt_id":"A7:29","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:20.968Z","A":"A7","prompt_id":"A7:30","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:20.996Z","A":"A7","prompt_id":"A7:31","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:21.102Z","A":"A7","prompt_id":"A7:32","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:21.131Z","A":"A7","prompt_id":"A7:33","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:21.227Z","A":"A7","prompt_id":"A7:34","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:21.279Z","A":"A7","prompt_id":"A7:35","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:21.369Z","A":"A7","prompt_id":"A7:36","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:21.404Z","A":"A7","prompt_id":"A7:37","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:21.506Z","A":"A7","prompt_id":"A7:38","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:21.543Z","A":"A7","prompt_id":"A7:39","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:21.635Z","A":"A8","prompt_id":"A8:0","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:21.669Z","A":"A8","prompt_id":"A8:1","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:21.768Z","A":"A8","prompt_id":"A8:2","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:21.815Z","A":"A8","prompt_id":"A8:3","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:21.922Z","A":"A8","prompt_id":"A8:4","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:21.943Z","A":"A8","prompt_id":"A8:5","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:22.045Z","A":"A8","prompt_id":"A8:6","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:22.068Z","A":"A8","prompt_id":"A8:7","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:22.181Z","A":"A8","prompt_id":"A8:8","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:22.207Z","A":"A8","prompt_id":"A8:9","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:22.313Z","A":"A8","prompt_id":"A8:10","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:22.331Z","A":"A8","prompt_id":"A8:11","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:22.471Z","A":"A8","prompt_id":"A8:13","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:22.489Z","A":"A8","prompt_id":"A8:12","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:22.590Z","A":"A8","prompt_id":"A8:14","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:22.621Z","A":"A8","prompt_id":"A8:15","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:22.722Z","A":"A8","prompt_id":"A8:16","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:22.756Z","A":"A8","prompt_id":"A8:17","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:22.861Z","A":"A8","prompt_id":"A8:18","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:22.906Z","A":"A8","prompt_id":"A8:19","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:22.985Z","A":"A8","prompt_id":"A8:20","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:23.048Z","A":"A8","prompt_id":"A8:21","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:23.127Z","A":"A8","prompt_id":"A8:22","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:23.186Z","A":"A8","prompt_id":"A8:23","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:23.256Z","A":"A8","prompt_id":"A8:24","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:23.312Z","A":"A8","prompt_id":"A8:25","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:23.380Z","A":"A8","prompt_id":"A8:26","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:23.443Z","A":"A8","prompt_id":"A8:27","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:23.518Z","A":"A8","prompt_id":"A8:28","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:23.570Z","A":"A8","prompt_id":"A8:29","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:23.641Z","A":"A8","prompt_id":"A8:30","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:23.706Z","A":"A8","prompt_id":"A8:31","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:23.775Z","A":"A8","prompt_id":"A8:32","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:23.842Z","A":"A8","prompt_id":"A8:33","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:23.900Z","A":"A8","prompt_id":"A8:34","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:23.976Z","A":"A8","prompt_id":"A8:35","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:24.021Z","A":"A8","prompt_id":"A8:36","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:24.135Z","A":"A8","prompt_id":"A8:37","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:24.148Z","A":"A8","prompt_id":"A8:38","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:24.280Z","A":"A9","prompt_id":"A9:0","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:24.307Z","A":"A8","prompt_id":"A8:39","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:24.406Z","A":"A9","prompt_id":"A9:1","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:24.441Z","A":"A9","prompt_id":"A9:2","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:24.550Z","A":"A9","prompt_id":"A9:3","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:24.571Z","A":"A9","prompt_id":"A9:4","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:24.697Z","A":"A9","prompt_id":"A9:5","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:24.703Z","A":"A9","prompt_id":"A9:6","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:24.829Z","A":"A9","prompt_id":"A9:7","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:24.879Z","A":"A9","prompt_id":"A9:8","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:24.950Z","A":"A9","prompt_id":"A9:9","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:25.013Z","A":"A9","prompt_id":"A9:10","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:25.093Z","A":"A9","prompt_id":"A9:11","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:25.152Z","A":"A9","prompt_id":"A9:12","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:25.244Z","A":"A9","prompt_id":"A9:13","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:25.276Z","A":"A9","prompt_id":"A9:14","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:25.378Z","A":"A9","prompt_id":"A9:15","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:25.433Z","A":"A9","prompt_id":"A9:16","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:25.517Z","A":"A9","prompt_id":"A9:17","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:25.574Z","A":"A9","prompt_id":"A9:18","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:25.656Z","A":"A9","prompt_id":"A9:19","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:25.725Z","A":"A9","prompt_id":"A9:20","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:25.794Z","A":"A9","prompt_id":"A9:21","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:25.859Z","A":"A9","prompt_id":"A9:22","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:25.942Z","A":"A9","prompt_id":"A9:23","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:25.988Z","A":"A9","prompt_id":"A9:24","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:26.096Z","A":"A9","prompt_id":"A9:25","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:26.122Z","A":"A9","prompt_id":"A9:26","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:26.232Z","A":"A9","prompt_id":"A9:27","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:26.260Z","A":"A9","prompt_id":"A9:28","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:26.363Z","A":"A9","prompt_id":"A9:29","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:26.390Z","A":"A9","prompt_id":"A9:30","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:26.495Z","A":"A9","prompt_id":"A9:31","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:26.550Z","A":"A9","prompt_id":"A9:32","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:26.613Z","A":"A9","prompt_id":"A9:33","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:26.669Z","A":"A9","prompt_id":"A9:34","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:26.731Z","A":"A9","prompt_id":"A9:35","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:26.801Z","A":"A9","prompt_id":"A9:36","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:26.877Z","A":"A9","prompt_id":"A9:37","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:26.928Z","A":"A9","prompt_id":"A9:38","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"PROMPT_ERROR","ts":"2025-11-03T19:55:27.005Z","A":"A9","prompt_id":"A9:39","error":"Mistral chat call failed: HTTP error! status: 401 Response: \n{\"detail\":\"Unauthorized\"}"}
+{"event":"RUN_END","ts":"2025-11-03T19:55:27.005Z","success":0,"fail":360}

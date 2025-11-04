@@ -5,7 +5,7 @@
 // Examples:
 //   PROVIDER=openai    node index.js --A=all --prompts=all --concurrency=6 --model=gpt-4o-mini --t=0.2 --max_tokens=180 --log=results/uia_run.jsonl --metrics=true --diag=true
 //   PROVIDER=anthropic node index.js --A=A4 --prompts=10  --model=claude-3-5-sonnet-20241022 --diag=true
-//   PROVIDER=mistral   node index.js --A=all --prompts=all --model=magistral-medium-latest --diag=true
+//   PROVIDER=mistral   node index.js --A=all --prompts=all --model=magistral-small-latest --diag=true
 //
 // ENV per provider:
 //   OPENAI_API_KEY | ANTHROPIC_API_KEY | MISTRAL_API_KEY
@@ -474,7 +474,6 @@ class Semaphore {
   async acquire(){ if (this.n>0){ this.n--; return; } await new Promise(r=>this.q.push(r)); }
   release(){ this.n++; const r=this.q.shift(); if (r) r(); }
 }
-
 /* ---------- Provider calls (lazy imports) ---------- */
 async function callLLM({ messages, model, temperature, max_tokens }) {
   // --- OpenAI (streaming) ---
@@ -485,10 +484,8 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
     }
     if (!process.env.OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not set.");
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
     const meter = startStreamTimer();
     let text = "";
-
     const stream = await client.chat.completions.create({
       model: model || "gpt-4o-mini",
       messages,
@@ -496,16 +493,13 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
       max_tokens: max_tokens ?? 180,
       stream: true
     });
-
     for await (const chunk of stream) {
       const part = chunk?.choices?.[0]?.delta?.content || "";
       if (part) { onChunkTimer(meter, part); text += part; }
     }
-
     const metrics = ARG_METRICS ? finalizeMetrics(meter) : null;
     return { text, metrics };
   }
-
   // --- Anthropic (Claude, non-streaming) ---
   if (PROVIDER === "anthropic") {
     if (!Anthropic) {
@@ -514,7 +508,6 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
     }
     if (!process.env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not set.");
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
     let system; const msgs = [];
     for (const m of (messages || [])) {
       if (m.role === "system") system = typeof m.content === "string" ? m.content : String(m.content ?? "");
@@ -522,9 +515,7 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
         msgs.push({ role: m.role, content: typeof m.content === "string" ? m.content : String(m.content ?? "") });
       }
     }
-
     const usedModel = model || "claude-3-5-sonnet-20241022";
-
     const meter = startStreamTimer();
     const resp = await client.messages.create({
       model: usedModel,
@@ -533,12 +524,10 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
       system,
       messages: msgs.length ? msgs : [{ role: "user", content: "" }]
     });
-
     const text = (resp?.content || [])
       .filter(p => p.type === "text")
       .map(p => p.text)
       .join("");
-
     onChunkTimer(meter, text || "");
     const metrics = ARG_METRICS ? finalizeMetrics(meter) : null;
     return { text, metrics };
@@ -546,26 +535,24 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
 
   // --- Mistral (non-streaming) ---
   if (PROVIDER === "mistral") {
-    // IMPORTANT: default export, not a named export
     let MistralClient;
 try {
   const mistralModule = await import("@mistralai/mistralai");
-  MistralClient = mistralModule.MistralClient;
+  console.log("Contenu du module Mistral :", Object.keys(mistralModule));
+  MistralClient = mistralModule.Mistral; // Utilisez mistralModule.Mistral au lieu de mistralModule.default
 } catch (e) {
-  console.error("Failed to import MistralClient:", e);
-  throw new Error("Mistral SDK not installed or import failed. Run: npm install @mistralai/mistralai@latest");
+  console.error("Erreur lors de l'import de MistralClient :", e);
+  throw new Error("Mistral SDK not installed. Run: npm install @mistralai/mistralai@latest");
 }
 
     if (!process.env.MISTRAL_API_KEY) throw new Error("MISTRAL_API_KEY is not set.");
     const client = new MistralClient({ apiKey: process.env.MISTRAL_API_KEY });
 
     const normalizeMessages = (msgs = []) =>
-      msgs
-        .filter(m => m && (m.role === "system" || m.role === "user" || m.role === "assistant"))
-        .map(m => ({ role: m.role, content: typeof m.content === "string" ? m.content : String(m.content ?? "") }));
+      msgs.filter(m => m && (m.role === "system" || m.role === "user" || m.role === "assistant"))
+          .map(m => ({ role: m.role, content: typeof m.content === "string" ? m.content : String(m.content ?? "") }));
 
     const extractText = (resp) => {
-      // Support multiple SDK shapes
       if (typeof resp?.output_text === "string") return resp.output_text;
       if (Array.isArray(resp?.output) && resp.output.length) {
         const items = resp.output.flatMap(o => Array.isArray(o?.content) ? o.content : []);
@@ -576,35 +563,25 @@ try {
       if (!msg) return "";
       if (typeof msg.content === "string") return msg.content;
       if (Array.isArray(msg.content)) {
-        return msg.content
-          .map(x => (typeof x === "string" ? x : (x?.text ?? "")))
-          .filter(Boolean)
-          .join("");
+        return msg.content.map(x => (typeof x === "string" ? x : (x?.text ?? ""))).filter(Boolean).join("");
       }
       return "";
     };
 
     const meter = startStreamTimer();
     const req = {
-      model: model || "magistral-medium-latest",
+      model: model || "magistral-small-latest",
       messages: normalizeMessages(messages),
       temperature: (typeof temperature === "number" ? temperature : 0.2),
-      // Be liberal: support both spellings across SDK versions
       max_tokens: (typeof max_tokens === "number" ? max_tokens : 180),
-      maxTokens:  (typeof max_tokens === "number" ? max_tokens : 180),
+      maxTokens: (typeof max_tokens === "number" ? max_tokens : 180),
     };
 
     let resp;
     try {
-      // Newer SDKs
       resp = await client.chat.complete(req);
-    } catch {
-      try {
-        // Older SDKs
-        resp = await client.chat(req);
-      } catch (e2) {
-        throw new Error(`Mistral chat call failed: ${e2?.message || e2}`);
-      }
+    } catch (e) {
+      throw new Error(`Mistral chat call failed: ${e?.message || e}`);
     }
 
     const text = extractText(resp) || "";
@@ -615,26 +592,22 @@ try {
 
   throw new Error("Unknown or unsupported PROVIDER: " + PROVIDER);
 }
-
 /* ---------- Selection & sanity ---------- */
 function parsePromptLimit(raw) {
   if (!raw || raw.toString().toLowerCase() === "all") return "all";
   const n = parseInt(raw, 10);
   return Number.isFinite(n) && n > 0 ? n : "all";
 }
-
 function selectAList(scopeStr) {
   if (!scopeStr || scopeStr === "ALL") return Array.from({length:9}, (_,i)=>"A"+(i+1));
   const s = new Set(scopeStr.split(",").map(x=>x.trim().toUpperCase()));
   return Array.from(s).filter(x => /^A[1-9]$/.test(x));
 }
-
 function countByAcode(src) {
   const out = {};
   for (const A of Object.keys(src)) out[A] = (src[A] || []).length;
   return out;
 }
-
 function buildJobs(scopeList, perALimit) {
   const jobs = [];
   for (const A of scopeList) {
@@ -644,12 +617,10 @@ function buildJobs(scopeList, perALimit) {
   }
   return jobs;
 }
-
 /* ---------- Core run (baseline → UIA per prompt) ---------- */
 async function run() {
   const scopeList = selectAList(ARG_A_SCOPE);
   const perALimit = parsePromptLimit(ARG_PROMPTS_RAW);
-
   if (ARG_DIAG) {
     const fullCounts = countByAcode(PROMPTS);
     const totalFull = Object.values(fullCounts).reduce((a,b)=>a+b,0);
@@ -666,7 +637,6 @@ async function run() {
     if (bad.length) console.warn("[DIAG] WARNING: some A-codes are not at 40:", bad);
     if (totalFull !== 360) console.warn(`[DIAG] WARNING: total prompt set is ${totalFull}, expected 360.`);
   }
-
   appendJsonl(LOG_PATH, {
     event: "RUN_START",
     ts: new Date().toISOString(),
@@ -677,13 +647,10 @@ async function run() {
     concurrency: ARG_CONC,
     metrics: ARG_METRICS
   });
-
   const jobs = buildJobs(scopeList, perALimit);
   if (ARG_DIAG) console.log("Jobs:", jobs.length);
-
   const sem = new Semaphore(ARG_CONC);
   let success = 0, fail = 0;
-
   await Promise.all(jobs.map(job => (async () => {
     await sem.acquire();
     try {
@@ -691,7 +658,6 @@ async function run() {
         { role: "system", content: "You are a careful, concise assistant. Be accurate and safe." },
         { role: "user", content: job.text }
       ];
-
       // BASELINE
       const b0 = Date.now();
       const { text: baselineText, metrics: baselineMetrics } = await callLLM({
@@ -702,12 +668,10 @@ async function run() {
       });
       const b1 = Date.now();
       const baselineLatency = b1 - b0;
-
       appendJsonl(LOG_PATH, {
         event: "BENCH:row", ts: new Date().toISOString(), phase: "baseline",
         targetA: job.A, prompt_id: `${job.A}:${job.idx}`, latencyMs: baselineLatency
       });
-
       appendJsonl(LOG_PATH, {
         event: "PROMPT_RESULT",
         ts: new Date().toISOString(),
@@ -721,13 +685,11 @@ async function run() {
         output_text_sha: crypto.createHash("sha1").update(baselineText || "").digest("hex").slice(0,12),
         metrics: baselineMetrics || null
       });
-
       // UIA
       const uiaMessages = [
         { role: "system", content: "You are a careful, concise assistant. Be accurate and safe. Apply structured, resilient reasoning and refuse unsafe requests." },
         { role: "user", content: job.text }
       ];
-
       const u0 = Date.now();
       const { text: uiaText, metrics: uiaMetrics } = await callLLM({
         messages: uiaMessages,
@@ -737,12 +699,10 @@ async function run() {
       });
       const u1 = Date.now();
       const uiaLatency = u1 - u0;
-
       appendJsonl(LOG_PATH, {
         event: "BENCH:row", ts: new Date().toISOString(), phase: "uia",
         targetA: job.A, prompt_id: `${job.A}:${job.idx}`, latencyMs: uiaLatency
       });
-
       appendJsonl(LOG_PATH, {
         event: "PROMPT_RESULT",
         ts: new Date().toISOString(),
@@ -756,7 +716,6 @@ async function run() {
         output_text_sha: crypto.createHash("sha1").update(uiaText || "").digest("hex").slice(0,12),
         metrics: uiaMetrics || null
       });
-
       success++;
       if (ARG_DIAG) console.log(`[ok] ${job.A}:${job.idx}  baseline ${baselineLatency}ms → uia ${uiaLatency}ms`);
     } catch (e) {
@@ -773,20 +732,17 @@ async function run() {
       sem.release();
     }
   })()));
-
   appendJsonl(LOG_PATH, {
     event: "RUN_END",
     ts: new Date().toISOString(),
     success,
     fail
   });
-
   if (ARG_DIAG) {
     console.log(`Done. Success: ${success}/${jobs.length}, Fail: ${fail}`);
     console.log(`Log saved to: ${LOG_PATH}`);
   }
 }
-
 /* ---------- Main ---------- */
 run().catch(e => {
   appendJsonl(LOG_PATH, { event: "FATAL", ts: new Date().toISOString(), error: String(e?.message || e) });

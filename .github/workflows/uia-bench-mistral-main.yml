@@ -56,11 +56,11 @@ jobs:
         run: |
           curl -s https://api.mistral.ai/v1/models -H "Authorization: Bearer $MISTRAL_API_KEY" | jq '.data[].id' || exit 1
 
-      - name: Run UIA Bench (Mistral Medium)
+      - name: Run UIA Bench (Mistral Small)
         env:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
           PROVIDER: mistral
-          MODEL: magistral-medium-latest
+          MODEL: magistral-small-latest
         run: |
           set -euo pipefail
           mkdir -p results
