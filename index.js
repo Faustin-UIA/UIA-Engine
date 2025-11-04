@@ -4,7 +4,7 @@
 //
 // Examples:
 //   PROVIDER=openai    node index.js --A=all --prompts=all --concurrency=6 --model=gpt-4o-mini --t=0.2 --max_tokens=180 --log=results/uia_run.jsonl --metrics=true --diag=true
-//   PROVIDER=anthropic node index.js --A=A4 --prompts=10  --model=claude-3-5-sonnet-20241022 --diag=true
+//   PROVIDER=anthropic node index.js --A=A4 --prompts=10  --model=claude-sonnet-4-20250514 --diag=true
 //   PROVIDER=mistral   node index.js --A=all --prompts=all --model=magistral-small-latest --diag=true
 //
 // ENV per provider:
@@ -515,7 +515,7 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
         msgs.push({ role: m.role, content: typeof m.content === "string" ? m.content : String(m.content ?? "") });
       }
     }
-    const usedModel = model || "claude-3-5-sonnet-20241022";
+    const usedModel = model || "claude-sonnet-4-20250514";
     const meter = startStreamTimer();
     const resp = await client.messages.create({
       model: usedModel,
