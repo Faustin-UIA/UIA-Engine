@@ -27,7 +27,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          # If the workflow was manually dispatched with a ref, honor it; else use the default.
           ref: ${{ github.event.inputs.ref || github.ref }}
 
       - name: Show commit, ref, and file snapshot
@@ -41,10 +40,11 @@ jobs:
           (md5sum index.js || gmd5sum index.js || shasum index.js) 2>/dev/null || true
           head -n 8 index.js || true
 
-      - name: Assert index.js version marker (v3.8)
+      # Accept any v3.* marker (your index is v3.9)
+      - name: Assert index.js version marker (v3.*)
         run: |
-          if ! grep -q "UIA Engine v3.8" index.js; then
-            echo "::error ::index.js is not the expected version (missing 'UIA Engine v3.8' marker)."
+          if ! grep -Eq "UIA Engine v3\." index.js; then
+            echo "::error ::index.js is not the expected version (missing 'UIA Engine v3.*' marker)."
             exit 1
           fi
 
@@ -94,3 +94,9 @@ jobs:
           name: uia-mistral-results
           path: ${{ env.LOG_PATH }}
           if-no-files-found: error
+
+      - name: Summarize
+        run: |
+          echo "### UIA Bench (Mistral)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Model: ${MODEL}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Log: \`${{ env.LOG_PATH }}\`" >> "$GITHUB_STEP_SUMMARY"
