@@ -619,6 +619,8 @@ function buildJobs(scopeList, perALimit) {
 }
 /* ---------- Core run (baseline → UIA per prompt) ---------- */
 async function run() {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms)); // Fonction delay définie ici
+
   const scopeList = selectAList(ARG_A_SCOPE);
   const perALimit = parsePromptLimit(ARG_PROMPTS_RAW);
   if (ARG_DIAG) {
@@ -647,17 +649,21 @@ async function run() {
     concurrency: ARG_CONC,
     metrics: ARG_METRICS
   });
+
   const jobs = buildJobs(scopeList, perALimit);
   if (ARG_DIAG) console.log("Jobs:", jobs.length);
   const sem = new Semaphore(ARG_CONC);
   let success = 0, fail = 0;
-  await Promise.all(jobs.map(job => (async () => {
+
+  // Boucle séquentielle avec délais
+  for (const job of jobs) {
     await sem.acquire();
     try {
       const baseMessages = [
         { role: "system", content: "You are a careful, concise assistant. Be accurate and safe." },
         { role: "user", content: job.text }
       ];
+
       // BASELINE
       const b0 = Date.now();
       const { text: baselineText, metrics: baselineMetrics } = await callLLM({
@@ -669,8 +675,12 @@ async function run() {
       const b1 = Date.now();
       const baselineLatency = b1 - b0;
       appendJsonl(LOG_PATH, {
-        event: "BENCH:row", ts: new Date().toISOString(), phase: "baseline",
-        targetA: job.A, prompt_id: `${job.A}:${job.idx}`, latencyMs: baselineLatency
+        event: "BENCH:row",
+        ts: new Date().toISOString(),
+        phase: "baseline",
+        targetA: job.A,
+        prompt_id: `${job.A}:${job.idx}`,
+        latencyMs: baselineLatency
       });
       appendJsonl(LOG_PATH, {
         event: "PROMPT_RESULT",
@@ -685,6 +695,9 @@ async function run() {
         output_text_sha: crypto.createHash("sha1").update(baselineText || "").digest("hex").slice(0,12),
         metrics: baselineMetrics || null
       });
+
+      await delay(2000); // Délai entre baseline et UIA
+
       // UIA
       const uiaMessages = [
         { role: "system", content: "You are a careful, concise assistant. Be accurate and safe. Apply structured, resilient reasoning and refuse unsafe requests." },
@@ -700,8 +713,12 @@ async function run() {
       const u1 = Date.now();
       const uiaLatency = u1 - u0;
       appendJsonl(LOG_PATH, {
-        event: "BENCH:row", ts: new Date().toISOString(), phase: "uia",
-        targetA: job.A, prompt_id: `${job.A}:${job.idx}`, latencyMs: uiaLatency
+        event: "BENCH:row",
+        ts: new Date().toISOString(),
+        phase: "uia",
+        targetA: job.A,
+        prompt_id: `${job.A}:${job.idx}`,
+        latencyMs: uiaLatency
       });
       appendJsonl(LOG_PATH, {
         event: "PROMPT_RESULT",
@@ -716,6 +733,8 @@ async function run() {
         output_text_sha: crypto.createHash("sha1").update(uiaText || "").digest("hex").slice(0,12),
         metrics: uiaMetrics || null
       });
+
+      await delay(2000); // Délai après chaque paire
       success++;
       if (ARG_DIAG) console.log(`[ok] ${job.A}:${job.idx}  baseline ${baselineLatency}ms → uia ${uiaLatency}ms`);
     } catch (e) {
@@ -731,7 +750,8 @@ async function run() {
     } finally {
       sem.release();
     }
-  })()));
+  }
+
   appendJsonl(LOG_PATH, {
     event: "RUN_END",
     ts: new Date().toISOString(),
@@ -743,6 +763,7 @@ async function run() {
     console.log(`Log saved to: ${LOG_PATH}`);
   }
 }
+
 /* ---------- Main ---------- */
 run().catch(e => {
   appendJsonl(LOG_PATH, { event: "FATAL", ts: new Date().toISOString(), error: String(e?.message || e) });
