@@ -39,7 +39,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PROVIDER: anthropic
           # ✅✅✅ CORRECTION CRITIQUE: Nom de modèle valide!
-          MODEL: claude-3-5-sonnet-20241022
+          MODEL: claude-sonnet-4-20250514
         run: |
           set -euo pipefail
           mkdir -p results
