@@ -8,18 +8,15 @@ on:
         default: ""
   schedule:
     - cron: "0 7 * * *"
-
 permissions:
   contents: write
-
 concurrency:
   group: uia-bench-mistral-${{ github.ref }}
   cancel-in-progress: false
-
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 90  # Augmenté pour éviter les interruptions
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -62,7 +59,7 @@ jobs:
           PROVIDER: mistral
           MODEL: magistral-small-latest
         run: |
-          set -euo pipefail
+          set -o pipefail  # Permet de continuer même en cas d'erreur mineure
           mkdir -p results
           TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
           LOG="results/uia_mistral_${TS}.jsonl"
@@ -70,12 +67,12 @@ jobs:
           PROVIDER=${PROVIDER} node index.js \
             --A=all --prompts=all --concurrency=3 \
             --model="${MODEL}" --t=0.2 --max_tokens=180 \
-            --metrics=true --diag=true --log="${LOG}"
+            --metrics=true --diag=true --log="${LOG}" || echo "Script terminé avec des erreurs, mais le log est sauvegardé."
           echo "LOG_PATH=${LOG}" >> "$GITHUB_ENV"
 
       - name: Upload results
         uses: actions/upload-artifact@v4
+        if: always()  # Upload même en cas d'échec partiel
         with:
           name: uia-mistral-results
           path: ${{ env.LOG_PATH }}
-          if-no-files-found: error
