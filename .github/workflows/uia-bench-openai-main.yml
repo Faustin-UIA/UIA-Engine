@@ -27,17 +27,16 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Install deps
-        run: npm ci || npm i
+      - name: Install deps (force OpenAI SDK)
+        run: |
+          set -e
+          npm ci || npm i
+          npm i -E openai@^4
 
-      # NOTE: Default path uses built-in OpenAI fallback in index.js.
-      # If you later add an adapter at adapters/openai_chat.js and want to use it,
-      # uncomment the LLM_EXEC line in the "Run UIA Bench (OpenAI)" step below.
       - name: Run UIA Bench (OpenAI)
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           PROVIDER: openai
-          # LLM_EXEC: node adapters/openai_chat.js   # ← enable ONLY if adapter exists & works
         run: |
           set -euo pipefail
           mkdir -p results
@@ -45,7 +44,7 @@ jobs:
           LOG="results/uia_openai_${TS}.jsonl"
           echo "::notice title=UIA Bench (OpenAI)::Log -> ${LOG}"
           node index.js \
-            --A=all --prompts=2 --concurrency=4 \
+            --A=all --prompts=all --concurrency=4 \
             --model=gpt-4o-mini --t=0.2 --max_tokens=180 \
             --metrics=true --diag=true --log="${LOG}"
           echo "LOG_PATH=${LOG}" >> "$GITHUB_ENV"
