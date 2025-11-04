@@ -1,5 +1,4 @@
 name: UIA Bench (Mistral Main)
-
 on:
   workflow_dispatch:
     inputs:
@@ -8,7 +7,7 @@ on:
         required: false
         default: ""
   schedule:
-    - cron: "0 7 * * *"  # 07:00 UTC
+    - cron: "0 7 * * *"
 
 permissions:
   contents: write
@@ -20,8 +19,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-
+    timeout-minutes: 40
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,23 +27,13 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.inputs.ref || github.ref }}
 
-      - name: Show commit, ref, and file snapshot
+      - name: Debug Mistral API Key
         run: |
-          echo "GITHUB_REF=${GITHUB_REF}"
-          echo "GITHUB_SHA=${GITHUB_SHA}"
-          git log --oneline -1
-          echo "Repo root:"
-          ls -la
-          echo "index.js md5 + head:"
-          (md5sum index.js || gmd5sum index.js || shasum index.js) 2>/dev/null || true
-          head -n 8 index.js || true
-
-      # Accept any v3.* marker (your index is v3.9)
-      - name: Assert index.js version marker (v3.*)
-        run: |
-          if ! grep -Eq "UIA Engine v3\." index.js; then
-            echo "::error ::index.js is not the expected version (missing 'UIA Engine v3.*' marker)."
+          if [ -z "${{ secrets.MISTRAL_API_KEY }}" ]; then
+            echo "::error ::MISTRAL_API_KEY is not set!"
             exit 1
+          else
+            echo "MISTRAL_API_KEY is set."
           fi
 
       - name: Setup Node
@@ -54,24 +42,21 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Install deps + force Mistral SDK
-        run: |
-          set -e
-          npm ci || npm i
-          npm i -E @mistralai/mistralai@^0
+      - name: Clean npm cache
+        run: npm cache clean --force
 
-      - name: Sanity import Mistral (same node context)
+      - name: Install dependencies
         run: |
-          node -e "import('@mistralai/mistralai').then(m=>{console.log('Mistral OK:', Object.keys(m))}).catch(e=>{console.error(e);process.exit(1)})"
+          npm ci
+          npm install @mistralai/mistralai@latest
 
-      - name: List Mistral models (debug)
+      - name: Test Mistral API Key
         env:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: |
-          curl -s https://api.mistral.ai/v1/models \
-            -H "Authorization: Bearer $MISTRAL_API_KEY" | jq '.data[].id' || true
+          curl -s https://api.mistral.ai/v1/models -H "Authorization: Bearer $MISTRAL_API_KEY" | jq '.data[].id' || exit 1
 
-      - name: Run UIA Bench (Mistral Large)
+      - name: Run UIA Bench (Mistral Medium)
         env:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
           PROVIDER: mistral
@@ -81,17 +66,12 @@ jobs:
           mkdir -p results
           TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
           LOG="results/uia_mistral_${TS}.jsonl"
-          echo "::notice title=UIA Bench (Mistral)::Log -> ${LOG}"
+          echo "Log path: ${LOG}"
           PROVIDER=${PROVIDER} node index.js \
-            --A=all --prompts=all --concurrency=6 \
+            --A=all --prompts=all --concurrency=3 \
             --model="${MODEL}" --t=0.2 --max_tokens=180 \
             --metrics=true --diag=true --log="${LOG}"
           echo "LOG_PATH=${LOG}" >> "$GITHUB_ENV"
-
-      - name: Verify provider in log
-        run: |
-          echo "Provider detected in RUN_START:"
-          jq -r 'select(.event=="RUN_START")|.provider' "${{ env.LOG_PATH }}" || true
 
       - name: Upload results
         uses: actions/upload-artifact@v4
@@ -99,9 +79,3 @@ jobs:
           name: uia-mistral-results
           path: ${{ env.LOG_PATH }}
           if-no-files-found: error
-
-      - name: Summarize
-        run: |
-          echo "### UIA Bench (Mistral)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Model: ${MODEL}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Log: \`${{ env.LOG_PATH }}\`" >> "$GITHUB_STEP_SUMMARY"
