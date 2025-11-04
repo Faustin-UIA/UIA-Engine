@@ -548,11 +548,11 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
   if (PROVIDER === "mistral") {
     // IMPORTANT: default export, not a named export
     let MistralClient;
-    try {
-      ({ default: MistralClient } = await import("@mistralai/mistralai"));
-    } catch {
-      throw new Error("Mistral SDK not installed. Run: npm i -E @mistralai/mistralai@^0");
-    }
+try {
+  MistralClient = (await import("@mistralai/mistralai")).MistralClient;
+} catch {
+  throw new Error("Mistral SDK not installed. Run: npm install @mistralai/mistralai@latest");
+}
 
     if (!process.env.MISTRAL_API_KEY) throw new Error("MISTRAL_API_KEY is not set.");
     const client = new MistralClient({ apiKey: process.env.MISTRAL_API_KEY });
