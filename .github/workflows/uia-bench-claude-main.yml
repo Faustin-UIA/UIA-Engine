@@ -37,7 +37,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PROVIDER: anthropic
-          MODEL: claude-sonnet-4-5-latest
+          MODEL: claude-sonnet-3-5-latest
         run: |
           set -euo pipefail
           mkdir -p results
