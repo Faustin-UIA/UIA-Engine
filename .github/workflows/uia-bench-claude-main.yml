@@ -15,7 +15,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 45  # ⬆️ Augmenté pour 360 prompts × 2 phases
+    timeout-minutes: 90  # ⬆️ Augmenté pour 360 prompts × 2 phases
 
     steps:
       - name: Checkout
