@@ -27,15 +27,17 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Install deps
-        run: npm ci || npm i
+      - name: Install deps (force Anthropic SDK)
+        run: |
+          set -e
+          npm ci || npm i
+          npm i -E @anthropic-ai/sdk@^0
 
       - name: Run UIA Bench (Claude)
         env:
-            ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-            PROVIDER: anthropic
-            MODEL: claude-sonnet-4-5-latest     # or claude-opus-4-1 / claude-haiku-4-5-latest
-            # LLM_EXEC: node adapters/anthropic_chat.js
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PROVIDER: anthropic
+          MODEL: claude-sonnet-4-5-latest
         run: |
           set -euo pipefail
           mkdir -p results
@@ -43,7 +45,7 @@ jobs:
           LOG="results/uia_claude_${TS}.jsonl"
           echo "::notice title=UIA Bench (Claude)::Log -> ${LOG}"
           node index.js \
-            --A=all --prompts=2 --concurrency=4 \
+            --A=all --prompts=all --concurrency=4 \
             --model="${MODEL}" --t=0.2 --max_tokens=180 \
             --metrics=true --diag=true --log="${LOG}"
           echo "LOG_PATH=${LOG}" >> "$GITHUB_ENV"
@@ -58,5 +60,5 @@ jobs:
       - name: Summarize
         run: |
           echo "### UIA Bench (Claude)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Model: claude-3-5-sonnet-20241022" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Model: ${MODEL}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Log: \`${{ env.LOG_PATH }}\`" >> "$GITHUB_STEP_SUMMARY"
