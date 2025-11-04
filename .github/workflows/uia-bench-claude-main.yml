@@ -37,18 +37,23 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PROVIDER: anthropic
-          MODEL: claude-sonnet-3-5-latest
+          MODEL: claude-3-5-sonnet-latest
         run: |
           set -euo pipefail
           mkdir -p results
           TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
           LOG="results/uia_claude_${TS}.jsonl"
           echo "::notice title=UIA Bench (Claude)::Log -> ${LOG}"
-          node index.js \
+          PROVIDER=${PROVIDER} node index.js \
             --A=all --prompts=all --concurrency=4 \
             --model="${MODEL}" --t=0.2 --max_tokens=180 \
             --metrics=true --diag=true --log="${LOG}"
           echo "LOG_PATH=${LOG}" >> "$GITHUB_ENV"
+
+      - name: Verify provider in log
+        run: |
+          echo "Provider detected in RUN_START:"
+          jq -r 'select(.event=="RUN_START")|.provider' "${{ env.LOG_PATH }}" || true
 
       - name: Upload results
         uses: actions/upload-artifact@v4
