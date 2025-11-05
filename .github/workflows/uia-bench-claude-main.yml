@@ -1,9 +1,9 @@
 name: UIA Bench (Claude Main)
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: "0 6 * * *"  # 06:00 UTC quotidien
+  # workflow_dispatch:
+  # schedule:
+  #  - cron: "0 6 * * *"  # 06:00 UTC quotidien
 
 permissions:
   contents: write
