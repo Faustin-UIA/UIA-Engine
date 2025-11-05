@@ -1,9 +1,9 @@
 name: UIA Bench (OpenAI Main)
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: "0 5 * * *"  # 05:00 UTC daily
+  # workflow_dispatch:
+  # schedule:
+  #  - cron: "0 5 * * *"  # 05:00 UTC daily
 
 permissions:
   contents: write
