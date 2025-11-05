@@ -6,8 +6,8 @@ on:
         description: "Branch or tag to run from"
         required: false
         default: ""
-  schedule:
-    - cron: "0 7 * * *"
+  # schedule:
+  #  - cron: "0 7 * * *"
 permissions:
   contents: write
 concurrency:
