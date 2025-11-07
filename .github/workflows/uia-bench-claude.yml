@@ -1,0 +1,103 @@
+name: UIA Bench (Claude Main)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: uia-bench-claude-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240  # ⬆️ Augmenté pour 360 prompts × 2 phases
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          set -e
+          npm ci || npm i
+          # ✅ Version spécifique du SDK Anthropic
+          npm i -E @anthropic-ai/sdk@^0.32.0
+
+      - name: Run UIA Bench (Claude)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PROVIDER: anthropic
+          # ✅✅✅ CORRECTION CRITIQUE: Nom de modèle valide!
+          MODEL: claude-sonnet-4-20250514
+        run: |
+          set -euo pipefail
+          mkdir -p results
+          TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
+          LOG="results/uia_claude_${TS}.jsonl"
+          
+          echo "::notice title=UIA Bench::Running with model ${MODEL}"
+          echo "LOG_PATH=${LOG}" >> "$GITHUB_ENV"
+          
+          PROVIDER=${PROVIDER} node index.js \
+            --A=all \
+            --prompts=all \
+            --concurrency=4 \
+            --model="${MODEL}" \
+            --t=0.2 \
+            --max_tokens=120 \
+            --metrics=true \
+            --diag=true \
+            --log="${LOG}"
+
+      - name: Verify results
+        run: |
+          echo "=== Verification des résultats ==="
+          echo "Provider utilisé:"
+          grep -m1 '"provider"' "${{ env.LOG_PATH }}" || echo "Aucun provider trouvé"
+          
+          echo ""
+          echo "Statistiques:"
+          ERRORS=$(grep -c '"event":"PROMPT_ERROR"' "${{ env.LOG_PATH }}" || echo "0")
+          RESULTS=$(grep -c '"event":"PROMPT_RESULT"' "${{ env.LOG_PATH }}" || echo "0")
+          echo "  Succès: ${RESULTS}"
+          echo "  Erreurs: ${ERRORS}"
+          
+          # ⚠️ Fail si > 10% d'erreurs
+          TOTAL=$((ERRORS + RESULTS))
+          if [[ $TOTAL -gt 0 ]]; then
+            ERROR_RATE=$((ERRORS * 100 / TOTAL))
+            echo "  Taux d'erreur: ${ERROR_RATE}%"
+            if [[ $ERROR_RATE -gt 10 ]]; then
+              echo "::error title=High Error Rate::Taux d'erreur trop élevé: ${ERROR_RATE}%"
+              exit 1
+            fi
+          fi
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: uia-claude-results-${{ github.run_id }}
+          path: ${{ env.LOG_PATH }}
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Summarize
+        run: |
+          echo "### ✅ UIA Bench (Claude) - Completed" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Model**: \`${MODEL}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Log**: \`${{ env.LOG_PATH }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Artifact**: uia-claude-results-${{ github.run_id }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          
+          ERRORS=$(grep -c '"event":"PROMPT_ERROR"' "${{ env.LOG_PATH }}" || echo "0")
+          RESULTS=$(grep -c '"event":"
