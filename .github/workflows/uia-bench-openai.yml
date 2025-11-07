@@ -1,7 +1,5 @@
 name: UIA Bench (OpenAI)
 
-on:
-
 permissions:
   contents: write
 
