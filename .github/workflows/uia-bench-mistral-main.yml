@@ -16,7 +16,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 90  # Augmenté pour éviter les interruptions
+    timeout-minutes: 240  # Augmenté pour éviter les interruptions
     steps:
       - name: Checkout
         uses: actions/checkout@v4
