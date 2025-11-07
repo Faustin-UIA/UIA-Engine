@@ -1,5 +1,14 @@
 name: UIA Bench (OpenAI)
 
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
 permissions:
   contents: write
 
