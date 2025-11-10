@@ -127,7 +127,7 @@ function summarizePhases(st, providerTag){
   const gSorted = gaps.slice().sort((a,b)=>a-b);
   const gMed = gSorted.length ? gSorted[Math.floor(gSorted.length/2)] : 0;
 
-  // Build full text once
+  // Build full texts once
   const fullText = st.text || "";
 
   // Helper to compute quartile text stats
