@@ -36,7 +36,7 @@ const PROVIDER     = (process.env.PROVIDER || "openai").toLowerCase();
 fs.mkdirSync(path.dirname(LOG_PATH), { recursive: true });
 const appendJsonl = (p, obj) => fs.appendFileSync(p, JSON.stringify(obj) + "\n");
 
-// ---------- math helpers ----------
+// ---------- math helpers here ----------
 const nowPerf  = () => performance.now();
 const median   = a => (a.length ? a.slice().sort((x,y)=>x-y)[Math.floor(a.length/2)] : 0);
 const mean     = a => (a.length ? a.reduce((s,x)=>s+x,0)/a.length : 0);
