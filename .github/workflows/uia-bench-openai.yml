@@ -1,13 +1,15 @@
 name: UIA Bench (OpenAI)
 
 on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:        # ✅ allows you to run it manually
+  # push:
+  #   branches:
+  #     - main              # ❌ comment out to stop auto-runs
+  # pull_request:
+  #   branches:
+  #     - main              # ❌ comment out to stop PR runs
+  # schedule:
+  #   - cron: "0 6 * * *"   # (optional) re-enable if you want a daily run
 
 permissions:
   contents: write
