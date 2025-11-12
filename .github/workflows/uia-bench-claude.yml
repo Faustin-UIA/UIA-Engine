@@ -15,6 +15,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 240  # 360 prompts × 2 phases
 
+    # Global env for the job (keeps steps tidy + consistent with local)
+    env:
+      PROVIDER: anthropic
+      MODEL: claude-sonnet-4-20250514
+      CONCURRENCY: '4'
+      T: '0.2'
+      MAXTOK: '120'
+      ERROR_THRESHOLD: '10'   # percent
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,10 +38,10 @@ jobs:
         run: |
           set -e
           npm ci || npm i
-          # Anthropic SDK version known to support claude-opus-4-20250514
+          # Anthropic SDK version known to support claude-sonnet-4-20250514
           npm i -E @anthropic-ai/sdk@^0.32.0
 
-      # ✅ Improved ESM-safe preflight
+      # ✅ ESM-safe preflight (same model as run)
       - name: Preflight Anthropic key/model
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -42,13 +51,13 @@ jobs:
             try {
               const { default: Anthropic } = await import("@anthropic-ai/sdk");
               const c = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-              const model = "claude-opus-4-20250514";
+              const model = process.env.MODEL || "claude-sonnet-4-20250514";
               const r = await c.messages.create({
                 model,
                 max_tokens: 5,
                 messages: [{ role: "user", content: "hi" }]
               });
-              console.log("✅ Preflight OK:", r?.content?.[0]?.type || "text");
+              console.log("✅ Preflight OK:", model, "-", (r?.content?.[0]?.type || "text"));
             } catch (e) {
               console.error("❌ Anthropic error detail:", JSON.stringify(e, null, 2));
               process.exit(1);
@@ -58,8 +67,6 @@ jobs:
       - name: Run UIA Bench (Claude)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          PROVIDER: anthropic
-          MODEL: claude-opus-4-20250514
         run: |
           set -euo pipefail
           mkdir -p results
@@ -67,16 +74,17 @@ jobs:
           LOG="results/uia_claude_${TS}.jsonl"
 
           echo "::notice title=UIA Bench::Running with model ${MODEL}"
+          # Expose for later steps:
           echo "LOG_PATH=${LOG}" >> "$GITHUB_ENV"
-          echo "MODEL=${MODEL}" >> "$GITHUB_ENV"
+          echo "MODEL=${MODEL}"   >> "$GITHUB_ENV"
 
-          PROVIDER=${PROVIDER} node index.js \
+          node index.js \
             --A=all \
             --prompts=all \
-            --concurrency=4 \
+            --concurrency="${CONCURRENCY}" \
             --model="${MODEL}" \
-            --t=0.2 \
-            --max_tokens=120 \
+            --t="${T}" \
+            --max_tokens="${MAXTOK}" \
             --metrics=true \
             --diag=true \
             --log="${LOG}"
@@ -85,30 +93,35 @@ jobs:
         run: |
           set -euo pipefail
           LOG="${{ env.LOG_PATH }}"
+          THRESH="${ERROR_THRESHOLD}"
+
           echo "=== Vérification des résultats ==="
+          echo "  Log: ${LOG}"
+          echo "  Seuil d'échec: ${THRESH}%"
 
           if [ ! -f "$LOG" ]; then
             echo "::error::Aucun fichier de résultats trouvé (${LOG})"
             exit 1
           fi
 
-          # Robust counts: default to 0 if grep finds nothing or fails
+          # Counts (fall back to 0 on grep failure)
           RESULTS=$(grep -c "\"event\":\"PROMPT_RESULT\"" "$LOG" 2>/dev/null || echo 0)
           ERRORS=$(grep -c "\"event\":\"PROMPT_ERROR\""  "$LOG" 2>/dev/null || echo 0)
 
           echo "  Succès : ${RESULTS}"
           echo "  Erreurs : ${ERRORS}"
 
-          TOTAL=$(( ${RESULTS:-0} + ${ERRORS:-0} ))
-          if [ "$TOTAL" -gt 0 ]; then
-            ERROR_RATE=$(( ${ERRORS:-0} * 100 / TOTAL ))
-            echo "  Taux d'erreur : ${ERROR_RATE}%"
-            if [ "$ERROR_RATE" -gt 10 ]; then
-              echo "::error title=High Error Rate::Taux d'erreur trop élevé: ${ERROR_RATE}%"
-              exit 1
-            fi
-          else
+          TOTAL=$(( RESULTS + ERRORS ))
+          if [ "$TOTAL" -eq 0 ]; then
             echo "::error::Aucun événement PROMPT_RESULT/PROMPT_ERROR dans le log."
+            exit 1
+          fi
+
+          ERROR_RATE=$(( ERRORS * 100 / TOTAL ))
+          echo "  Taux d'erreur : ${ERROR_RATE}%"
+
+          if [ "$ERROR_RATE" -gt "$THRESH" ]; then
+            echo "::error title=High Error Rate::Taux d'erreur trop élevé: ${ERROR_RATE}%"
             exit 1
           fi
 
