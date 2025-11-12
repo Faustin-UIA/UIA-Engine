@@ -29,8 +29,32 @@ jobs:
         run: |
           set -e
           npm ci || npm i
-          # SDK Anthropic validé
+          # Anthropic SDK version known to support claude-3-5-sonnet-20241022
           npm i -E @anthropic-ai/sdk@^0.32.0
+
+      # Optional but recommended: fail fast if key/model access is invalid
+      - name: Preflight Anthropic key/model
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          set -euo pipefail
+          node -e '
+            import Anthropic from "@anthropic-ai/sdk";
+            const c = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+            const model = "claude-3-5-sonnet-20241022";
+            const go = async () => {
+              const r = await c.messages.create({
+                model,
+                max_tokens: 5,
+                messages: [{ role: "user", content: "hi" }]
+              });
+              console.log("Preflight OK:", r?.content?.[0]?.type || "text");
+            };
+            go().catch(e => {
+              console.error("Anthropic error:", e?.error?.type || e?.message || e);
+              process.exit(1);
+            });
+          '
 
       - name: Run UIA Bench (Claude)
         env:
@@ -69,21 +93,24 @@ jobs:
             exit 1
           fi
 
-          # Grep robuste (quotes échappées) + valeurs par défaut
-          ERRORS=$(grep -c "\"event\":\"PROMPT_ERROR\"" "$LOG" 2>/dev/null || echo 0)
+          # Robust counts: default to 0 if grep finds nothing or fails
           RESULTS=$(grep -c "\"event\":\"PROMPT_RESULT\"" "$LOG" 2>/dev/null || echo 0)
+          ERRORS=$(grep -c "\"event\":\"PROMPT_ERROR\""  "$LOG" 2>/dev/null || echo 0)
 
           echo "  Succès : ${RESULTS}"
           echo "  Erreurs : ${ERRORS}"
 
-          TOTAL=$(( RESULTS + ERRORS ))
+          TOTAL=$(( ${RESULTS:-0} + ${ERRORS:-0} ))
           if [ "$TOTAL" -gt 0 ]; then
-            ERROR_RATE=$(( ERRORS * 100 / TOTAL ))
+            ERROR_RATE=$(( ${ERRORS:-0} * 100 / TOTAL ))
             echo "  Taux d'erreur : ${ERROR_RATE}%"
             if [ "$ERROR_RATE" -gt 10 ]; then
               echo "::error title=High Error Rate::Taux d'erreur trop élevé: ${ERROR_RATE}%"
               exit 1
             fi
+          else
+            echo "::error::Aucun événement PROMPT_RESULT/PROMPT_ERROR dans le log."
+            exit 1
           fi
 
       - name: Upload results
@@ -100,8 +127,8 @@ jobs:
           LOG="${{ env.LOG_PATH }}"
           MODEL="${{ env.MODEL }}"
 
-          ERRORS=$(grep -c "\"event\":\"PROMPT_ERROR\"" "$LOG" 2>/dev/null || echo 0)
           RESULTS=$(grep -c "\"event\":\"PROMPT_RESULT\"" "$LOG" 2>/dev/null || echo 0)
+          ERRORS=$(grep -c "\"event\":\"PROMPT_ERROR\""  "$LOG" 2>/dev/null || echo 0)
 
           {
             echo "### ✅ UIA Bench (Claude) - Completed"
