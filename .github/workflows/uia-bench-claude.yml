@@ -36,17 +36,17 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PROVIDER: anthropic
-          # ✅✅✅ CORRECTION CRITIQUE: Nom de modèle valide!
           MODEL: claude-sonnet-4-20250514
         run: |
           set -euo pipefail
           mkdir -p results
           TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
           LOG="results/uia_claude_${TS}.jsonl"
-          
+
           echo "::notice title=UIA Bench::Running with model ${MODEL}"
           echo "LOG_PATH=${LOG}" >> "$GITHUB_ENV"
-          
+          echo "MODEL=${MODEL}" >> "$GITHUB_ENV"
+
           PROVIDER=${PROVIDER} node index.js \
             --A=all \
             --prompts=all \
@@ -60,22 +60,24 @@ jobs:
 
       - name: Verify results
         run: |
-          echo "=== Verification des résultats ==="
-          echo "Provider utilisé:"
-          grep -m1 '"provider"' "${{ env.LOG_PATH }}" || echo "Aucun provider trouvé"
-          
+          set -euo pipefail
+          echo "=== Vérification des résultats ==="
+          LOG="${{ env.LOG_PATH }}"
+
+          echo "Provider utilisé :"
+          grep -m1 '"provider"' "$LOG" || echo "Aucun provider trouvé"
+
           echo ""
-          echo "Statistiques:"
-          ERRORS=$(grep -c '"event":"PROMPT_ERROR"' "${{ env.LOG_PATH }}" || echo "0")
-          RESULTS=$(grep -c '"event":"PROMPT_RESULT"' "${{ env.LOG_PATH }}" || echo "0")
-          echo "  Succès: ${RESULTS}"
-          echo "  Erreurs: ${ERRORS}"
-          
-          # ⚠️ Fail si > 10% d'erreurs
+          echo "Statistiques :"
+          ERRORS=$(grep -c '"event":"PROMPT_ERROR"' "$LOG" || echo 0)
+          RESULTS=$(grep -c '"event":"PROMPT_RESULT"' "$LOG" || echo 0)
+          echo "  Succès : ${RESULTS}"
+          echo "  Erreurs : ${ERRORS}"
+
           TOTAL=$((ERRORS + RESULTS))
           if [[ $TOTAL -gt 0 ]]; then
             ERROR_RATE=$((ERRORS * 100 / TOTAL))
-            echo "  Taux d'erreur: ${ERROR_RATE}%"
+            echo "  Taux d'erreur : ${ERROR_RATE}%"
             if [[ $ERROR_RATE -gt 10 ]]; then
               echo "::error title=High Error Rate::Taux d'erreur trop élevé: ${ERROR_RATE}%"
               exit 1
@@ -92,12 +94,20 @@ jobs:
 
       - name: Summarize
         run: |
-          echo "### ✅ UIA Bench (Claude) - Completed" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **Model**: \`${MODEL}\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **Log**: \`${{ env.LOG_PATH }}\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **Artifact**: uia-claude-results-${{ github.run_id }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          
-          ERRORS=$(grep -c '"event":"PROMPT_ERROR"' "${{ env.LOG_PATH }}" || echo "0")
-          RESULTS=$(grep -c '"event":"
+          set -euo pipefail
+          LOG="${{ env.LOG_PATH }}"
+          MODEL="${{ env.MODEL }}"
+
+          ERRORS=$(grep -c "\"event\":\"PROMPT_ERROR\"" "$LOG" || echo 0)
+          RESULTS=$(grep -c "\"event\":\"PROMPT_RESULT\"" "$LOG" || echo 0)
+
+          {
+            echo "### ✅ UIA Bench (Claude) - Completed"
+            echo
+            echo "- **Model**: \`${MODEL}\`"
+            echo "- **Log**: \`${LOG}\`"
+            echo "- **Artifact**: uia-claude-results-${{ github.run_id }}"
+            echo
+            echo "- **Results**: ${RESULTS}"
+            echo "- **Errors**: ${ERRORS}"
+          } >> "$GITHUB_STEP_SUMMARY"
