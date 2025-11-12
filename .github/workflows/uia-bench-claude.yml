@@ -37,10 +37,9 @@ jobs:
         run: |
           set -e
           npm ci || npm i
-          # Anthropic SDK avec support de messages.stream
-          npm i -E @anthropic-ai/sdk@^0.32.0
+          # Anthropic SDK avec support messages.stream (aligne avec ton local)
+          npm i -E @anthropic-ai/sdk@^0.68.0
 
-      # Préflight rapide API key + reachability (non-stream OK ici)
       - name: Preflight Anthropic key/model
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -52,8 +51,7 @@ jobs:
               const c = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
               const model = process.env.MODEL || "claude-sonnet-4-20250514";
               const r = await c.messages.create({
-                model,
-                max_tokens: 5,
+                model, max_tokens: 5,
                 messages: [{ role: "user", content: "hi" }]
               });
               console.log("✅ Preflight OK:", model, "-", (r?.content?.[0]?.type || "text"));
@@ -94,7 +92,7 @@ jobs:
         run: |
           set -euo pipefail
           LOG="${{ env.LOG_PATH }}"
-          THRESH="${ERROR_THRESHOLD}"
+          THRESH="${ERROR_THRESHOLD:-10}"
 
           echo "=== Vérification des résultats ==="
           echo "  Log: ${LOG}"
@@ -105,39 +103,44 @@ jobs:
             exit 1
           fi
 
-          RES=$(( $(grep -c "\"event\":\"PROMPT_RESULT\"" "$LOG" || echo 0) ))
-          ERR=$(( $(grep -c "\"event\":\"PROMPT_ERROR\""  "$LOG" || echo 0) ))
-          SUM=$(( $(grep -c "\"event\":\"STREAM_SUMMARY\"" "$LOG" || echo 0) ))
+          # Compteurs robustes (toujours initialisés)
+          RES=0; ERRORS=0; SUM=0
+          RES=$(grep -c '"event":"PROMPT_RESULT"'  "$LOG" || true)
+          ERRORS=$(grep -c '"event":"PROMPT_ERROR"' "$LOG" || true)
+          SUM=$(grep -c '"event":"STREAM_SUMMARY"'  "$LOG" || true)
+
+          # Normaliser en entiers (évite arithmétique sur vide)
+          RES=$(( RES + 0 ))
+          ERRORS=$(( ERRORS + 0 ))
+          SUM=$(( SUM + 0 ))
 
           echo "  PROMPT_RESULT : ${RES}"
-          echo "  PROMPT_ERROR  : ${ERR}"
+          echo "  PROMPT_ERROR  : ${ERRORS}"
           echo "  STREAM_SUMMARY: ${SUM}"
 
-          TOT=$(( RES + ERR ))
-          if [ "$TOT" -eq 0 ]; then
+          TOTAL=$(( RES + ERRORS ))
+          if [ "$TOTAL" -eq 0 ]; then
             echo "::error::Aucun événement PROMPT_RESULT/PROMPT_ERROR dans le log."
             exit 1
           fi
 
           # Taux d'erreur
-          ERR_RATE=$(( ERR * 100 / TOT ))
-          echo "  Taux d'erreur : ${ERR_RATE}%"
-          if [ "$ERR_RATE" -gt "$THRESH" ]; then
-            echo "::error title=High Error Rate::Taux d'erreur trop élevé: ${ERR_RATE}%"
+          ERROR_RATE=$(( ERRORS * 100 / TOTAL ))
+          echo "  Taux d'erreur : ${ERROR_RATE}%"
+          if [ "$ERROR_RATE" -gt "$THRESH" ]; then
+            echo "::error title=High Error Rate::Taux d'erreur trop élevé: ${ERROR_RATE}%"
             exit 1
           fi
 
-          # Sanity F1–F4 : on attend 1 STREAM_SUMMARY par phase (baseline) + 1 (uia) pour chaque prompt
-          # -> même cardinalité que PROMPT_RESULT
+          # STREAM_SUMMARY attendu au moins égal au nombre de PROMPT_RESULT
           if [ "$SUM" -lt "$RES" ]; then
             echo "::error title=Missing STREAM_SUMMARY::STREAM_SUMMARY manquants (SUM=${SUM} < RES=${RES})."
-            echo "Conseil: vérifier que la voie Anthropic streame bien dans index.js (messages.stream) et que --diag=true est passé."
+            echo "Conseil: vérifier le streaming Anthropic dans index.js (messages.stream) et --diag=true."
             exit 1
           fi
 
-          # Affiche un aperçu des familles pour contrôle visuel
           echo "=== Aperçu STREAM_SUMMARY (5 lignes) ==="
-          head -500 "$LOG" | grep "\"event\":\"STREAM_SUMMARY\"" | head -5
+          grep '"event":"STREAM_SUMMARY"' "$LOG" | head -5 || true
 
       - name: Upload results
         uses: actions/upload-artifact@v4
@@ -153,9 +156,9 @@ jobs:
           LOG="${{ env.LOG_PATH }}"
           MODEL="${{ env.MODEL }}"
 
-          RESULTS=$(grep -c "\"event\":\"PROMPT_RESULT\"" "$LOG" 2>/dev/null || echo 0)
-          ERRORS=$(grep -c "\"event\":\"PROMPT_ERROR\""  "$LOG" 2>/dev/null || echo 0)
-          SUMMARIES=$(grep -c "\"event\":\"STREAM_SUMMARY\"" "$LOG" 2>/dev/null || echo 0)
+          RESULTS=$(grep -c '"event":"PROMPT_RESULT"' "$LOG" 2>/dev/null || echo 0)
+          ERRORS=$(grep -c '"event":"PROMPT_ERROR"'  "$LOG" 2>/dev/null || echo 0)
+          SUMMARIES=$(grep -c '"event":"STREAM_SUMMARY"' "$LOG" 2>/dev/null || echo 0)
 
           {
             echo "### ✅ UIA Bench (Claude) - Completed"
