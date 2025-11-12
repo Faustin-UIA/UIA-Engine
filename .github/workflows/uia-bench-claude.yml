@@ -32,28 +32,27 @@ jobs:
           # Anthropic SDK version known to support claude-3-5-sonnet-20241022
           npm i -E @anthropic-ai/sdk@^0.32.0
 
-      # Optional but recommended: fail fast if key/model access is invalid
+      # ✅ Improved ESM-safe preflight
       - name: Preflight Anthropic key/model
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           set -euo pipefail
-          node -e '
-            import Anthropic from "@anthropic-ai/sdk";
-            const c = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-            const model = "claude-3-5-sonnet-20241022";
-            const go = async () => {
+          node --input-type=module -e '
+            try {
+              const { default: Anthropic } = await import("@anthropic-ai/sdk");
+              const c = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+              const model = "claude-3-5-sonnet-20241022";
               const r = await c.messages.create({
                 model,
                 max_tokens: 5,
                 messages: [{ role: "user", content: "hi" }]
               });
-              console.log("Preflight OK:", r?.content?.[0]?.type || "text");
-            };
-            go().catch(e => {
-              console.error("Anthropic error:", e?.error?.type || e?.message || e);
+              console.log("✅ Preflight OK:", r?.content?.[0]?.type || "text");
+            } catch (e) {
+              console.error("❌ Anthropic error detail:", JSON.stringify(e, null, 2));
               process.exit(1);
-            });
+            }
           '
 
       - name: Run UIA Bench (Claude)
