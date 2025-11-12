@@ -768,7 +768,7 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
         msgs.push({ role: m.role, content });
       }
     }
-    const usedModel = model || "claude-3-5-sonnet-20241022";
+    const usedModel = model || "claude-opus-4-20250514";
 
     const meter = startStreamTimer();
     const resp = await client.messages.create({
