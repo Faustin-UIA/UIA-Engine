@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 240  # 360 prompts × 2 phases
 
-    # Global env for the job (keeps steps tidy + consistent with local)
     env:
       PROVIDER: anthropic
       MODEL: claude-sonnet-4-20250514
@@ -38,10 +37,10 @@ jobs:
         run: |
           set -e
           npm ci || npm i
-          # Anthropic SDK version known to support claude-sonnet-4-20250514
+          # Anthropic SDK avec support de messages.stream
           npm i -E @anthropic-ai/sdk@^0.32.0
 
-      # ✅ ESM-safe preflight (same model as run)
+      # Préflight rapide API key + reachability (non-stream OK ici)
       - name: Preflight Anthropic key/model
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -59,7 +58,7 @@ jobs:
               });
               console.log("✅ Preflight OK:", model, "-", (r?.content?.[0]?.type || "text"));
             } catch (e) {
-              console.error("❌ Anthropic error detail:", JSON.stringify(e, null, 2));
+              console.error("❌ Anthropic error detail:", e?.message || e);
               process.exit(1);
             }
           '
@@ -67,6 +66,8 @@ jobs:
       - name: Run UIA Bench (Claude)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PROVIDER: ${{ env.PROVIDER }}
+          MODEL: ${{ env.MODEL }}
         run: |
           set -euo pipefail
           mkdir -p results
@@ -74,7 +75,6 @@ jobs:
           LOG="results/uia_claude_${TS}.jsonl"
 
           echo "::notice title=UIA Bench::Running with model ${MODEL}"
-          # Expose for later steps:
           echo "LOG_PATH=${LOG}" >> "$GITHUB_ENV"
           echo "MODEL=${MODEL}"   >> "$GITHUB_ENV"
 
@@ -87,9 +87,10 @@ jobs:
             --max_tokens="${MAXTOK}" \
             --metrics=true \
             --diag=true \
+            --phase_basis=entropy \
             --log="${LOG}"
 
-      - name: Verify results
+      - name: Verify results (events + STREAM_SUMMARY)
         run: |
           set -euo pipefail
           LOG="${{ env.LOG_PATH }}"
@@ -104,26 +105,39 @@ jobs:
             exit 1
           fi
 
-          # Counts (fall back to 0 on grep failure)
-          RESULTS=$(grep -c "\"event\":\"PROMPT_RESULT\"" "$LOG" 2>/dev/null || echo 0)
-          ERRORS=$(grep -c "\"event\":\"PROMPT_ERROR\""  "$LOG" 2>/dev/null || echo 0)
+          RES=$(( $(grep -c "\"event\":\"PROMPT_RESULT\"" "$LOG" || echo 0) ))
+          ERR=$(( $(grep -c "\"event\":\"PROMPT_ERROR\""  "$LOG" || echo 0) ))
+          SUM=$(( $(grep -c "\"event\":\"STREAM_SUMMARY\"" "$LOG" || echo 0) ))
 
-          echo "  Succès : ${RESULTS}"
-          echo "  Erreurs : ${ERRORS}"
+          echo "  PROMPT_RESULT : ${RES}"
+          echo "  PROMPT_ERROR  : ${ERR}"
+          echo "  STREAM_SUMMARY: ${SUM}"
 
-          TOTAL=$(( RESULTS + ERRORS ))
-          if [ "$TOTAL" -eq 0 ]; then
+          TOT=$(( RES + ERR ))
+          if [ "$TOT" -eq 0 ]; then
             echo "::error::Aucun événement PROMPT_RESULT/PROMPT_ERROR dans le log."
             exit 1
           fi
 
-          ERROR_RATE=$(( ERRORS * 100 / TOTAL ))
-          echo "  Taux d'erreur : ${ERROR_RATE}%"
-
-          if [ "$ERROR_RATE" -gt "$THRESH" ]; then
-            echo "::error title=High Error Rate::Taux d'erreur trop élevé: ${ERROR_RATE}%"
+          # Taux d'erreur
+          ERR_RATE=$(( ERR * 100 / TOT ))
+          echo "  Taux d'erreur : ${ERR_RATE}%"
+          if [ "$ERR_RATE" -gt "$THRESH" ]; then
+            echo "::error title=High Error Rate::Taux d'erreur trop élevé: ${ERR_RATE}%"
             exit 1
           fi
+
+          # Sanity F1–F4 : on attend 1 STREAM_SUMMARY par phase (baseline) + 1 (uia) pour chaque prompt
+          # -> même cardinalité que PROMPT_RESULT
+          if [ "$SUM" -lt "$RES" ]; then
+            echo "::error title=Missing STREAM_SUMMARY::STREAM_SUMMARY manquants (SUM=${SUM} < RES=${RES})."
+            echo "Conseil: vérifier que la voie Anthropic streame bien dans index.js (messages.stream) et que --diag=true est passé."
+            exit 1
+          fi
+
+          # Affiche un aperçu des familles pour contrôle visuel
+          echo "=== Aperçu STREAM_SUMMARY (5 lignes) ==="
+          head -500 "$LOG" | grep "\"event\":\"STREAM_SUMMARY\"" | head -5
 
       - name: Upload results
         uses: actions/upload-artifact@v4
@@ -141,6 +155,7 @@ jobs:
 
           RESULTS=$(grep -c "\"event\":\"PROMPT_RESULT\"" "$LOG" 2>/dev/null || echo 0)
           ERRORS=$(grep -c "\"event\":\"PROMPT_ERROR\""  "$LOG" 2>/dev/null || echo 0)
+          SUMMARIES=$(grep -c "\"event\":\"STREAM_SUMMARY\"" "$LOG" 2>/dev/null || echo 0)
 
           {
             echo "### ✅ UIA Bench (Claude) - Completed"
@@ -151,4 +166,5 @@ jobs:
             echo
             echo "- **Results**: ${RESULTS}"
             echo "- **Errors**: ${ERRORS}"
+            echo "- **Stream Summaries**: ${SUMMARIES}"
           } >> "$GITHUB_STEP_SUMMARY"
