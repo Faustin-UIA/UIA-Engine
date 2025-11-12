@@ -13,7 +13,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 240  # ⬆️ Augmenté pour 360 prompts × 2 phases
+    timeout-minutes: 240  # 360 prompts × 2 phases
 
     steps:
       - name: Checkout
@@ -29,14 +29,14 @@ jobs:
         run: |
           set -e
           npm ci || npm i
-          # ✅ Version spécifique du SDK Anthropic
+          # SDK Anthropic validé
           npm i -E @anthropic-ai/sdk@^0.32.0
 
       - name: Run UIA Bench (Claude)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PROVIDER: anthropic
-          MODEL: claude-sonnet-4-20250514
+          MODEL: claude-3-5-sonnet-20241022
         run: |
           set -euo pipefail
           mkdir -p results
@@ -61,24 +61,26 @@ jobs:
       - name: Verify results
         run: |
           set -euo pipefail
-          echo "=== Vérification des résultats ==="
           LOG="${{ env.LOG_PATH }}"
+          echo "=== Vérification des résultats ==="
 
-          echo "Provider utilisé :"
-          grep -m1 '"provider"' "$LOG" || echo "Aucun provider trouvé"
+          if [ ! -f "$LOG" ]; then
+            echo "::error::Aucun fichier de résultats trouvé (${LOG})"
+            exit 1
+          fi
 
-          echo ""
-          echo "Statistiques :"
-          ERRORS=$(grep -c '"event":"PROMPT_ERROR"' "$LOG" || echo 0)
-          RESULTS=$(grep -c '"event":"PROMPT_RESULT"' "$LOG" || echo 0)
+          # Grep robuste (quotes échappées) + valeurs par défaut
+          ERRORS=$(grep -c "\"event\":\"PROMPT_ERROR\"" "$LOG" 2>/dev/null || echo 0)
+          RESULTS=$(grep -c "\"event\":\"PROMPT_RESULT\"" "$LOG" 2>/dev/null || echo 0)
+
           echo "  Succès : ${RESULTS}"
           echo "  Erreurs : ${ERRORS}"
 
-          TOTAL=$((ERRORS + RESULTS))
-          if [[ $TOTAL -gt 0 ]]; then
-            ERROR_RATE=$((ERRORS * 100 / TOTAL))
+          TOTAL=$(( RESULTS + ERRORS ))
+          if [ "$TOTAL" -gt 0 ]; then
+            ERROR_RATE=$(( ERRORS * 100 / TOTAL ))
             echo "  Taux d'erreur : ${ERROR_RATE}%"
-            if [[ $ERROR_RATE -gt 10 ]]; then
+            if [ "$ERROR_RATE" -gt 10 ]; then
               echo "::error title=High Error Rate::Taux d'erreur trop élevé: ${ERROR_RATE}%"
               exit 1
             fi
@@ -98,8 +100,8 @@ jobs:
           LOG="${{ env.LOG_PATH }}"
           MODEL="${{ env.MODEL }}"
 
-          ERRORS=$(grep -c "\"event\":\"PROMPT_ERROR\"" "$LOG" || echo 0)
-          RESULTS=$(grep -c "\"event\":\"PROMPT_RESULT\"" "$LOG" || echo 0)
+          ERRORS=$(grep -c "\"event\":\"PROMPT_ERROR\"" "$LOG" 2>/dev/null || echo 0)
+          RESULTS=$(grep -c "\"event\":\"PROMPT_RESULT\"" "$LOG" 2>/dev/null || echo 0)
 
           {
             echo "### ✅ UIA Bench (Claude) - Completed"
