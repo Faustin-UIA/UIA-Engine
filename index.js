@@ -1,5 +1,5 @@
 // =====================================================
-// UIA Engine v3.12 – Batch runner with inline telemetry (provider-agnostic)
+// UIA Engine v3.13 – Batch runner with inline telemetry (provider-agnostic)
 // Providers: OpenAI (streaming), Anthropic (non-stream fallback), Mistral (non-stream fallback)
 // ENTROPY-BASED F1–F4 segmentation + tempo anchors for CSI normalization
 // Usage:
@@ -20,7 +20,7 @@ import { performance } from "node:perf_hooks";
 // Provider SDK placeholders (lazy-loaded in callLLM)
 let OpenAI = null;     // openai
 let Anthropic = null;  // @anthropic-ai/sdk
-let Mistral = null;    // @mistralai/mistralai (named export)
+let MistralClientCtor = null; // @mistralai/mistralai export variant
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
@@ -54,15 +54,26 @@ const norm     = v => { const s=v.reduce((a,b)=>a+b,0)||1; return v.map(x=>x/s);
 const Hshannon = p => -p.reduce((s,x)=> s + (x>0 ? x*Math.log2(x) : 0), 0);
 const clamp    = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 
+// ---------- small deterministic PRNG for jitter ----------
+function makePRNG(seedStr){
+  let h = crypto.createHash("sha1").update(seedStr).digest();
+  let i = 0;
+  return () => {
+    if (i >= h.length) { h = crypto.createHash("sha1").update(h).digest(); i = 0; }
+    const v = h[i++] / 255;
+    return v;
+  };
+}
+
 // ---------- streaming timers ----------
 function startStreamTimer(){
   return {
     t0: nowPerf(),
-    firstAt: null,               // perf time of first chunk
-    last: null,                  // perf time of last chunk
-    gaps: [],                    // ms gaps between chunks; [0] = TTFB
-    times: [],                   // absolute times for each chunk
-    textChunks: [],              // text per chunk
+    firstAt: null,
+    last: null,
+    gaps: [],           // ms gaps between chunks; gaps[0] = TTFB
+    times: [],          // absolute times for each chunk
+    textChunks: [],
     text: ""
   };
 }
@@ -93,7 +104,7 @@ function lexicalEntropyForText(s, W=10){
   }
   const _mean = mean(Hs);
   const _p95  = p95(Hs);
-  return { Hs, mean_H:+_mean.toFixed(3), p95_H:+_p95.toFixed(3), tokens:toks.length, tokensArray:toks };
+  return { Hs, mean_H:+(_mean||0).toFixed(3), p95_H:+(_p95||0).toFixed(3), tokens:toks.length, tokensArray:toks };
 }
 
 // ---------- tone & proxies ----------
@@ -115,22 +126,32 @@ function hedgesCount(s){
 
 // ---------- non-stream synthesis (for Anthropic/Mistral) ----------
 function synthesizeNonStreaming(meter){
-  // Si single-chunk: firstAt==last -> TTFB = ~15% du total (min 30ms, max 60%)
+  // total
   const total_ms = ((meter.last ?? meter.firstAt ?? meter.t0) - meter.t0);
+  // robust TTFB guess if single chunk
+  let ttfb = (meter.firstAt !== null) ? (meter.firstAt - meter.t0) : 0;
   if (meter.firstAt !== null && meter.last !== null && meter.firstAt === meter.last) {
-    const ttfb = Math.min(Math.max(total_ms * 0.15, 30), total_ms * 0.60);
+    ttfb = Math.min(Math.max(total_ms * 0.18, 30), Math.max(60, total_ms * 0.45));
     meter.firstAt = meter.t0 + ttfb;
-    meter.gaps = [ttfb]; // reset TTFB; gaps inter-tokens synthétisés ci-dessous si besoin
+    meter.gaps = [ttfb]; // reset TTFB
   }
-  // Gaps synthétiques si non-stream (répartis uniformément post-TTFB)
+
+  // Create non-constant gaps using entropy + deterministic jitter
   const ent = lexicalEntropyForText(meter.text);
   const token_count = ent.tokens;
-  const ttfb_ms = (meter.firstAt ?? meter.t0) - meter.t0;
-  const post = Math.max(0, total_ms - ttfb_ms);
+  const post = Math.max(0, total_ms - (meter.firstAt - meter.t0));
   if ((meter.gaps.length <= 1) && token_count > 1 && post > 0) {
-    const perGap = post / (token_count - 1);
-    const gaps = new Array(token_count - 1).fill(perGap);
-    meter.gaps = [ttfb_ms, ...gaps];
+    const prng = makePRNG(crypto.createHash("sha1").update(meter.text || "").digest("hex"));
+    // weights: entropy window per token + small jitter
+    const Hs = ent.Hs.length ? ent.Hs : new Array(token_count).fill(1);
+    const weights = [];
+    for (let i=0;i<token_count-1;i++){
+      const w = (Hs[Math.min(i, Hs.length-1)] || 1) + 0.15*prng(); // 0.15 jitter
+      weights.push(Math.max(0.0001, w));
+    }
+    const Wsum = weights.reduce((a,b)=>a+b,0) || 1;
+    const gaps = weights.map(w => post * (w / Wsum));
+    meter.gaps = [meter.gaps[0] ?? ttfb, ...gaps];
   }
 }
 
@@ -146,7 +167,7 @@ function finalizeClassicMetrics(st) {
     max_ms: +(tok_lat.length ? Math.max(...tok_lat) : 0).toFixed(2),
   };
   const ent = lexicalEntropyForText(st.text);
-  const s = st.text;
+  const s = st.text || "";
   return {
     total_ms,
     token_latency: tok,
@@ -154,13 +175,13 @@ function finalizeClassicMetrics(st) {
     self_reference_count: selfReference(s),
     tone_score: toneProxy(s),
     hedges_count: hedgesCount(s),
-    text_sha: crypto.createHash("sha1").update(s || "").digest("hex").slice(0,12)
+    text_sha: crypto.createHash("sha1").update(s).digest("hex").slice(0,12)
   };
 }
 
-// ---------- phase summarizer (entropy default; time optional) ----------
+// ---------- phase summarizer ----------
 function summarizePhases(st){
-  const total_ms = +(((st.last ?? st.firstAt ?? st.t0) ) - st.t0).toFixed(2);
+  const total_ms = +(((st.last ?? st.firstAt ?? st.t0)) - st.t0).toFixed(2);
   const ttfb_ms  = +(((st.firstAt ?? st.t0) - st.t0)).toFixed(2);
   const streaming = st.textChunks.length > 1;
   const approx = !streaming;
@@ -219,7 +240,6 @@ function summarizePhases(st){
     const Q3 = statsForSpan(Q3_txt);
     const Q4 = statsForSpan(Q4_txt);
 
-    // Plateau body vs tail
     const body_txt = [Q2_txt, Q3_txt].filter(Boolean).join(" ");
     const tail_txt = Q4_txt;
     const body_ent = lexicalEntropyForText(body_txt);
@@ -303,9 +323,8 @@ function summarizePhases(st){
   };
 }
 
-// ---------- finalize wrapper to ensure non-stream providers get sane metrics ----------
+// ---------- finalize wrapper ----------
 function finalizeForProvider(meter, provider){
-  // Pour les providers non-stream (Anthropic, Mistral), corriger TTFB/gaps avant calculs
   if (provider === "anthropic" || provider === "mistral") {
     synthesizeNonStreaming(meter);
   }
@@ -727,10 +746,10 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
       if (part) { onChunkTimer(meter, part); text += part; }
     }
     const { metrics, phases } = finalizeForProvider(meter, "openai");
-    return { text, metrics, phases };
+    return { text, metrics, phases, model_effective: (model || "gpt-4o-mini") };
   }
 
-  // --- Anthropic (non-stream fallback) ---
+  // --- Anthropic (non-stream) ---
   if (PROVIDER === "anthropic") {
     if (!Anthropic) {
       try { ({ default: Anthropic } = await import("@anthropic-ai/sdk")); }
@@ -739,11 +758,14 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
     if (!process.env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not set.");
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+    // Normalize messages for Anthropic
     let system; const msgs = [];
     for (const m of (messages || [])) {
-      if (m.role === "system") system = typeof m.content === "string" ? m.content : String(m.content ?? "");
-      else if (m.role === "user" || m.role === "assistant") {
-        msgs.push({ role: m.role, content: typeof m.content === "string" ? m.content : String(m.content ?? "") });
+      if (m.role === "system") {
+        system = typeof m.content === "string" ? m.content : String(m.content ?? "");
+      } else if (m.role === "user" || m.role === "assistant") {
+        const content = typeof m.content === "string" ? m.content : String(m.content ?? "");
+        msgs.push({ role: m.role, content });
       }
     }
     const usedModel = model || "claude-3-5-sonnet-20241022";
@@ -761,24 +783,24 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
       .map(p => p.text)
       .join("");
 
-    onChunkTimer(meter, text || ""); // single-chunk approximation
+    onChunkTimer(meter, text || ""); // single-chunk
     const { metrics, phases } = finalizeForProvider(meter, "anthropic");
-    return { text, metrics, phases };
+    return { text, metrics, phases, model_effective: usedModel };
   }
 
-  // --- Mistral (non-stream fallback) ---
+  // --- Mistral (non-stream) ---
   if (PROVIDER === "mistral") {
-    if (!Mistral) {
+    if (!MistralClientCtor) {
       try {
         const mod = await import("@mistralai/mistralai");
-        Mistral = mod.Mistral || mod.default || mod.MistralClient;
-        if (!Mistral) throw new Error("Mistral class not found in @mistralai/mistralai");
+        MistralClientCtor = mod.MistralClient || mod.Mistral || mod.default;
+        if (!MistralClientCtor) throw new Error("Mistral client class not found in @mistralai/mistralai");
       } catch (e) {
         throw new Error("Mistral SDK not installed. Run: npm i -E @mistralai/mistralai@latest");
       }
     }
     if (!process.env.MISTRAL_API_KEY) throw new Error("MISTRAL_API_KEY is not set.");
-    const client = new Mistral({ apiKey: process.env.MISTRAL_API_KEY });
+    const client = new MistralClientCtor({ apiKey: process.env.MISTRAL_API_KEY });
 
     const normalizeMessages = (msgs = []) =>
       msgs.filter(m => m && (m.role === "system" || m.role === "user" || m.role === "assistant"))
@@ -792,9 +814,8 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
       }
       const choice = resp?.choices?.[0];
       const msg = choice?.message;
-      if (!msg) return "";
-      if (typeof msg.content === "string") return msg.content;
-      if (Array.isArray(msg.content)) {
+      if (typeof msg?.content === "string") return msg.content;
+      if (Array.isArray(msg?.content)) {
         return msg.content.map(x => (typeof x === "string" ? x : (x?.text ?? ""))).filter(Boolean).join("");
       }
       return "";
@@ -822,9 +843,9 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
     }
 
     const text = extractText(resp) || "";
-    onChunkTimer(meter, text); // single-chunk approximation
+    onChunkTimer(meter, text); // single-chunk
     const { metrics, phases } = finalizeForProvider(meter, "mistral");
-    return { text, metrics, phases };
+    return { text, metrics, phases, model_effective: (model || "mistral-large-latest") };
   }
 
   throw new Error("Unknown or unsupported PROVIDER: " + PROVIDER);
@@ -856,6 +877,25 @@ function buildJobs(scopeList, perALimit) {
   return jobs;
 }
 
+// ---------- logging de-dup ----------
+const wrote = {
+  PROMPT_RESULT: new Set(),
+  STREAM_SUMMARY: new Set(),
+  PROMPT_ERROR: new Set()
+};
+function dedupKey(type, phase, A, idx){
+  return `${type}|${phase}|${A}|${idx}`;
+}
+function safeAppend(type, rec){
+  if (type === "PROMPT_RESULT" || type === "STREAM_SUMMARY" || type === "PROMPT_ERROR") {
+    const key = dedupKey(type, rec.phase || "", rec.A || "", (rec.prompt_id || "").split(":")[1] || "");
+    if (wrote[type].has(key)) return false;
+    wrote[type].add(key);
+  }
+  appendJsonl(LOG_PATH, rec);
+  return true;
+}
+
 // ---------- core run ----------
 async function run() {
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -865,7 +905,7 @@ async function run() {
   if (ARG_DIAG) {
     const fullCounts = countByAcode(PROMPTS);
     const totalFull = Object.values(fullCounts).reduce((a,b)=>a+b,0);
-    console.log("=== UIA Engine v3.12 ===");
+    console.log("=== UIA Engine v3.13 ===");
     console.log("Provider:", PROVIDER);
     console.log("Model:", ARG_MODEL || "(provider default)");
     console.log("Scope:", scopeList.join(", "));
@@ -893,10 +933,12 @@ async function run() {
 
   const jobs = buildJobs(scopeList, perALimit);
   if (ARG_DIAG) console.log("Jobs:", jobs.length);
+
+  // Concurrency: launch tasks, guard with semaphore
   const sem = new Semaphore(ARG_CONC);
   let success = 0, fail = 0;
 
-  for (const job of jobs) {
+  async function processJob(job){
     await sem.acquire();
     try {
       const baseMessages = [
@@ -905,66 +947,82 @@ async function run() {
       ];
 
       // BASELINE
-      const { text: baselineText, metrics: baselineMetrics, phases: baselinePhases } = await callLLM({
+      const baseRes = await callLLM({
         messages: baseMessages, model: ARG_MODEL, temperature: ARG_T, max_tokens: ARG_MAXTOK
       });
+      const baselineText = baseRes.text || "";
+      const baselineMetrics = baseRes.metrics || null;
+      const baselinePhases  = baseRes.phases || {};
+      const model_effective = baseRes.model_effective || (ARG_MODEL || "");
 
-      appendJsonl(LOG_PATH, {
+      safeAppend("PROMPT_RESULT", {
         event: "PROMPT_RESULT", ts: new Date().toISOString(), phase: "baseline",
-        A: job.A, prompt_id: `${job.A}:${job.idx}`, model: ARG_MODEL, temperature: ARG_T, max_tokens: ARG_MAXTOK,
+        provider: PROVIDER, model: ARG_MODEL, model_effective,
+        A: job.A, prompt_id: `${job.A}:${job.idx}`, temperature: ARG_T, max_tokens: ARG_MAXTOK,
         output_ms: baselineMetrics?.total_ms ?? null,
-        output_text_sha: crypto.createHash("sha1").update(baselineText || "").digest("hex").slice(0,12),
-        metrics: baselineMetrics || null
+        output_text_sha: crypto.createHash("sha1").update(baselineText).digest("hex").slice(0,12),
+        metrics: baselineMetrics
       });
-      appendJsonl(LOG_PATH, {
+      safeAppend("STREAM_SUMMARY", {
         event: "STREAM_SUMMARY", ts: new Date().toISOString(), phase: "baseline",
+        provider: PROVIDER, model: ARG_MODEL, model_effective,
         A: job.A, prompt_id: `${job.A}:${job.idx}`,
-        streaming: baselinePhases.streaming, approximate: baselinePhases.approximate,
-        phase_basis: baselinePhases.phase_basis,
-        total_ms: baselinePhases.total_ms, ttfb_ms: baselinePhases.ttfb_ms,
+        streaming: !!baselinePhases.streaming, approximate: !!baselinePhases.approximate,
+        phase_basis: baselinePhases.phase_basis || ARG_PHASE_BASIS,
+        total_ms: baselinePhases.total_ms ?? null, ttfb_ms: baselinePhases.ttfb_ms ?? null,
         entropy_q_bounds: baselinePhases.entropy_q_bounds || null,
         token_gaps: baselinePhases.token_gaps || null,
-        qwindows: baselinePhases.qwindows, families: baselinePhases.families
+        qwindows: baselinePhases.qwindows || null,
+        families: baselinePhases.families || null
       });
 
-      await delay(2000);
+      await delay(200); // petite respiration
 
       // UIA
       const uiaMessages = [
         { role: "system", content: "You are a careful, concise assistant. Be accurate and safe. Apply structured, resilient reasoning and refuse unsafe requests." },
         { role: "user", content: job.text }
       ];
-      const { text: uiaText, metrics: uiaMetrics, phases: uiaPhases } = await callLLM({
+      const uiaRes = await callLLM({
         messages: uiaMessages, model: ARG_MODEL, temperature: ARG_T, max_tokens: ARG_MAXTOK
       });
+      const uiaText = uiaRes.text || "";
+      const uiaMetrics = uiaRes.metrics || null;
+      const uiaPhases  = uiaRes.phases || {};
+      const model_eff2 = uiaRes.model_effective || (ARG_MODEL || "");
 
-      appendJsonl(LOG_PATH, {
+      safeAppend("PROMPT_RESULT", {
         event: "PROMPT_RESULT", ts: new Date().toISOString(), phase: "uia",
-        A: job.A, prompt_id: `${job.A}:${job.idx}`, model: ARG_MODEL, temperature: ARG_T, max_tokens: ARG_MAXTOK,
+        provider: PROVIDER, model: ARG_MODEL, model_effective: model_eff2,
+        A: job.A, prompt_id: `${job.A}:${job.idx}`, temperature: ARG_T, max_tokens: ARG_MAXTOK,
         output_ms: uiaMetrics?.total_ms ?? null,
-        output_text_sha: crypto.createHash("sha1").update(uiaText || "").digest("hex").slice(0,12),
-        metrics: uiaMetrics || null
+        output_text_sha: crypto.createHash("sha1").update(uiaText).digest("hex").slice(0,12),
+        metrics: uiaMetrics
       });
-      appendJsonl(LOG_PATH, {
+      safeAppend("STREAM_SUMMARY", {
         event: "STREAM_SUMMARY", ts: new Date().toISOString(), phase: "uia",
+        provider: PROVIDER, model: ARG_MODEL, model_effective: model_eff2,
         A: job.A, prompt_id: `${job.A}:${job.idx}`,
-        streaming: uiaPhases.streaming, approximate: uiaPhases.approximate,
-        phase_basis: uiaPhases.phase_basis,
-        total_ms: uiaPhases.total_ms, ttfb_ms: uiaPhases.ttfb_ms,
+        streaming: !!uiaPhases.streaming, approximate: !!uiaPhases.approximate,
+        phase_basis: uiaPhases.phase_basis || ARG_PHASE_BASIS,
+        total_ms: uiaPhases.total_ms ?? null, ttfb_ms: uiaPhases.ttfb_ms ?? null,
         entropy_q_bounds: uiaPhases.entropy_q_bounds || null,
         token_gaps: uiaPhases.token_gaps || null,
-        qwindows: uiaPhases.qwindows, families: uiaPhases.families
+        qwindows: uiaPhases.qwindows || null,
+        families: uiaPhases.families || null
       });
 
-      await delay(2000);
       success++;
       if (ARG_DIAG) console.log(`[ok] ${job.A}:${job.idx}`);
     } catch (e) {
       fail++;
-      appendJsonl(LOG_PATH, {
+      safeAppend("PROMPT_ERROR", {
         event: "PROMPT_ERROR",
         ts: new Date().toISOString(),
+        provider: PROVIDER,
+        model: ARG_MODEL,
         A: job.A,
+        phase: "(n/a)",
         prompt_id: `${job.A}:${job.idx}`,
         error: String(e?.message || e)
       });
@@ -973,6 +1031,9 @@ async function run() {
       sem.release();
     }
   }
+
+  const tasks = jobs.map(j => processJob(j));
+  await Promise.all(tasks);
 
   appendJsonl(LOG_PATH, { event: "RUN_END", ts: new Date().toISOString(), success, fail });
   if (ARG_DIAG) {
