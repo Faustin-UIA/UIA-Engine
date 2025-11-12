@@ -29,7 +29,7 @@ jobs:
         run: |
           set -e
           npm ci || npm i
-          # Anthropic SDK version known to support claude-3-5-sonnet-20241022
+          # Anthropic SDK version known to support claude-opus-4-20250514
           npm i -E @anthropic-ai/sdk@^0.32.0
 
       # ✅ Improved ESM-safe preflight
@@ -42,7 +42,7 @@ jobs:
             try {
               const { default: Anthropic } = await import("@anthropic-ai/sdk");
               const c = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-              const model = "claude-3-5-sonnet-20241022";
+              const model = "claude-opus-4-20250514";
               const r = await c.messages.create({
                 model,
                 max_tokens: 5,
@@ -59,7 +59,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PROVIDER: anthropic
-          MODEL: claude-3-5-sonnet-20241022
+          MODEL: claude-opus-4-20250514
         run: |
           set -euo pipefail
           mkdir -p results
