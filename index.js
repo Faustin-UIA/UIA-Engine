@@ -1,11 +1,11 @@
 // =====================================================
 // UIA Engine v3.13 – Batch runner with inline telemetry (provider-agnostic)
-// Providers: OpenAI (streaming), Anthropic (non-stream fallback), Mistral (non-stream fallback)
+// Providers: OpenAI (streaming), Anthropic (streaming), Mistral (non-stream fallback)
 // ENTROPY-BASED F1–F4 segmentation + tempo anchors for CSI normalization
 // Usage:
 //   PROVIDER=openai    node index.js --A=all --prompts=all --concurrency=6 --diag=true
-//   PROVIDER=anthropic node index.js --A=A4 --prompts=40 --phase_basis=entropy
-//   PROVIDER=mistral   node index.js --A=all --prompts=all --phase_basis=time
+//   PROVIDER=anthropic node index.js --A=A4 --prompts=40 --phase_basis=entropy --diag=true
+//   PROVIDER=mistral   node index.js --A=all --prompts=all --phase_basis=time --diag=true
 //
 // ENV per provider:
 //   OPENAI_API_KEY | ANTHROPIC_API_KEY | MISTRAL_API_KEY
@@ -18,8 +18,8 @@ import crypto from "crypto";
 import { performance } from "node:perf_hooks";
 
 // Provider SDK placeholders (lazy-loaded in callLLM)
-let OpenAI = null;           // openai
-let Anthropic = null;        // @anthropic-ai/sdk
+let OpenAI = null;            // openai
+let Anthropic = null;         // @anthropic-ai/sdk
 let MistralClientCtor = null; // @mistralai/mistralai export variant
 
 const __filename = fileURLToPath(import.meta.url);
@@ -41,9 +41,10 @@ const ARG_A_SCOPE     = (arg("A", "all") || "all").toUpperCase();
 const ARG_PROMPTS_RAW = arg("prompts", "all");
 const ARG_CONC        = Math.max(1, parseInt(arg("concurrency", "6"), 10) || 1);
 const ARG_MODEL       = arg("model", null);
-// If user didn’t pass --t, leave undefined so provider defaults apply
-const ARG_T           = arg("t", null) !== null ? parseFloat(arg("t", "0.2")) : undefined;
-const ARG_MAXTOK      = arg("max_tokens", null) !== null ? parseInt(arg("max_tokens", "180"), 10) : undefined;
+const ARG_T_RAW       = arg("t", null);
+const ARG_T           = ARG_T_RAW !== null ? parseFloat(ARG_T_RAW) : undefined;
+const ARG_MAXTOK_RAW  = arg("max_tokens", null);
+const ARG_MAXTOK      = ARG_MAXTOK_RAW !== null ? parseInt(ARG_MAXTOK_RAW, 10) : undefined;
 const ARG_METRICS     = /^true$/i.test(arg("metrics", "true"));
 const ARG_DIAG        = /^true$/i.test(arg("diag", "false"));
 const ARG_PHASE_BASIS = (arg("phase_basis", "entropy") || "entropy").toLowerCase(); // "entropy" | "time"
@@ -115,7 +116,7 @@ function onChunkTimer(st, chunk=""){
 // ---------- lexical entropy ----------
 function lexicalEntropyForText(s, W=10){
   const toks = s.split(/\s+/).filter(Boolean);
-  const Hs=[]; 
+  const Hs=[];
   for (let i=0;i<toks.length;i++){
     const win=toks.slice(Math.max(0,i-W+1), i+1);
     const counts=Object.values(win.reduce((m,w)=>(m[w]=(m[w]||0)+1,m),{}));
@@ -143,7 +144,7 @@ function hedgesCount(s){
   return (s.match(/\b(might|maybe|perhaps|could|likely|appears|seems)\b/gi)||[]).length;
 }
 
-// ---------- non-stream synthesis (for Anthropic/Mistral) ----------
+// ---------- non-stream synthesis (fallback only if single chunk) ----------
 function synthesizeNonStreaming(meter){
   const total_ms = ((meter.last ?? meter.firstAt ?? meter.t0) - meter.t0);
   let ttfb = (meter.firstAt !== null) ? (meter.firstAt - meter.t0) : 0;
@@ -338,8 +339,9 @@ function summarizePhases(st){
 }
 
 // ---------- finalize wrapper ----------
-function finalizeForProvider(meter, provider){
-  if (provider === "anthropic" || provider === "mistral") {
+function finalizeForProvider(meter){
+  // Only synthesize non-stream if we effectively got a single chunk (no streaming)
+  if ((meter.textChunks?.length || 0) <= 1) {
     synthesizeNonStreaming(meter);
   }
   const metrics = ARG_METRICS ? finalizeClassicMetrics(meter) : null;
@@ -751,19 +753,19 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
     const stream = await client.chat.completions.create({
       model: model || "gpt-4o-mini",
       messages,
-      temperature: temperature ?? 0.2,
-      max_tokens: max_tokens ?? 180,
+      temperature: (typeof temperature === "number" ? temperature : 0.2),
+      max_tokens: (typeof max_tokens === "number" ? max_tokens : 180),
       stream: true
     });
     for await (const chunk of stream) {
       const part = chunk?.choices?.[0]?.delta?.content || "";
       if (part) { onChunkTimer(meter, part); text += part; }
     }
-    const { metrics, phases } = finalizeForProvider(meter, "openai");
+    const { metrics, phases } = finalizeForProvider(meter);
     return { text, metrics, phases, model_effective: (model || "gpt-4o-mini") };
   }
 
-  // --- Anthropic (non-stream) ---
+  // --- Anthropic (STREAMING) ---
   if (PROVIDER === "anthropic") {
     if (!Anthropic) {
       try { ({ default: Anthropic } = await import("@anthropic-ai/sdk")); }
@@ -785,20 +787,51 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
     const usedModel = model || "claude-sonnet-4-20250514";
 
     const meter = startStreamTimer();
-    const resp = await client.messages.create({
-      model: usedModel,
-      max_tokens: max_tokens ?? 180,
-      temperature: temperature ?? 0.2,
-      system,
-      messages: msgs.length ? msgs : [{ role: "user", content: "" }]
-    });
-    const text = (resp?.content || [])
-      .filter(p => p.type === "text")
-      .map(p => p.text)
-      .join("");
+    let text = "";
 
-    onChunkTimer(meter, text || ""); // single-chunk
-    const { metrics, phases } = finalizeForProvider(meter, "anthropic");
+    // Prefer official streaming API; support both event-emitter and async-iterator styles
+    let streamed = false;
+    try {
+      const stream = await client.messages.stream({
+        model: usedModel,
+        max_tokens: (typeof max_tokens === "number" ? max_tokens : 180),
+        temperature: (typeof temperature === "number" ? temperature : 0.2),
+        system,
+        messages: msgs.length ? msgs : [{ role: "user", content: "" }]
+      });
+
+      // If SDK exposes .on('text'), use it.
+      if (typeof stream?.on === "function") {
+        streamed = true;
+        stream.on("text", (t) => { if (t) { onChunkTimer(meter, t); text += t; } });
+        await stream.done();
+      } else {
+        // Fallback: async-iterable of events
+        streamed = true;
+        for await (const ev of stream) {
+          // content_block_delta events carry incremental text
+          const delta = ev?.delta?.text || ev?.text || ev?.content?.[0]?.text || "";
+          if (delta) { onChunkTimer(meter, delta); text += delta; }
+        }
+      }
+    } catch (e) {
+      // If streaming path fails (older SDKs), fall back to non-stream single-shot
+      if (ARG_DIAG) console.warn("[WARN] Anthropic streaming failed, falling back to non-stream:", e?.message || e);
+      const resp = await client.messages.create({
+        model: usedModel,
+        max_tokens: (typeof max_tokens === "number" ? max_tokens : 180),
+        temperature: (typeof temperature === "number" ? temperature : 0.2),
+        system,
+        messages: msgs.length ? msgs : [{ role: "user", content: "" }]
+      });
+      text = (resp?.content || [])
+        .filter(p => p.type === "text")
+        .map(p => p.text)
+        .join("");
+      onChunkTimer(meter, text || ""); // single-chunk
+    }
+
+    const { metrics, phases } = finalizeForProvider(meter);
     return { text, metrics, phases, model_effective: usedModel };
   }
 
@@ -858,7 +891,7 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
 
     const text = extractText(resp) || "";
     onChunkTimer(meter, text); // single-chunk
-    const { metrics, phases } = finalizeForProvider(meter, "mistral");
+    const { metrics, phases } = finalizeForProvider(meter);
     return { text, metrics, phases, model_effective: (model || "mistral-large-latest") };
   }
 
