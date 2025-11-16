@@ -1,0 +1,70 @@
+name: UIA Bench (Gemini)
+
+on:
+  workflow_dispatch:        # ✅ Allows you to run it manually from the GitHub Actions tab
+  # push:
+  #   branches:
+  #     - main              # ❌ Automatic run on push is removed (commented out)
+  # pull_request:
+  #   branches:
+  #     - main              # ❌ Automatic run on pull request is removed (commented out)
+  # schedule:
+  #   - cron: "0 6 * * *"   # ❌ Automatic run on schedule is removed (commented out)
+
+permissions:
+  contents: write
+
+concurrency:
+  group: uia-bench-gemini-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install deps (force Gemini SDK)
+        run: |
+          set -e
+          npm ci || npm i
+          # Install the official Google Gen AI SDK
+          npm i -E @google/genai@^0 
+
+      - name: Run UIA Bench (Gemini)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} 
+          PROVIDER: gemini 
+        run: |
+          set -euo pipefail
+          mkdir -p results
+          TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
+          LOG="results/uia_gemini_${TS}.jsonl" 
+          echo "::notice title=UIA Bench (Gemini)::Log -> ${LOG}"
+          node index.js \
+            --A=all --prompts=all --concurrency=4 \
+            --model=gemini-2.5-flash --t=0.2 --max_tokens=180 \
+            --metrics=true --diag=true --log="${LOG}"
+          echo "LOG_PATH=${LOG}" >> "$GITHUB_ENV"
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: uia-gemini-results
+          path: ${{ env.LOG_PATH }}
+          if-no-files-found: error
+
+      - name: Summarize
+        run: |
+          echo "### UIA Bench (Gemini)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Model: gemini-2.5-flash" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Log: \`${{ env.LOG_PATH }}\`" >> "$GITHUB_STEP_SUMMARY"
