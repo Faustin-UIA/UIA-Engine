@@ -37,7 +37,7 @@ const arg = (k, d = null) => {
 const LOG_PATH        = arg("log", "results/uia_run.jsonl");
 const ARG_A_SCOPE     = (arg("A", "all") || "all").toUpperCase();
 const ARG_PROMPTS_RAW = arg("prompts", "all");
-const ARG_CONC        = Math.max(1, parseInt(arg("concurrency", "6"), 10) || 1);
+const ARG_CONC        = Math.max(1, parseInt(arg("concurrency", "2"), 10) || 1);
 const ARG_MODEL       = arg("model", null);
 const ARG_T_RAW       = arg("t", null);
 const ARG_T           = ARG_T_RAW !== null ? parseFloat(ARG_T_RAW) : undefined;
