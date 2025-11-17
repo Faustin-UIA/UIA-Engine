@@ -17,12 +17,12 @@ permissions:
 
 concurrency:
   group: uia-bench-gemini-${{ github.ref }}
-  cancel-in-progress: true  # ✓ ADDED: Cancel previous runs on new trigger
+  cancel-in-progress: true
 
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 120  # 2 hours max for entire workflow
+    timeout-minutes: 120
 
     steps:
       - name: Checkout
@@ -38,7 +38,7 @@ jobs:
         run: |
           set -e
           npm ci
-          # Use a specific, tested SDK version for stable benchmarking
+          # Install exact version of Gemini SDK
           npm i -E @google/genai@0.3.0
           # Verify installation
           npm list @google/genai
@@ -49,28 +49,45 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           set -e
+          
+          echo "🔍 Environment Validation"
+          echo "=========================="
+          
           # Verify Node version
-          echo "Node version: $(node --version)"
-          echo "NPM version: $(npm --version)"
+          echo "✓ Node version: $(node --version)"
+          echo "✓ NPM version: $(npm --version)"
           
           # Verify Gemini SDK
           if ! npm list @google/genai > /dev/null 2>&1; then
-            echo "❌ Gemini SDK not installed properly"
+            echo "❌ Gemini SDK (@google/genai) not installed properly"
+            npm list @google/genai
             exit 1
           fi
+          echo "✓ Gemini SDK @google/genai installed"
           
           # Verify API key
           if [ -z "$GEMINI_API_KEY" ]; then
-            echo "❌ GEMINI_API_KEY secret is not set in GitHub Settings > Secrets"
+            echo "❌ GEMINI_API_KEY secret is not set"
+            echo "   Configure in: GitHub Settings > Secrets and variables > Actions > GEMINI_API_KEY"
             exit 1
           fi
+          echo "✓ GEMINI_API_KEY is set"
           
           # Verify index.js exists
           if [ ! -f "index.js" ]; then
             echo "❌ index.js not found in repository root"
             exit 1
           fi
+          echo "✓ index.js found"
           
+          # Check if Gemini provider is implemented
+          if ! grep -q "PROVIDER === \"gemini\"" index.js; then
+            echo "⚠️  WARNING: Gemini provider case not found in index.js"
+            echo "   Make sure callLLM_Gemini() is integrated into callLLM() function"
+            echo "   Workflow will still attempt to run..."
+          fi
+          
+          echo ""
           echo "✓ All environment checks passed"
 
       - name: Run UIA Bench (Gemini) with Retry Logic
@@ -91,17 +108,20 @@ jobs:
           CONCURRENCY="${{ github.event.inputs.concurrency || '1' }}"
           MODEL="${{ github.event.inputs.gemini_version || 'gemini-2.5-flash' }}"
           
+          echo ""
           echo "🚀 Starting UIA Bench (Gemini)"
-          echo "   Model: ${MODEL}"
-          echo "   Concurrency: ${CONCURRENCY} (low for stability)"
-          echo "   Max attempts: ${MAX_ATTEMPTS}"
-          echo "   Log: ${LOG}"
+          echo "════════════════════════════════════════"
+          echo "Model:       ${MODEL}"
+          echo "Concurrency: ${CONCURRENCY} (low for stability)"
+          echo "Max retries: ${MAX_ATTEMPTS}"
+          echo "Log file:    ${LOG}"
+          echo "════════════════════════════════════════"
           
           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
             ATTEMPT=$((ATTEMPT + 1))
             echo ""
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            echo "Attempt ${ATTEMPT}/${MAX_ATTEMPTS}..."
+            echo "Attempt ${ATTEMPT}/${MAX_ATTEMPTS}"
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             
             if node index.js \
@@ -191,10 +211,10 @@ jobs:
           
           # Calculate metrics
           valid_rate = 100 * valid_responses / prompt_results if prompt_results > 0 else 0
-          streaming_rate = 100 * streaming_true / (len(events) - 2) if len(events) > 2 else 0  # -2 for RUN_START/END
+          streaming_rate = 100 * streaming_true / (len(events) - 2) if len(events) > 2 else 0
           
           print("📊 RUN QUALITY VALIDATION")
-          print("=" * 60)
+          print("=" * 70)
           print(f"Total PROMPT_RESULT events:    {prompt_results}")
           print(f"Valid responses:               {valid_responses} ({valid_rate:.1f}%)")
           print(f"Empty responses:               {empty_responses} ({100-valid_rate:.1f}%)")
@@ -221,7 +241,7 @@ jobs:
               print(f"   Max:  {max(entropies):6.3f}")
               print(f"   Avg:  {sum(entropies)/len(entropies):6.3f}")
           
-          print("\n" + "=" * 60)
+          print("\n" + "=" * 70)
           
           MIN_VALID_RATE = 90.0
           
@@ -291,14 +311,17 @@ jobs:
           echo "❌ UIA Bench (Gemini) - VALIDATION FAILED" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Possible Causes" >> "$GITHUB_STEP_SUMMARY"
-          echo "1. **Gemini API Timeouts**: SDK couldn't fetch responses in time" >> "$GITHUB_STEP_SUMMARY"
-          echo "2. **Rate Limiting**: Too many concurrent requests" >> "$GITHUB_STEP_SUMMARY"
-          echo "3. **API Key Issues**: Secret not configured or expired" >> "$GITHUB_STEP_SUMMARY"
-          echo "4. **Network Connectivity**: Transient network issues" >> "$GITHUB_STEP_SUMMARY"
+          echo "1. **Gemini SDK Not Implemented**: Make sure \`callLLM_Gemini()\` is integrated in index.js" >> "$GITHUB_STEP_SUMMARY"
+          echo "2. **API Key Issue**: Check GEMINI_API_KEY secret in Settings > Secrets" >> "$GITHUB_STEP_SUMMARY"
+          echo "3. **Gemini API Timeouts**: SDK couldn't fetch responses in time" >> "$GITHUB_STEP_SUMMARY"
+          echo "4. **Rate Limiting**: Too many concurrent requests" >> "$GITHUB_STEP_SUMMARY"
+          echo "5. **Network Connectivity**: Transient network issues" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Recommended Actions" >> "$GITHUB_STEP_SUMMARY"
-          echo "- ✓ Reduce concurrency further: try \`--concurrency=1\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "- ✓ Switch to OpenAI (more stable): create \`uia-bench-openai.yml\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ✓ Verify Gemini provider is implemented in index.js" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ✓ Check GitHub Actions logs for detailed error messages" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ✓ Verify GEMINI_API_KEY secret is configured correctly" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ✓ Try reducing concurrency further: \`--concurrency=1\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ✓ Consider switching to OpenAI (more stable)" >> "$GITHUB_STEP_SUMMARY"
           echo "- ✓ Check Gemini API quota at [Google Cloud Console](https://console.cloud.google.com)" >> "$GITHUB_STEP_SUMMARY"
           echo "- ✓ Wait 5-10 minutes and retry manually" >> "$GITHUB_STEP_SUMMARY"
-          echo "- ✓ Review GitHub Actions logs for detailed error messages" >> "$GITHUB_STEP_SUMMARY"
