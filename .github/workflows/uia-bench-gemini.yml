@@ -1,27 +1,28 @@
 name: UIA Bench (Gemini)
 
 on:
-  workflow_dispatch:        # ✅ Allows you to run it manually from the GitHub Actions tab
-  # push:
-  #   branches:
-  #     - main              # ❌ Automatic run on push is removed (commented out)
-  # pull_request:
-  #   branches:
-  #     - main              # ❌ Automatic run on pull request is removed (commented out)
-  # schedule:
-  #   - cron: "0 6 * * *"   # ❌ Automatic run on schedule is removed (commented out)
+  workflow_dispatch:
+    inputs:
+      concurrency:
+        description: 'Concurrency level (1 or 2 recommended for Gemini stability)'
+        required: false
+        default: '1'
+      gemini_version:
+        description: 'Gemini model (e.g., gemini-2.5-flash, gemini-2.0-flash)'
+        required: false
+        default: 'gemini-2.5-flash'
 
 permissions:
   contents: write
 
 concurrency:
   group: uia-bench-gemini-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true  # ✓ ADDED: Cancel previous runs on new trigger
 
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 120  # 2 hours max for entire workflow
 
     steps:
       - name: Checkout
@@ -33,38 +34,271 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Install deps (force Gemini SDK)
+      - name: Install dependencies (Strict & Reproducible)
         run: |
           set -e
-          npm ci || npm i
-          # Install the official Google Gen AI SDK
-          npm i -E @google/genai@^0 
+          npm ci
+          # Use a specific, tested SDK version for stable benchmarking
+          npm i -E @google/genai@0.3.0
+          # Verify installation
+          npm list @google/genai
+          echo "✓ Dependencies installed successfully"
 
-      - name: Run UIA Bench (Gemini)
+      - name: Validate Setup and Environment
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} 
-          PROVIDER: gemini 
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          set -e
+          # Verify Node version
+          echo "Node version: $(node --version)"
+          echo "NPM version: $(npm --version)"
+          
+          # Verify Gemini SDK
+          if ! npm list @google/genai > /dev/null 2>&1; then
+            echo "❌ Gemini SDK not installed properly"
+            exit 1
+          fi
+          
+          # Verify API key
+          if [ -z "$GEMINI_API_KEY" ]; then
+            echo "❌ GEMINI_API_KEY secret is not set in GitHub Settings > Secrets"
+            exit 1
+          fi
+          
+          # Verify index.js exists
+          if [ ! -f "index.js" ]; then
+            echo "❌ index.js not found in repository root"
+            exit 1
+          fi
+          
+          echo "✓ All environment checks passed"
+
+      - name: Run UIA Bench (Gemini) with Retry Logic
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PROVIDER: gemini
+          NODE_OPTIONS: --max-old-space-size=4096
+          LOG_LEVEL: debug
         run: |
           set -euo pipefail
+          
           mkdir -p results
           TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
-          LOG="results/uia_gemini_${TS}.jsonl" 
-          echo "::notice title=UIA Bench (Gemini)::Log -> ${LOG}"
-          node index.js \
-            --A=all --prompts=all --concurrency=4 \
-            --model=gemini-2.5-flash --t=0.2 --max_tokens=180 \
-            --metrics=true --diag=true --log="${LOG}"
+          LOG="results/uia_gemini_${TS}.jsonl"
+          
+          ATTEMPT=0
+          MAX_ATTEMPTS=3
+          CONCURRENCY="${{ github.event.inputs.concurrency || '1' }}"
+          MODEL="${{ github.event.inputs.gemini_version || 'gemini-2.5-flash' }}"
+          
+          echo "🚀 Starting UIA Bench (Gemini)"
+          echo "   Model: ${MODEL}"
+          echo "   Concurrency: ${CONCURRENCY} (low for stability)"
+          echo "   Max attempts: ${MAX_ATTEMPTS}"
+          echo "   Log: ${LOG}"
+          
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "Attempt ${ATTEMPT}/${MAX_ATTEMPTS}..."
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            
+            if node index.js \
+              --A=all --prompts=all --concurrency="${CONCURRENCY}" \
+              --model="${MODEL}" --t=0.2 --max_tokens=180 \
+              --metrics=true --diag=true --log="${LOG}"; then
+              
+              echo ""
+              echo "✓ Run completed successfully on attempt ${ATTEMPT}"
+              break
+              
+            else
+              EXIT_CODE=$?
+              
+              if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
+                echo ""
+                echo "⚠️ Attempt ${ATTEMPT} failed (exit code: ${EXIT_CODE})"
+                echo "Waiting 60 seconds before retry..."
+                sleep 60
+              else
+                echo ""
+                echo "❌ All ${MAX_ATTEMPTS} attempts failed"
+                exit $EXIT_CODE
+              fi
+            fi
+          done
+          
           echo "LOG_PATH=${LOG}" >> "$GITHUB_ENV"
 
+      - name: Validate Run Quality
+        if: always()
+        run: |
+          python3 << 'VALIDATE_EOF'
+          import json
+          import sys
+          import os
+          
+          log_path = os.environ.get('LOG_PATH', 'results/latest.jsonl')
+          
+          if not os.path.exists(log_path):
+              print(f"❌ Log file not found: {log_path}")
+              sys.exit(1)
+          
+          # Parse JSONL
+          events = []
+          try:
+              with open(log_path) as f:
+                  for line in f:
+                      if line.strip():
+                          try:
+                              events.append(json.loads(line))
+                          except json.JSONDecodeError:
+                              pass
+          except Exception as e:
+              print(f"❌ Error reading log file: {e}")
+              sys.exit(1)
+          
+          # Count metrics
+          valid_responses = 0
+          empty_responses = 0
+          prompt_results = 0
+          streaming_true = 0
+          latencies = []
+          entropies = []
+          EMPTY_SHA = 'da39a3ee5e6b'
+          
+          for e in events:
+              if e.get('event') == 'PROMPT_RESULT':
+                  prompt_results += 1
+                  ms = e.get('output_ms', 0)
+                  sha = e.get('output_text_sha')
+                  
+                  if ms > 0 and sha != EMPTY_SHA:
+                      valid_responses += 1
+                      latencies.append(ms)
+                      
+                      # Extract entropy
+                      ent = e.get('metrics', {}).get('entropy', {}).get('mean_H', 0)
+                      if ent > 0:
+                          entropies.append(ent)
+                  else:
+                      empty_responses += 1
+              
+              if e.get('event') == 'STREAM_SUMMARY':
+                  if e.get('streaming'):
+                      streaming_true += 1
+          
+          # Calculate metrics
+          valid_rate = 100 * valid_responses / prompt_results if prompt_results > 0 else 0
+          streaming_rate = 100 * streaming_true / (len(events) - 2) if len(events) > 2 else 0  # -2 for RUN_START/END
+          
+          print("📊 RUN QUALITY VALIDATION")
+          print("=" * 60)
+          print(f"Total PROMPT_RESULT events:    {prompt_results}")
+          print(f"Valid responses:               {valid_responses} ({valid_rate:.1f}%)")
+          print(f"Empty responses:               {empty_responses} ({100-valid_rate:.1f}%)")
+          print(f"Streaming true:                {streaming_true} ({streaming_rate:.1f}%)")
+          
+          if latencies:
+              sorted_lat = sorted(latencies)
+              print(f"\n⏱️  LATENCY DISTRIBUTION (Valid Responses Only)")
+              print(f"   Min:  {min(latencies):7.0f} ms")
+              print(f"   P25:  {sorted_lat[len(sorted_lat)//4]:7.0f} ms")
+              print(f"   P50:  {sorted_lat[len(sorted_lat)//2]:7.0f} ms")
+              print(f"   P75:  {sorted_lat[3*len(sorted_lat)//4]:7.0f} ms")
+              print(f"   P95:  {sorted_lat[int(0.95*len(sorted_lat))]:7.0f} ms")
+              print(f"   Max:  {max(latencies):7.0f} ms")
+              print(f"   Avg:  {sum(latencies)/len(latencies):7.0f} ms")
+          
+          if entropies:
+              print(f"\n📈 ENTROPY DISTRIBUTION (Valid Responses Only)")
+              sorted_ent = sorted(entropies)
+              print(f"   Min:  {min(entropies):6.3f}")
+              print(f"   P25:  {sorted_ent[len(sorted_ent)//4]:6.3f}")
+              print(f"   P50:  {sorted_ent[len(sorted_ent)//2]:6.3f}")
+              print(f"   P75:  {sorted_ent[3*len(sorted_ent)//4]:6.3f}")
+              print(f"   Max:  {max(entropies):6.3f}")
+              print(f"   Avg:  {sum(entropies)/len(entropies):6.3f}")
+          
+          print("\n" + "=" * 60)
+          
+          MIN_VALID_RATE = 90.0
+          
+          if valid_rate < MIN_VALID_RATE:
+              print(f"❌ FAIL: Valid rate {valid_rate:.1f}% < required {MIN_VALID_RATE}%")
+              print(f"\n💡 This run is NOT suitable for CSI fusion analysis.")
+              print(f"   Root cause: Likely Gemini API timeouts/rate-limiting")
+              print(f"   Recommendation: Reduce concurrency or retry later")
+              sys.exit(1)
+          else:
+              print(f"✓ PASS: Valid rate {valid_rate:.1f}% >= required {MIN_VALID_RATE}%")
+              print(f"\n✓ This run IS suitable for CSI fusion analysis")
+              sys.exit(0)
+          
+          VALIDATE_EOF
+
       - name: Upload results
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: uia-gemini-results
+          name: uia-gemini-results-${{ github.run_id }}
           path: ${{ env.LOG_PATH }}
+          retention-days: 30
           if-no-files-found: error
 
-      - name: Summarize
+      - name: Create Detailed Summary
+        if: always()
         run: |
-          echo "### UIA Bench (Gemini)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Model: gemini-2.5-flash" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Log: \`${{ env.LOG_PATH }}\`" >> "$GITHUB_STEP_SUMMARY"
+          MODEL="${{ github.event.inputs.gemini_version || 'gemini-2.5-flash' }}"
+          CONCURRENCY="${{ github.event.inputs.concurrency || '1' }}"
+          LOG_FILE="${{ env.LOG_PATH }}"
+          
+          echo "## 🔬 UIA Bench (Gemini) - Run Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### ✓ Run Information" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Model**: \`${MODEL}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Concurrency**: \`${CONCURRENCY}\` (low for stability)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Timestamp**: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Workflow**: [Run #${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          
+          if [ -n "${LOG_FILE}" ] && [ -f "${LOG_FILE}" ]; then
+            LOG_SIZE=$(wc -c < "${LOG_FILE}")
+            LOG_LINES=$(wc -l < "${LOG_FILE}")
+            echo "### 📋 Artifact Details" >> "$GITHUB_STEP_SUMMARY"
+            echo "- **File**: \`${LOG_FILE}\`" >> "$GITHUB_STEP_SUMMARY"
+            echo "- **Size**: $(numfmt --to=iec-i --suffix=B ${LOG_SIZE} 2>/dev/null || echo '${LOG_SIZE} bytes')" >> "$GITHUB_STEP_SUMMARY"
+            echo "- **Lines**: ${LOG_LINES}" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          
+          echo "### 📦 Artifact Download" >> "$GITHUB_STEP_SUMMARY"
+          echo "1. Download: **uia-gemini-results-${{ github.run_id }}**" >> "$GITHUB_STEP_SUMMARY"
+          echo "2. Verify: Check JSONL format and response counts" >> "$GITHUB_STEP_SUMMARY"
+          echo "3. Analyze: \`python uia_fusion_analyzer.py <log.jsonl>\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          
+          echo "### 📚 CSI Fusion Analysis" >> "$GITHUB_STEP_SUMMARY"
+          echo "Once validated, use the fusion analyzer to generate:" >> "$GITHUB_STEP_SUMMARY"
+          echo "- \`*_fusion_summary.json\` - Top AX/BY scores + confidence" >> "$GITHUB_STEP_SUMMARY"
+          echo "- \`*_fusion_perA.csv\` - Per-A-code CSI medians" >> "$GITHUB_STEP_SUMMARY"
+          echo "- \`*_validators_perA.csv\` - Validator board pass/fail counts" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Notify on Validation Failure
+        if: failure()
+        run: |
+          echo "❌ UIA Bench (Gemini) - VALIDATION FAILED" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Possible Causes" >> "$GITHUB_STEP_SUMMARY"
+          echo "1. **Gemini API Timeouts**: SDK couldn't fetch responses in time" >> "$GITHUB_STEP_SUMMARY"
+          echo "2. **Rate Limiting**: Too many concurrent requests" >> "$GITHUB_STEP_SUMMARY"
+          echo "3. **API Key Issues**: Secret not configured or expired" >> "$GITHUB_STEP_SUMMARY"
+          echo "4. **Network Connectivity**: Transient network issues" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Recommended Actions" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ✓ Reduce concurrency further: try \`--concurrency=1\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ✓ Switch to OpenAI (more stable): create \`uia-bench-openai.yml\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ✓ Check Gemini API quota at [Google Cloud Console](https://console.cloud.google.com)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ✓ Wait 5-10 minutes and retry manually" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ✓ Review GitHub Actions logs for detailed error messages" >> "$GITHUB_STEP_SUMMARY"
