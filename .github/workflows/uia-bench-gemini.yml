@@ -38,10 +38,10 @@ jobs:
         run: |
           set -e
           npm ci
-          # Install exact version of Gemini SDK
-          npm i -E @google/genai@0.3.0
+          # ✓ FIXED: Use correct Google Generative AI SDK package
+          npm i -E @google/generative-ai
           # Verify installation
-          npm list @google/genai
+          npm list @google/generative-ai
           echo "✓ Dependencies installed successfully"
 
       - name: Validate Setup and Environment
@@ -57,13 +57,13 @@ jobs:
           echo "✓ Node version: $(node --version)"
           echo "✓ NPM version: $(npm --version)"
           
-          # Verify Gemini SDK
-          if ! npm list @google/genai > /dev/null 2>&1; then
-            echo "❌ Gemini SDK (@google/genai) not installed properly"
-            npm list @google/genai
+          # Verify Google Generative AI SDK
+          if ! npm list @google/generative-ai > /dev/null 2>&1; then
+            echo "❌ Google Generative AI SDK (@google/generative-ai) not installed properly"
+            npm list @google/generative-ai
             exit 1
           fi
-          echo "✓ Gemini SDK @google/genai installed"
+          echo "✓ Google Generative AI SDK @google/generative-ai installed"
           
           # Verify API key
           if [ -z "$GEMINI_API_KEY" ]; then
@@ -311,17 +311,16 @@ jobs:
           echo "❌ UIA Bench (Gemini) - VALIDATION FAILED" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Possible Causes" >> "$GITHUB_STEP_SUMMARY"
-          echo "1. **Gemini SDK Not Implemented**: Make sure \`callLLM_Gemini()\` is integrated in index.js" >> "$GITHUB_STEP_SUMMARY"
-          echo "2. **API Key Issue**: Check GEMINI_API_KEY secret in Settings > Secrets" >> "$GITHUB_STEP_SUMMARY"
-          echo "3. **Gemini API Timeouts**: SDK couldn't fetch responses in time" >> "$GITHUB_STEP_SUMMARY"
-          echo "4. **Rate Limiting**: Too many concurrent requests" >> "$GITHUB_STEP_SUMMARY"
-          echo "5. **Network Connectivity**: Transient network issues" >> "$GITHUB_STEP_SUMMARY"
+          echo "1. **npm install failed**: Check the 'Install dependencies' step logs" >> "$GITHUB_STEP_SUMMARY"
+          echo "2. **Gemini SDK Not Implemented**: Make sure \`callLLM_Gemini()\` is integrated in index.js" >> "$GITHUB_STEP_SUMMARY"
+          echo "3. **API Key Issue**: Check GEMINI_API_KEY secret in Settings > Secrets" >> "$GITHUB_STEP_SUMMARY"
+          echo "4. **Gemini API Timeouts**: SDK couldn't fetch responses in time" >> "$GITHUB_STEP_SUMMARY"
+          echo "5. **Rate Limiting**: Too many concurrent requests" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Recommended Actions" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ✓ Check 'Install dependencies' step for npm errors" >> "$GITHUB_STEP_SUMMARY"
           echo "- ✓ Verify Gemini provider is implemented in index.js" >> "$GITHUB_STEP_SUMMARY"
           echo "- ✓ Check GitHub Actions logs for detailed error messages" >> "$GITHUB_STEP_SUMMARY"
           echo "- ✓ Verify GEMINI_API_KEY secret is configured correctly" >> "$GITHUB_STEP_SUMMARY"
           echo "- ✓ Try reducing concurrency further: \`--concurrency=1\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- ✓ Consider switching to OpenAI (more stable)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- ✓ Check Gemini API quota at [Google Cloud Console](https://console.cloud.google.com)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- ✓ Wait 5-10 minutes and retry manually" >> "$GITHUB_STEP_SUMMARY"
