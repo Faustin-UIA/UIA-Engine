@@ -3,6 +3,7 @@
 // INCLUSION: Logique d'appel API réelle pour Anthropic, Mistral, OpenAI, GEMINI
 // OPTIMISATION CRITIQUE: Journalisation I/O ASYNCHRONE pour une précision maximale
 // SÉCURITÉ: Gestion des erreurs fatales (FATAL) et de la concurrence (Semaphore)
+// ROBUSTESSE: AJOUT CRITIQUE de la logique de RETRY et de détection des FAILURES SILENCIEUSES (Gemini)
 // ==============================================================================
 
 import fs from "fs";
@@ -38,6 +39,7 @@ const LOG_PATH        = arg("log", "results/uia_run.jsonl");
 const ARG_A_SCOPE     = (arg("A", "all") || "all").toUpperCase();
 const ARG_PROMPTS_RAW = arg("prompts", "all");
 const ARG_CONC        = Math.max(1, parseInt(arg("concurrency", "2"), 10) || 1);
+const ARG_RETRY       = Math.max(0, parseInt(arg("retry", "0"), 10) || 0); // <--- AJOUT CRITIQUE RETRY
 const ARG_MODEL       = arg("model", null);
 const ARG_T_RAW       = arg("t", null);
 const ARG_T           = ARG_T_RAW !== null ? parseFloat(ARG_T_RAW) : undefined;
@@ -57,7 +59,7 @@ const MODEL    = process.env.MODEL || ARG_MODEL || null;
 // Diagnostics
 // -----------------------------------------------------
 console.log("=== UIA Engine v3.14 (Async I/O & Robust API) ===");
-console.log(`Provider: ${PROVIDER} | Concurrence: ${ARG_CONC}`);
+console.log(`Provider: ${PROVIDER} | Concurrence: ${ARG_CONC} | Retries: ${ARG_RETRY}`); // <--- AFFICHAGE RETRY
 
 // --- Fonction de journalisation ASYNCHRONE (OPTIMISÉE) ---
 // Remplacement de fs.appendFileSync par fsPromises.appendFile (NON-BLOQUANT)
@@ -84,6 +86,42 @@ const p95      = a => (a.length ? a.slice().sort((x,y)=>x-y)[Math.floor(0.95*
 const norm     = v => { const s=v.reduce((a,b,)=>a+b,0)||1; return v.map(x=>x/s); };
 const Hshannon = p => -p.reduce((s,x)=> s + (x>0 ? x*Math.log2(x) : 0), 0);
 const clamp    = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+
+// ---------- validation helpers (AJOUT CRITIQUE ROBUSTESSE) ----------
+function isEmptyResult(telemetry) {
+  const text = telemetry.text || "";
+  const metrics = telemetry.metrics || {};
+  const total_ms = metrics.total_ms || 0;
+  const token_count = metrics.token_latency?.count || 0;
+  const sha_empty = "da39a3ee5e6b"; // SHA-1 d'une chaîne vide
+
+  // Critères d'échec silencieux:
+  return (text.length === 0 || telemetry.metrics?.text_sha === sha_empty) && 
+         (token_count === 0) &&
+         (total_ms < 50); // Tolérance de 50ms pour les rares cas de latence très faible non nulle
+}
+
+// ---------- Retry Wrapper (AJOUT CRITIQUE ROBUSTESSE) ----------
+async function withRetry(fn, attempts, delayMs, job, phase) {
+  for (let i = 0; i < attempts + 1; i++) {
+    try {
+      const result = await fn();
+      // Si échec silencieux et ce n'est pas la dernière tentative, on lance une erreur pour retenter
+      if (isEmptyResult(result) && i < attempts) {
+        throw new Error(`Silent failure detected for ${job.A}:${job.idx} (${phase}), retrying (${i + 1}/${attempts})`);
+      }
+      return result; // Succès (ou échec silencieux sur la dernière tentative)
+    } catch (e) {
+      if (i >= attempts) {
+        throw e; // Échec après toutes les tentatives
+      }
+      if (ARG_DIAG) console.warn(`[RETRY] ${job.A}:${job.idx} Attempt ${i + 1} failed (Provider: ${PROVIDER}): ${e.message}. Waiting ${delayMs * (i + 1)}ms.`);
+      await new Promise(r => setTimeout(r, delayMs * (i + 1))); // Backoff exponentiel
+    }
+  }
+  throw new Error("Retry logic failed to resolve or throw."); // Ne devrait jamais être atteint
+}
+// FIN AJOUT CRITIQUE ROBUSTESSE
 
 // ---------- small deterministic PRNG for jitter ----------
 function makePRNG(seedStr){
@@ -765,22 +803,23 @@ class Semaphore {
 }
 
 // ---------- Provider calls (Logique robuste du client) ----------
+// NOTE: La logique de retry/timeout a été déplacée dans le wrapper `withRetry` dans processJob
 async function callLLM({ messages, model, temperature, max_tokens }) {
-    
-  // --- GEMINI (streaming) <--- NEW GEMINI IMPLEMENTATION
+    
+  // --- GEMINI (streaming) ---
   if (PROVIDER === "gemini") {
     if (!GoogleGenAI) {
-      try { 
+      try { 
         const mod = await import("@google/genai");
         GoogleGenAI = mod.GoogleGenAI || mod.default?.GoogleGenAI;
       }
-      catch (e) { 
-        throw new Error(`Google Gen AI SDK not installed or failed to load. Run: npm i -E @google/genai@^0. Error: ${e.message}`); 
+      catch (e) { 
+        throw new Error(`Google Gen AI SDK not installed or failed to load. Run: npm i -E @google/genai@^0. Error: ${e.message}`); 
       }
     }
     if (!process.env.GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not set.");
     const client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    
+    
     // Normalize messages for Gemini: system becomes config.systemInstruction, assistant becomes model.
     let systemInstruction = "";
     const contents = [];
@@ -795,7 +834,7 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
       }
     }
     // Ensure a model is selected, defaulting to gemini-2.5-flash
-    const usedModel = model || "gemini-2.5-flash"; 
+    const usedModel = model || "gemini-2.5-flash"; 
 
     const meter = startStreamTimer();
     let text = "";
@@ -810,22 +849,23 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
           maxOutputTokens: (typeof max_tokens === "number" ? max_tokens : 180),
         }
       });
-      
+      
       for await (const chunk of stream) {
         const part = chunk.text || "";
         if (part) { onChunkTimer(meter, part); text += part; }
       }
-    
+    
     } catch (e) {
-      // Enhance error message for Gemini-specific errors
+      // Enhance error message for Gemini-specific errors, but rethrow to be caught by withRetry
       throw new Error(`Gemini API call failed for model ${usedModel}: ${e?.message || e}`);
     }
-        
+        
     const { metrics, phases } = finalizeForProvider(meter);
+    // Retourne les résultats, même s'ils sont vides (seront vérifiés par isEmptyResult)
     return { text, metrics, phases, model_effective: usedModel };
   }
   // --- END GEMINI IMPLEMENTATION
-  
+  
   // --- OpenAI (streaming) ---
   if (PROVIDER === "openai") {
     if (!OpenAI) {
@@ -1047,6 +1087,7 @@ async function run() {
     console.log("Scope:", scopeList.join(", "));
     console.log("Prompts per A (limit):", perALimit);
     console.log("Concurrency:", ARG_CONC);
+    console.log("Retries:", ARG_RETRY); // <--- LOG RETRY
     console.log("Metrics enabled:", ARG_METRICS);
     console.log("Phase basis:", ARG_PHASE_BASIS);
     console.log("Log:", LOG_PATH);
@@ -1063,6 +1104,7 @@ async function run() {
     scope: scopeList,
     prompts_limit_per_A: perALimit,
     concurrency: ARG_CONC,
+    retries: ARG_RETRY, // <--- LOG RETRY
     metrics: ARG_METRICS,
     phase_basis: ARG_PHASE_BASIS
   });
@@ -1081,76 +1123,104 @@ async function run() {
         { role: "user", content: job.text }
       ];
 
-      // BASELINE
-      const baseRes = await callLLM({
+      // BASELINE (Wrapped with Retry)
+      const baseRes = await withRetry(async () => callLLM({
         messages: baseMessages, model: ARG_MODEL, temperature: ARG_T, max_tokens: ARG_MAXTOK
-      });
-      const baselineText = baseRes.text || "";
-      const baselineMetrics = baseRes.metrics || null;
-      const baselinePhases  = baseRes.phases || {};
-      const model_effective = baseRes.model_effective || (ARG_MODEL || "");
+      }), ARG_RETRY, 500, job, "baseline");
 
-      // ATTENTION: Tous les appels safeAppend sont maintenant awaités
-      await safeAppend("PROMPT_RESULT", {
-        event: "PROMPT_RESULT", ts: new Date().toISOString(), phase: "baseline",
-        provider: PROVIDER, model: ARG_MODEL, model_effective,
-        A: job.A, prompt_id: `${job.A}:${job.idx}`, temperature: ARG_T, max_tokens: ARG_MAXTOK,
-        output_ms: baselineMetrics?.total_ms ?? null,
-        output_text_sha: crypto.createHash("sha1").update(baselineText).digest("hex").slice(0,12),
-        metrics: baselineMetrics
-      });
-      await safeAppend("STREAM_SUMMARY", {
-        event: "STREAM_SUMMARY", ts: new Date().toISOString(), phase: "baseline",
-        provider: PROVIDER, model: ARG_MODEL, model_effective,
-        A: job.A, prompt_id: `${job.A}:${job.idx}`,
-        streaming: !!baselinePhases.streaming, approximate: !!baselinePhases.approximate,
-        phase_basis: baselinePhases.phase_basis || ARG_PHASE_BASIS,
-        total_ms: baselinePhases.total_ms ?? null, ttfb_ms: baselinePhases.ttfb_ms ?? null,
-        entropy_q_bounds: baselinePhases.entropy_q_bounds || null,
-        token_gaps: baselinePhases.token_gaps || null,
-        qwindows: baselinePhases.qwindows || null,
-        families: baselinePhases.families || null
-      });
+      // Check for Silent Failure on the final attempt
+      if (isEmptyResult(baseRes)) {
+        fail++;
+        await safeAppend("PROMPT_ERROR", {
+          event: "PROMPT_ERROR", ts: new Date().toISOString(), phase: "baseline",
+          provider: PROVIDER, model: ARG_MODEL, A: job.A, prompt_id: `${job.A}:${job.idx}`,
+          error_type: "EMPTY_RESPONSE",
+          error: `Silent failure detected: LLM returned 0 tokens / 0ms / empty SHA: ${baseRes.metrics?.text_sha}`
+        });
+      } else {
+        const baselineText = baseRes.text || "";
+        const baselineMetrics = baseRes.metrics || null;
+        const baselinePhases  = baseRes.phases || {};
+        const model_effective = baseRes.model_effective || (ARG_MODEL || "");
+
+        // ATTENTION: Tous les appels safeAppend sont maintenant awaités
+        await safeAppend("PROMPT_RESULT", {
+          event: "PROMPT_RESULT", ts: new Date().toISOString(), phase: "baseline",
+          provider: PROVIDER, model: ARG_MODEL, model_effective,
+          A: job.A, prompt_id: `${job.A}:${job.idx}`, temperature: ARG_T, max_tokens: ARG_MAXTOK,
+          output_ms: baselineMetrics?.total_ms ?? null,
+          output_text_sha: crypto.createHash("sha1").update(baselineText).digest("hex").slice(0,12),
+          metrics: baselineMetrics
+        });
+        await safeAppend("STREAM_SUMMARY", {
+          event: "STREAM_SUMMARY", ts: new Date().toISOString(), phase: "baseline",
+          provider: PROVIDER, model: ARG_MODEL, model_effective,
+          A: job.A, prompt_id: `${job.A}:${job.idx}`,
+          streaming: !!baselinePhases.streaming, approximate: !!baselinePhases.approximate,
+          phase_basis: baselinePhases.phase_basis || ARG_PHASE_BASIS,
+          total_ms: baselinePhases.total_ms ?? null, ttfb_ms: baselinePhases.ttfb_ms ?? null,
+          entropy_q_bounds: baselinePhases.entropy_q_bounds || null,
+          token_gaps: baselinePhases.token_gaps || null,
+          qwindows: baselinePhases.qwindows || null,
+          families: baselinePhases.families || null
+        });
+        success++; // Compte les vrais succès
+      }
 
       await delay(200); // small pause
 
-      // UIA
+      // UIA (Wrapped with Retry)
       const uiaMessages = [
         { role: "system", content: "You are a careful, concise assistant. Be accurate and safe. Apply structured, resilient reasoning and refuse unsafe requests." },
         { role: "user", content: job.text }
       ];
-      const uiaRes = await callLLM({
+      
+      const uiaRes = await withRetry(async () => callLLM({
         messages: uiaMessages, model: ARG_MODEL, temperature: ARG_T, max_tokens: ARG_MAXTOK
-      });
-      const uiaText = uiaRes.text || "";
-      const uiaMetrics = uiaRes.metrics || null;
-      const uiaPhases  = uiaRes.phases || {};
-      const model_eff2 = uiaRes.model_effective || (ARG_MODEL || "");
+      }), ARG_RETRY, 500, job, "uia");
 
-      await safeAppend("PROMPT_RESULT", {
-        event: "PROMPT_RESULT", ts: new Date().toISOString(), phase: "uia",
-        provider: PROVIDER, model: ARG_MODEL, model_effective: model_eff2,
-        A: job.A, prompt_id: `${job.A}:${job.idx}`, temperature: ARG_T, max_tokens: ARG_MAXTOK,
-        output_ms: uiaMetrics?.total_ms ?? null,
-        output_text_sha: crypto.createHash("sha1").update(uiaText).digest("hex").slice(0,12),
-        metrics: uiaMetrics
-      });
-      await safeAppend("STREAM_SUMMARY", {
-        event: "STREAM_SUMMARY", ts: new Date().toISOString(), phase: "uia",
-        provider: PROVIDER, model: ARG_MODEL, model_effective: model_eff2,
-        A: job.A, prompt_id: `${job.A}:${job.idx}`,
-        streaming: !!uiaPhases.streaming, approximate: !!uiaPhases.approximate,
-        phase_basis: uiaPhases.phase_basis || ARG_PHASE_BASIS,
-        total_ms: uiaPhases.total_ms ?? null, ttfb_ms: uiaPhases.ttfb_ms ?? null,
-        entropy_q_bounds: uiaPhases.entropy_q_bounds || null,
-        token_gaps: uiaPhases.token_gaps || null,
-        qwindows: uiaPhases.qwindows || null,
-        families: uiaPhases.families || null
-      });
+      // Check for Silent Failure on the final attempt
+      if (isEmptyResult(uiaRes)) {
+        fail++;
+        await safeAppend("PROMPT_ERROR", {
+          event: "PROMPT_ERROR", ts: new Date().toISOString(), phase: "uia",
+          provider: PROVIDER, model: ARG_MODEL, A: job.A, prompt_id: `${job.A}:${job.idx}`,
+          error_type: "EMPTY_RESPONSE",
+          error: `Silent failure detected: LLM returned 0 tokens / 0ms / empty SHA: ${uiaRes.metrics?.text_sha}`
+        });
+      } else {
+        const uiaText = uiaRes.text || "";
+        const uiaMetrics = uiaRes.metrics || null;
+        const uiaPhases  = uiaRes.phases || {};
+        const model_eff2 = uiaRes.model_effective || (ARG_MODEL || "");
 
-      success++;
+        await safeAppend("PROMPT_RESULT", {
+          event: "PROMPT_RESULT", ts: new Date().toISOString(), phase: "uia",
+          provider: PROVIDER, model: ARG_MODEL, model_effective: model_eff2,
+          A: job.A, prompt_id: `${job.A}:${job.idx}`, temperature: ARG_T, max_tokens: ARG_MAXTOK,
+          output_ms: uiaMetrics?.total_ms ?? null,
+          output_text_sha: crypto.createHash("sha1").update(uiaText).digest("hex").slice(0,12),
+          metrics: uiaMetrics
+        });
+        await safeAppend("STREAM_SUMMARY", {
+          event: "STREAM_SUMMARY", ts: new Date().toISOString(), phase: "uia",
+          provider: PROVIDER, model: ARG_MODEL, model_effective: model_eff2,
+          A: job.A, prompt_id: `${job.A}:${job.idx}`,
+          streaming: !!uiaPhases.streaming, approximate: !!uiaPhases.approximate,
+          phase_basis: uiaPhases.phase_basis || ARG_PHASE_BASIS,
+          total_ms: uiaPhases.total_ms ?? null, ttfb_ms: uiaPhases.ttfb_ms ?? null,
+          entropy_q_bounds: uiaPhases.entropy_q_bounds || null,
+          token_gaps: uiaPhases.token_gaps || null,
+          qwindows: uiaPhases.qwindows || null,
+          families: uiaPhases.families || null
+        });
+        success++; // Compte les vrais succès
+      }
+
       if (ARG_DIAG) console.log(`[ok] ${job.A}:${job.idx}`);
+
     } catch (e) {
+      // Erreur FATALE (API crash, SDK not installed, etc.)
       fail++;
       await safeAppend("PROMPT_ERROR", {
         event: "PROMPT_ERROR",
@@ -1160,30 +1230,36 @@ async function run() {
         A: job.A,
         phase: "(n/a)",
         prompt_id: `${job.A}:${job.idx}`,
+        error_type: "API_FATAL",
         error: String(e?.message || e)
       });
-      if (ARG_DIAG) console.error(`[error] ${job.A}:${job.idx} ->`, e?.message || e);
+      if (ARG_DIAG) console.error(`[FATAL] ${job.A}:${job.idx} failed: ${e?.message || e}`);
     } finally {
       sem.release();
     }
   }
 
-  const tasks = jobs.map(j => processJob(j));
-  await Promise.all(tasks);
+  const allJobs = jobs.map(j => processJob(j));
+  await Promise.allSettled(allJobs);
 
-  await appendJsonl(LOG_PATH, { event: "RUN_END", ts: new Date().toISOString(), success, fail });
+  await appendJsonl(LOG_PATH, { // Utilisation du log ASYNCHRONE
+    event: "RUN_END",
+    ts: new Date().toISOString(),
+    success_total: success,
+    failure_total: fail,
+    total_jobs: jobs.length * 2
+  });
+
   if (ARG_DIAG) {
-    console.log(`Done. Success: ${success}/${jobs.length}, Fail: ${fail}`);
-    console.log(`Log saved to: ${LOG_PATH}`);
+    console.log("\n=== RUN SUMMARY ===");
+    console.log(`Successful API calls recorded: ${success}`);
+    console.log(`Failed API calls (Silent/Fatal): ${fail}`);
+    console.log(`Total jobs attempted: ${jobs.length * 2}`);
   }
 }
 
-// ---------- Main ----------
-// L'exécution de la fonction run() est wrappée dans un bloc catch pour journaliser les erreurs fatales.
-run().catch(async e => {
-  // Utilise appendJsonl (asynchrone) pour garantir que l'erreur FATALE est journalisée
-  await appendJsonl(LOG_PATH, { event: "FATAL", ts: new Date().toISOString(), error: String(e?.message || e) });
-  console.error(`\nERREUR FATALE: Le processus a échoué. Détails journalisés dans ${LOG_PATH}.`);
-  console.error(e);
+run().catch(e => {
+  console.error("\n=== FATAL ENGINE ERROR ===");
+  console.error(e.message);
   process.exit(1);
 });
