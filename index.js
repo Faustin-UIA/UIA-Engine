@@ -810,11 +810,11 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
   if (PROVIDER === "gemini") {
     if (!GoogleGenAI) {
       try { 
-        const mod = await import("@google/genai");
+        const mod = await import("@google/generative-ai");
         GoogleGenAI = mod.GoogleGenAI || mod.default?.GoogleGenAI;
       }
       catch (e) { 
-        throw new Error(`Google Gen AI SDK not installed or failed to load. Run: npm i -E @google/genai@^0. Error: ${e.message}`); 
+        throw new Error(`Google Gen AI SDK not installed or failed to load. Run: npm i -E @google/generative-ai@^0. Error: ${e.message}`); 
       }
     }
     if (!process.env.GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not set.");
