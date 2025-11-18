@@ -38,10 +38,7 @@ jobs:
         run: |
           set -e
           # Utiliser 'npm ci' pour une installation propre basée sur package-lock.json.
-          # Si le package @google/generative-ai est dans les dépendances, 'npm ci' suffit.
-          # Si ce n'est pas le cas, ajoutez-le aux 'dependencies' de votre package.json.
           npm ci
-          # ❌ ANCIEN : npm i -E @google/generative-ai (Redondant et peut casser la reproductibilité de 'npm ci')
           
           # Vérification de l'installation
           npm list @google/generative-ai
@@ -212,8 +209,6 @@ jobs:
                   else:
                       empty_responses += 1
               
-              # L'événement STREAM_SUMMARY semble être remplacé par les données dans PROMPT_RESULT (phases)
-              # La vérification de 'streaming_true' est moins critique ici si les phases sont utilisées.
               if e.get('phases', {}).get('streaming'):
                   streaming_true += 1
 
@@ -221,8 +216,8 @@ jobs:
           
           # Calculate metrics
           valid_rate = 100 * valid_responses / prompt_results if prompt_results > 0 else 0
-          # Correction du calcul du taux de streaming, basé sur les résultats de prompt valides
-          streaming_rate = 100 * streaming_true / valid_responses if valid_responses > 0 else 0 
+          # 🛠️ CORRECTION: Calcul du taux de streaming basé sur les résultats totaux
+          streaming_rate = 100 * streaming_true / prompt_results if prompt_results > 0 else 0 
           
           print("📊 RUN QUALITY VALIDATION")
           print("=" * 70)
