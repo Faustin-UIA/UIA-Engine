@@ -19,21 +19,14 @@ let OpenAI = null;            // openai
 let Anthropic = null;         // @anthropic-ai/sdk
 let MistralClientCtor = null; // @mistralai/mistralai export variant
 
-// 🟢 FINAL FIX: We force the resolution to the nested constructor function, 
-// covering the most common CJS/ESM wrapper behaviors.
+// 🟢 FINAL CJS FIX: Access the constructor via CJS interop (handling .default or module root).
+// This is the standard pattern for resolving modern SDKs (ESM) imported via require() (CJS).
 const GoogleGenAIModule = require('@google/generative-ai');
 
-// The constructor is exposed either under the 'GoogleGenAI' property or under 'default' property
-// of the required module, or sometimes it's the module itself.
-let GoogleGenAI = 
-    GoogleGenAIModule.GoogleGenAI || 
-    GoogleGenAIModule.default || 
-    GoogleGenAIModule;
-
-// If the resulting object is a module wrapper object, we check if it contains the class inside.
-if (typeof GoogleGenAI !== 'function' && GoogleGenAI.GoogleGenAI) {
-    GoogleGenAI = GoogleGenAI.GoogleGenAI;
-}
+// Check the two most reliable locations for the constructor function: 
+// 1. The .default property (common for CJS wrappers of ESM)
+// 2. The module object itself (common for CJS packages)
+const GoogleGenAI = GoogleGenAIModule.default || GoogleGenAIModule;
 
 let GoogleGenAIClient = null;  
 
