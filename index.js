@@ -793,11 +793,23 @@ async function callLLM_Gemini(prompt, job) {
     // Lazy-loading et Initialisation
     if (!GoogleGenAIClient) {
         try {
-            // Tentative d'importation du constructeur
-            const { GoogleGenAI } = await import('@google/generative-ai');
+            // 🛠️ CORRECTION D'IMPORT CRITIQUE pour l'environnement Node/ESM
+            const module = await import('@google/generative-ai');
+            
+            // 1. Tenter d'utiliser l'export nommé (le plus probable)
+            let GoogleGenAI = module.GoogleGenAI;
+            
+            // 2. Si l'export nommé n'est pas trouvé, tenter le default export (parfois nécessaire)
+            if (!GoogleGenAI && module.default && module.default.GoogleGenAI) {
+                GoogleGenAI = module.default.GoogleGenAI;
+            }
+            // 3. Cas de l'import direct (si la librairie utilise un CommonJS wrapper)
+            if (!GoogleGenAI && module.GoogleGenAI) {
+                 GoogleGenAI = module.GoogleGenAI;
+            }
             
             if (typeof GoogleGenAI !== 'function') {
-                throw new Error("L'objet importé n'est pas un constructeur valide.");
+                throw new Error("L'objet importé n'est pas un constructeur valide ou n'a pas été trouvé (vérifiez l'environnement Node/ESM).");
             }
             
             // Instanciation du client
@@ -817,18 +829,17 @@ async function callLLM_Gemini(prompt, job) {
             maxOutputTokens: ARG_MAXTOK ?? 180,
         };
         
-        // 🛠️ CORRECTION 1: Obtenir l'instance du modèle à partir du client
+        // 🛠️ Assurez-vous d'obtenir l'instance du modèle à partir du client
         const modelInstance = GoogleGenAIClient.getGenerativeModel({ model: MODEL });
         
-        // 🛠️ CORRECTION 2: Appeler generateContentStream sur l'instance du modèle
+        // 🛠️ Appeler generateContentStream sur l'instance du modèle
         const result = await modelInstance.generateContentStream({
             contents: [{ role: "user", parts: [{ text: prompt }] }],
             config: genConfig,
         });
         
-        // 🛠️ CORRECTION 3: Itérer sur result.stream et utiliser chunk.text()
+        // 🛠️ Itérer sur result.stream et utiliser chunk.text()
         for await (const chunk of result.stream) {
-            // Le SDK JS utilise text() comme une méthode pour garantir la compatibilité
             const chunkText = chunk.text(); 
             if (chunkText) {
                 onChunkTimer(start, chunkText);
@@ -839,7 +850,7 @@ async function callLLM_Gemini(prompt, job) {
 
     } catch (e) {
         // En cas d'erreur API, on log l'erreur pour que withRetry la capture
-        throw new Error(`[GEMINI API] Call failed: ${e.message}`);
+        throw new new Error(`[GEMINI API] Call failed: ${e.message}`);
     }
 
     const { metrics, phases } = finalizeForProvider(start);
