@@ -788,35 +788,30 @@ const PROMPTS_RAW_SOURCE = {
 // 6. LOGIQUE D'APPEL ET DE REPARTITION (CORRIGÉE)
 // ------------------------------------------------------------------
 
-// --- 🟢 Fonction d'appel pour Gemini (CORRIGÉE, VERSION D'ACCÈS PAR DÉFAUT) ---
+// --- 🟢 Fonction d'appel pour Gemini (CORRECTION FINALE DE L'IMPORTATION) ---
 async function callLLM_Gemini(prompt, job) {
     // Lazy-loading et Initialisation
     if (!GoogleGenAIClient) {
         try {
-            // 🟢 CORRECTION D'IMPORTATION FINALE: Importer l'objet module complet
-            const GenAIModule = await import('@google/generative-ai');
+            // 🟢 NOUVELLE TENTATIVE: Revenir à la déstructuration. 
+            // Si Node.js est configuré en ESM, c'est parfois la seule méthode qui fonctionne pour les exports nommés.
+            const { GoogleGenAI } = await import('@google/generative-ai');
             
-            // Tenter l'accès à l'export nommé (le plus probable)
-            let GenAIConstructor = GenAIModule.GoogleGenAI;
-            
-            // Si l'export nommé n'est pas trouvé, tenter l'export par défaut (le fallback)
-            if (!GenAIConstructor && GenAIModule.default) {
-                GenAIConstructor = GenAIModule.default;
-            }
-
-            if (!GenAIConstructor) {
-                // Si aucune méthode n'a fonctionné, il y a un problème de version/d'installation critique.
-                throw new Error("Impossible de localiser la classe constructeur (GoogleGenAI ou default) dans le module du SDK.");
+            // Assurez-vous que l'objet importé est bien une fonction/classe (constructor)
+            if (typeof GoogleGenAI !== 'function') {
+                throw new Error("L'objet importé n'est pas un constructeur valide. Vérifiez la configuration Node.js/package.");
             }
             
             // Instanciation du client
-            GoogleGenAIClient = new GenAIConstructor({ apiKey: process.env.GEMINI_API_KEY });
+            GoogleGenAIClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
         } catch (e) {
+            // Si la déstructuration elle-même échoue ou si l'objet n'est pas un constructeur,
+            // l'erreur est capturée ici.
             throw new Error(`[FATAL] Impossible d'initialiser Google Generative AI SDK: ${e.message}`);
         }
     }
-
+    // ... (Le reste du code est inchangé)
     const start = startStreamTimer();
     let text = "";
 
@@ -826,14 +821,12 @@ async function callLLM_Gemini(prompt, job) {
             maxOutputTokens: ARG_MAXTOK ?? 180,
         };
         
-        // Utilisation de la méthode generateContentStream du client instancié
         const responseStream = await GoogleGenAIClient.generateContentStream({
             model: MODEL,
             contents: [{ role: "user", parts: [{ text: prompt }] }],
             config: genConfig,
         });
         
-        // Lecture du flux (Streaming)
         for await (const chunk of responseStream) {
             const chunkText = chunk.text || "";
             onChunkTimer(start, chunkText);
@@ -845,7 +838,6 @@ async function callLLM_Gemini(prompt, job) {
         throw new Error(`[GEMINI API] Call failed: ${e.message}`);
     }
 
-    // Finalisation des métriques
     const { metrics, phases } = finalizeForProvider(start);
 
     return {
