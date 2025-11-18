@@ -788,21 +788,26 @@ const PROMPTS_RAW_SOURCE = {
 // 6. LOGIQUE D'APPEL ET DE REPARTITION (CORRIGÉE)
 // ------------------------------------------------------------------
 
-// --- 🟢 Fonction d'appel pour Gemini (CORRIGÉE) ---
+// --- 🟢 Fonction d'appel pour Gemini (CORRIGÉE, VERSION ROBUSTE) ---
 async function callLLM_Gemini(prompt, job) {
     // Lazy-loading et Initialisation
     if (!GoogleGenAIClient) {
         try {
-            // 🟢 CORRECTION: Importation paresseuse de l'export nommé `GoogleGenAI`
-            // Les modules ESM exportent souvent l'objet client sous son nom explicite
-            const { GoogleGenAI } = await import('@google/generative-ai');
+            // 🟢 CORRECTION: Importer l'objet module complet, puis accéder à la propriété GoogleGenAI
+            const GenAIModule = await import('@google/generative-ai');
+            
+            // Accéder à la classe via la propriété de l'objet module
+            const GoogleGenAI = GenAIModule.GoogleGenAI; 
+
+            if (!GoogleGenAI) {
+                // Si la classe est introuvable sous le nom, nous avons un problème d'installation/version
+                throw new Error("La classe GoogleGenAI est manquante dans l'export du module. Vérifiez la version du SDK.");
+            }
             
             // Instanciation du client
             GoogleGenAIClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
         } catch (e) {
-            // L'erreur "GoogleGenAI is not a constructor" signifie que {GoogleGenAI} était undefined
-            // ou que l'importation a échoué d'une manière inattendue (e.g. conflit de version).
             // L'erreur est maintenant bien encapsulée.
             throw new Error(`[FATAL] Impossible d'initialiser Google Generative AI SDK: ${e.message}`);
         }
@@ -817,7 +822,7 @@ async function callLLM_Gemini(prompt, job) {
             maxOutputTokens: ARG_MAXTOK ?? 180,
         };
         
-        // CORRECTION: Utilisation de la méthode generateContentStream du nouveau client
+        // Utilisation de la méthode generateContentStream du nouveau client
         const responseStream = await GoogleGenAIClient.generateContentStream({
             model: MODEL,
             contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -833,13 +838,12 @@ async function callLLM_Gemini(prompt, job) {
         text = start.text;
 
     } catch (e) {
+        // ... (gestion des erreurs API)
         throw new Error(`[GEMINI API] Call failed: ${e.message}`);
     }
-
-    // Finalisation des métriques
+    // ... (finalisation)
     const { metrics, phases } = finalizeForProvider(start);
 
-    // Retour standard de la fonction callLLM
     return {
         text: text,
         provider: PROVIDER,
