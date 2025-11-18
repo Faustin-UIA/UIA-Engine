@@ -17,10 +17,7 @@ let OpenAI = null;            // openai
 let Anthropic = null;         // @anthropic-ai/sdk
 let MistralClientCtor = null; // @mistralai/mistralai export variant
 
-// 🟢 CORRECTION ULTIME: Importation par défaut (default import) requise par l'SDK pour l'import statique.
-import GeminiClientConstructor from '@google/generative-ai';
-
-// GoogleGenAIClient sera initialisé dans callLLM_Gemini
+// 🟢 FINAL: Le client Google est chargé via require() dans callLLM_Gemini pour garantir la compatibilité
 let GoogleGenAIClient = null;  
 
 const __filename = fileURLToPath(import.meta.url);
@@ -791,18 +788,30 @@ const PROMPTS_RAW_SOURCE = {
 // 6. LOGIQUE D'APPEL ET DE REPARTITION (CORRIGÉE)
 // ------------------------------------------------------------------
 
-// --- 🟢 Fonction d'appel pour Gemini (MAJ INIT STATIQUE ULTIME) ---
+// --- 🟢 Fonction d'appel pour Gemini (FINAL REQUIRE FIX) ---
 async function callLLM_Gemini(prompt, job) {
     // Lazy-loading et Initialisation
     if (!GoogleGenAIClient) {
         try {
-            // 🛠️ Instanciation utilisant l'import par défaut (GeminiClientConstructor)
-            // qui contient la classe GoogleGenAI.
-            // Note: Nous utilisons GeminiClientConstructor qui a été importé statiquement.
-            GoogleGenAIClient = new GeminiClientConstructor({ apiKey: process.env.GEMINI_API_KEY });
+            // 🛠️ CORRECTION FINALE: Utiliser 'require' pour forcer la résolution CJS/ESM.
+            // On récupère le module en utilisant require().
+            const module = require('@google/generative-ai');
+
+            // 1. La classe GoogleGenAI est généralement une propriété de l'objet retourné par require.
+            const constructorHolder = module.GoogleGenAI || module;
+            
+            // 2. Tenter de récupérer la classe. Dans cet environnement difficile, elle pourrait être la valeur par défaut.
+            let GoogleGenAI = constructorHolder.GoogleGenAI || constructorHolder.default || constructorHolder;
+
+            if (typeof GoogleGenAI !== 'function') {
+                throw new Error("Résolution du module échouée après require(). Vérifiez package.json.");
+            }
+
+            // Instanciation du client
+            GoogleGenAIClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
         } catch (e) {
-            // Si l'instanciation échoue (e.g., clé API manquante), cela sera capturé.
+            // Capture toute erreur et la relance pour le retry wrapper
             throw new Error(`[FATAL] Impossible d'initialiser Google Generative AI SDK: ${e.message}`);
         }
     }
