@@ -19,14 +19,28 @@ let OpenAI = null;            // openai
 let Anthropic = null;         // @anthropic-ai/sdk
 let MistralClientCtor = null; // @mistralai/mistralai export variant
 
-// 🟢 FINAL CJS FIX: Access the constructor via CJS interop (handling .default or module root).
-// This is the standard pattern for resolving modern SDKs (ESM) imported via require() (CJS).
+// 🟢 FINAL FIX: We use a multi-layer check to guarantee we get the callable constructor function, 
+// not the wrapper object, which is the root cause of this persistent error.
 const GoogleGenAIModule = require('@google/generative-ai');
 
-// Check the two most reliable locations for the constructor function: 
-// 1. The .default property (common for CJS wrappers of ESM)
-// 2. The module object itself (common for CJS packages)
-const GoogleGenAI = GoogleGenAIModule.default || GoogleGenAIModule;
+// The most aggressive resolution check:
+let GoogleGenAI = 
+    GoogleGenAIModule.GoogleGenAI || 
+    GoogleGenAIModule.default || 
+    GoogleGenAIModule.default?.default || // Nested default export check
+    GoogleGenAIModule;
+
+// Final safety check: if we got the wrapper object, peel it one last time.
+if (typeof GoogleGenAI !== 'function' && GoogleGenAI.GoogleGenAI) {
+    GoogleGenAI = GoogleGenAI.GoogleGenAI;
+} else if (typeof GoogleGenAI !== 'function' && GoogleGenAI.default) {
+    GoogleGenAI = GoogleGenAI.default;
+}
+
+// Final guarantee: if it's still not a function, the library is fundamentally broken in this environment.
+if (typeof GoogleGenAI !== 'function') {
+    throw new Error("Initialization failed: The Google GenAI constructor could not be reliably extracted from the module object.");
+}
 
 let GoogleGenAIClient = null;  
 
