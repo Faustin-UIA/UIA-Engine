@@ -19,12 +19,21 @@ let OpenAI = null;            // openai
 let Anthropic = null;         // @anthropic-ai/sdk
 let MistralClientCtor = null; // @mistralai/mistralai export variant
 
-// 🟢 FINAL FIX: We must explicitly access the named export from the required module object.
+// 🟢 FINAL FIX: We force the resolution to the nested constructor function, 
+// covering the most common CJS/ESM wrapper behaviors.
 const GoogleGenAIModule = require('@google/generative-ai');
 
-// The constructor function itself is reliably located under the 'GoogleGenAI' property.
-// We use a fallback just in case the wrapper is the constructor itself (unlikely here).
-const GoogleGenAI = GoogleGenAIModule.GoogleGenAI || GoogleGenAIModule;
+// The constructor is exposed either under the 'GoogleGenAI' property or under 'default' property
+// of the required module, or sometimes it's the module itself.
+let GoogleGenAI = 
+    GoogleGenAIModule.GoogleGenAI || 
+    GoogleGenAIModule.default || 
+    GoogleGenAIModule;
+
+// If the resulting object is a module wrapper object, we check if it contains the class inside.
+if (typeof GoogleGenAI !== 'function' && GoogleGenAI.GoogleGenAI) {
+    GoogleGenAI = GoogleGenAI.GoogleGenAI;
+}
 
 let GoogleGenAIClient = null;  
 
