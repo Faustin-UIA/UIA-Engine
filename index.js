@@ -788,21 +788,24 @@ const PROMPTS_RAW_SOURCE = {
 // 6. LOGIQUE D'APPEL ET DE REPARTITION (CORRIGÉE)
 // ------------------------------------------------------------------
 
-// --- 🟢 Fonction d'appel pour Gemini (CORRECTION FINALE DE L'IMPORTATION) ---
+// --- 🟢 Fonction d'appel pour Gemini (CORRECTION FINALE D'IMPORT SANS CRASH) ---
 async function callLLM_Gemini(prompt, job) {
     // Lazy-loading et Initialisation
     if (!GoogleGenAIClient) {
         try {
-            // 🛠️ CORRECTION D'IMPORT ULTIME pour l'environnement Node/ESM.
-            // Utiliser une méthode plus directe pour extraire l'export 'GoogleGenAI'.
+            // 🛠️ CORRECTION CRASH-PROOF: Utilisation du Safe Navigation Operator (?.).
             const module = await import('@google/generative-ai');
             
-            // Dans certains environnements, la classe se trouve directement sur la propriété 'GoogleGenAI' 
-            // de l'objet module, ou sous le 'default' export.
-            let GoogleGenAI = module.GoogleGenAI || module.default?.GoogleGenAI || module.default;
+            // Tentative d'extraire la classe à partir des emplacements les plus probables,
+            // en s'assurant qu'on ne lit pas de propriété d'un objet "undefined".
+            let GoogleGenAI = 
+                module.GoogleGenAI || 
+                module.default?.GoogleGenAI || 
+                module.default || 
+                null;
             
-            // Le SDK peut également exposer la classe sous le nom par défaut de la classe.
-            if (typeof GoogleGenAI !== 'function' && typeof GoogleGenAI.GoogleGenAI === 'function') {
+            // Si l'objet trouvé est un module wrapper qui contient la classe
+            if (GoogleGenAI && typeof GoogleGenAI !== 'function' && typeof GoogleGenAI.GoogleGenAI === 'function') {
                  GoogleGenAI = GoogleGenAI.GoogleGenAI;
             }
             
@@ -814,6 +817,7 @@ async function callLLM_Gemini(prompt, job) {
             GoogleGenAIClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
         } catch (e) {
+            // Capture toute erreur et la relance pour le retry wrapper
             throw new Error(`[FATAL] Impossible d'initialiser Google Generative AI SDK: ${e.message}`);
         }
     }
