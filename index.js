@@ -1,6 +1,6 @@
 // ==============================================================================
 // UIA Engine v3.14 – FINAL MASTER BRANCH
-// CORRECTION CRITIQUE: Mise à jour du SDK Google (Generative AI)
+// CORRECTION CRITIQUE: Cleaned up CJS hacks, reverting to pure ESM structure.
 // ==============================================================================
 
 import fs from "fs";
@@ -17,7 +17,7 @@ let OpenAI = null;            // openai
 let Anthropic = null;         // @anthropic-ai/sdk
 let MistralClientCtor = null; // @mistralai/mistralai export variant
 
-// 🟢 FINAL: Le client Google est chargé via require() dans callLLM_Gemini pour garantir la compatibilité
+// 🟢 FINAL: Placeholder for the Google client. Reverting to null for lazy-loading.
 let GoogleGenAIClient = null;  
 
 const __filename = fileURLToPath(import.meta.url);
@@ -788,78 +788,72 @@ const PROMPTS_RAW_SOURCE = {
 // 6. LOGIQUE D'APPEL ET DE REPARTITION (CORRIGÉE)
 // ------------------------------------------------------------------
 
-// --- 🟢 Fonction d'appel pour Gemini (FINAL REQUIRE FIX) ---
+// --- 🟢 Fonction d'appel pour Gemini (FINAL ESM IMPLEMENTATION) ---
 async function callLLM_Gemini(prompt, job) {
-    // Lazy-loading et Initialisation
-    if (!GoogleGenAIClient) {
-        try {
-            // 🛠️ CORRECTION FINALE: Utiliser 'require' pour forcer la résolution CJS/ESM.
-            // On récupère le module en utilisant require().
-            const module = require('@google/generative-ai');
-
-            // 1. La classe GoogleGenAI est généralement une propriété de l'objet retourné par require.
-            const constructorHolder = module.GoogleGenAI || module;
+    // Lazy-loading et Initialisation (using await import to isolate module loading)
+    if (!GoogleGenAIClient) {
+        try {
+            // Revert to the original dynamic import pattern, as it is the standard for ESM.
+            // If the environment is purely ESM, this should work.
+            const module = await import('@google/generative-ai');
             
-            // 2. Tenter de récupérer la classe. Dans cet environnement difficile, elle pourrait être la valeur par défaut.
-            let GoogleGenAI = constructorHolder.GoogleGenAI || constructorHolder.default || constructorHolder;
-
+            // Assume the module exports the constructor under 'GoogleGenAI' or as the default export (most standard)
+            const GoogleGenAI = module.GoogleGenAI || module.default;
+            
             if (typeof GoogleGenAI !== 'function') {
-                throw new Error("Résolution du module échouée après require(). Vérifiez package.json.");
+                // If it fails here, the environment setup (ESM vs CJS) is incorrect or the library is wrapped oddly.
+                throw new Error("Initialization failed: GoogleGenAI constructor not found in standard ESM/CJS locations.");
             }
 
-            // Instanciation du client
-            GoogleGenAIClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+            GoogleGenAIClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-        } catch (e) {
-            // Capture toute erreur et la relance pour le retry wrapper
-            throw new Error(`[FATAL] Impossible d'initialiser Google Generative AI SDK: ${e.message}`);
-        }
-    }
-    
-    const start = startStreamTimer();
-    let text = "";
+        } catch (e) {
+            throw new Error(`[FATAL] Impossible d'initialiser Google Generative AI SDK: ${e.message}`);
+        }
+    }
+    
+    const start = startStreamTimer();
+    let text = "";
 
-    try {
-        const genConfig = {
-            temperature: ARG_T ?? 0.5,
-            maxOutputTokens: ARG_MAXTOK ?? 180,
-        };
-        
-        // Obtenir l'instance du modèle
-        const modelInstance = GoogleGenAIClient.getGenerativeModel({ model: MODEL });
-        
-        // Appeler generateContentStream de manière asynchrone
-        const result = await modelInstance.generateContentStream({
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
-            config: genConfig,
-        });
-        
-        // Itérer sur result.stream de manière asynchrone (non-bloquant)
-        for await (const chunk of result.stream) {
-            // Le reste de la logique asynchrone est correcte
-            const chunkText = chunk.text(); 
-            if (chunkText) {
-                onChunkTimer(start, chunkText);
-            }
-        }
+    try {
+        const genConfig = {
+            temperature: ARG_T ?? 0.5,
+            maxOutputTokens: ARG_MAXTOK ?? 180,
+        };
+        
+        // Obtenir l'instance du modèle (using the corrected structure)
+        const modelInstance = GoogleGenAIClient.getGenerativeModel({ model: MODEL });
+        
+        // Appeler generateContentStream de manière asynchrone
+        const result = await modelInstance.generateContentStream({
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            config: genConfig,
+        });
+        
+        // Itérer sur result.stream de manière asynchrone (non-bloquant)
+        for await (const chunk of result.stream) {
+            const chunkText = chunk.text(); 
+            if (chunkText) {
+                onChunkTimer(start, chunkText);
+            }
+        }
 
-        text = start.text;
+        text = start.text;
 
-    } catch (e) {
-        // En cas d'erreur API, on log l'erreur pour que withRetry la capture
-        throw new Error(`[GEMINI API] Call failed: ${e.message}`);
-    }
+    } catch (e) {
+        throw new Error(`[GEMINI API] Call failed: ${e.message}`);
+    }
 
-    const { metrics, phases } = finalizeForProvider(start);
+    const { metrics, phases } = finalizeForProvider(start);
 
-    return {
-        text: text,
-        provider: PROVIDER,
-        model: MODEL,
-        metrics: metrics,
-        phases: phases,
-        is_streaming: start.textChunks.length > 1,
-    };
+    return {
+        text: text,
+        provider: PROVIDER,
+        model: MODEL,
+        metrics: metrics,
+        phases: phases,
+        is_streaming: start.textChunks.length > 1,
+    };
 }
 
 // --- 🟢 Fonction de répartition principale ---
