@@ -19,28 +19,10 @@ let OpenAI = null;            // openai
 let Anthropic = null;         // @anthropic-ai/sdk
 let MistralClientCtor = null; // @mistralai/mistralai export variant
 
-// 🟢 FINAL FIX: We use a multi-layer check to guarantee we get the callable constructor function, 
-// not the wrapper object, which is the root cause of this persistent error.
+// 🟢 FINAL CJS FIX: Access the constructor via CJS interop (handling .default or module root).
+// This is the standard pattern for resolving modern SDKs (ESM) imported via require() (CJS).
 const GoogleGenAIModule = require('@google/generative-ai');
-
-// The most aggressive resolution check:
-let GoogleGenAI = 
-    GoogleGenAIModule.GoogleGenAI || 
-    GoogleGenAIModule.default || 
-    GoogleGenAIModule.default?.default || // Nested default export check
-    GoogleGenAIModule;
-
-// Final safety check: if we got the wrapper object, peel it one last time.
-if (typeof GoogleGenAI !== 'function' && GoogleGenAI.GoogleGenAI) {
-    GoogleGenAI = GoogleGenAI.GoogleGenAI;
-} else if (typeof GoogleGenAI !== 'function' && GoogleGenAI.default) {
-    GoogleGenAI = GoogleGenAI.default;
-}
-
-// Final guarantee: if it's still not a function, the library is fundamentally broken in this environment.
-if (typeof GoogleGenAI !== 'function') {
-    throw new Error("Initialization failed: The Google GenAI constructor could not be reliably extracted from the module object.");
-}
+const GoogleGenAI = GoogleGenAIModule.default || GoogleGenAIModule; // Use the module object itself if no .default
 
 let GoogleGenAIClient = null;  
 
@@ -809,22 +791,20 @@ const PROMPTS_RAW_SOURCE = {
 // 6. LOGIQUE D'APPEL ET DE REPARTITION (CORRIGÉE)
 // ------------------------------------------------------------------
 
-// --- 🟢 Fonction d'appel pour Gemini (FINAL CJS IMPLEMENTATION) ---
+// --- 🟢 Fonction d'appel pour Gemini (FINAL SIMPLE CJS) ---
 async function callLLM_Gemini(prompt, job) {
-    // Lazy-loading et Initialisation
-    if (!GoogleGenAIClient) {
-        try {
-            // 🛠️ Instanciation directe : GoogleGenAI est maintenant la classe constructor
-            // (via la résolution CJS au top-level)
-            if (typeof GoogleGenAI !== 'function') {
-                throw new Error("Initialization failed: GoogleGenAI is not a function.");
-            }
-            GoogleGenAIClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-        } catch (e) {
-            throw new Error(`[FATAL] Impossible d'initialiser Google Generative AI SDK: ${e.message}`);
-        }
-    }
+    // Lazy-loading et Initialisation
+    if (!GoogleGenAIClient) {
+        try {
+            // 🛠️ Instantiation directe : GoogleGenAI is now the constructor from the top-level resolution.
+            // We rely on the top-level resolution to provide the function.
+            GoogleGenAIClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+        } catch (e) {
+            // If it fails here, it means the API key is bad, or the constructor is wrong.
+            // We now let the error pass through without a custom throw message.
+            throw new Error(`[FATAL] Impossible d'initialiser Google Generative AI SDK: ${e.message}`);
+        }
+    }
     
     const start = startStreamTimer();
     let text = "";
