@@ -788,29 +788,25 @@ const PROMPTS_RAW_SOURCE = {
 // 6. LOGIQUE D'APPEL ET DE REPARTITION (CORRIGÉE)
 // ------------------------------------------------------------------
 
-// --- 🟢 Fonction d'appel pour Gemini (CORRECTION FINALE D'IMPORT SANS CRASH) ---
+// --- 🟢 Fonction d'appel pour Gemini (CORRECTION ULTIME) ---
 async function callLLM_Gemini(prompt, job) {
     // Lazy-loading et Initialisation
     if (!GoogleGenAIClient) {
         try {
-            // 🛠️ CORRECTION CRASH-PROOF: Utilisation du Safe Navigation Operator (?.).
+            // 🛠️ CORRECTION D'IMPORT FINAL: Utiliser la déstructuration d'export la plus directe.
             const module = await import('@google/generative-ai');
             
-            // Tentative d'extraire la classe à partir des emplacements les plus probables,
-            // en s'assurant qu'on ne lit pas de propriété d'un objet "undefined".
-            let GoogleGenAI = 
-                module.GoogleGenAI || 
-                module.default?.GoogleGenAI || 
-                module.default || 
-                null;
+            // 1. Détecter l'objet qui contient la classe. Souvent, c'est le 'default' ou le module racine.
+            const constructorHolder = module.default || module;
             
-            // Si l'objet trouvé est un module wrapper qui contient la classe
-            if (GoogleGenAI && typeof GoogleGenAI !== 'function' && typeof GoogleGenAI.GoogleGenAI === 'function') {
-                 GoogleGenAI = GoogleGenAI.GoogleGenAI;
-            }
+            // 2. Extraire la classe 'GoogleGenAI' (en majuscule)
+            let GoogleGenAI = constructorHolder.GoogleGenAI;
             
+            // 3. Vérification finale
             if (typeof GoogleGenAI !== 'function') {
-                throw new Error("La classe GoogleGenAI n'a pas pu être trouvée. Veuillez vérifier la version de Node.js et les dépendances.");
+                // Si la classe est introuvable, cela signifie que la librairie n'est pas installée
+                // correctement pour l'environnement ESM/Node 20+.
+                throw new Error("La classe GoogleGenAI n'a pas pu être trouvée. Assurez-vous que '@google/generative-ai' est installé pour l'environnement ESM.");
             }
             
             // Instanciation du client
@@ -831,16 +827,16 @@ async function callLLM_Gemini(prompt, job) {
             maxOutputTokens: ARG_MAXTOK ?? 180,
         };
         
-        // 🛠️ Assurez-vous d'obtenir l'instance du modèle à partir du client
+        // Obtenir l'instance du modèle
         const modelInstance = GoogleGenAIClient.getGenerativeModel({ model: MODEL });
         
-        // 🛠️ Appeler generateContentStream sur l'instance du modèle
+        // Appeler generateContentStream de manière asynchrone
         const result = await modelInstance.generateContentStream({
             contents: [{ role: "user", parts: [{ text: prompt }] }],
             config: genConfig,
         });
         
-        // 🛠️ Itérer sur result.stream et utiliser chunk.text()
+        // Itérer sur result.stream de manière asynchrone (non-bloquant)
         for await (const chunk of result.stream) {
             const chunkText = chunk.text(); 
             if (chunkText) {
@@ -852,7 +848,7 @@ async function callLLM_Gemini(prompt, job) {
 
     } catch (e) {
         // En cas d'erreur API, on log l'erreur pour que withRetry la capture
-        throw new new Error(`[GEMINI API] Call failed: ${e.message}`);
+        throw new Error(`[GEMINI API] Call failed: ${e.message}`);
     }
 
     const { metrics, phases } = finalizeForProvider(start);
