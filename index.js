@@ -17,8 +17,8 @@ let OpenAI = null;            // openai
 let Anthropic = null;         // @anthropic-ai/sdk
 let MistralClientCtor = null; // @mistralai/mistralai export variant
 
-// 🟢 CORRECTION DÉFINITIVE: Importation statique pour contourner les problèmes de résolution ESM/CJS
-import { GoogleGenAI } from '@google/generative-ai';
+// 🟢 CORRECTION ULTIME: Importation par défaut (default import) requise par l'SDK pour l'import statique.
+import GeminiClientConstructor from '@google/generative-ai';
 
 // GoogleGenAIClient sera initialisé dans callLLM_Gemini
 let GoogleGenAIClient = null;  
@@ -791,14 +791,15 @@ const PROMPTS_RAW_SOURCE = {
 // 6. LOGIQUE D'APPEL ET DE REPARTITION (CORRIGÉE)
 // ------------------------------------------------------------------
 
-// --- 🟢 Fonction d'appel pour Gemini (MAJ INIT STATIQUE) ---
+// --- 🟢 Fonction d'appel pour Gemini (MAJ INIT STATIQUE ULTIME) ---
 async function callLLM_Gemini(prompt, job) {
     // Lazy-loading et Initialisation
     if (!GoogleGenAIClient) {
         try {
-            // 🛠️ Instanciation directe maintenant que GoogleGenAI est un import statique.
-            // Nous n'avons plus besoin de la complexité du "await import()" ou des vérifications de module.
-            GoogleGenAIClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+            // 🛠️ Instanciation utilisant l'import par défaut (GeminiClientConstructor)
+            // qui contient la classe GoogleGenAI.
+            // Note: Nous utilisons GeminiClientConstructor qui a été importé statiquement.
+            GoogleGenAIClient = new GeminiClientConstructor({ apiKey: process.env.GEMINI_API_KEY });
 
         } catch (e) {
             // Si l'instanciation échoue (e.g., clé API manquante), cela sera capturé.
