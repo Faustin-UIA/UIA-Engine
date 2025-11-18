@@ -19,10 +19,13 @@ let OpenAI = null;            // openai
 let Anthropic = null;         // @anthropic-ai/sdk
 let MistralClientCtor = null; // @mistralai/mistralai export variant
 
-// 🟢 FINAL FIX: Access the constructor by resolving the required module object.
+// 🟢 FINAL FIX: We must explicitly access the named export from the required module object.
 const GoogleGenAIModule = require('@google/generative-ai');
-// The constructor is exposed either directly, or under the 'GoogleGenAI' property.
+
+// The constructor function itself is reliably located under the 'GoogleGenAI' property.
+// We use a fallback just in case the wrapper is the constructor itself (unlikely here).
 const GoogleGenAI = GoogleGenAIModule.GoogleGenAI || GoogleGenAIModule;
+
 let GoogleGenAIClient = null;  
 
 // -----------------------------------------------------
