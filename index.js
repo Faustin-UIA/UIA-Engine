@@ -793,23 +793,21 @@ async function callLLM_Gemini(prompt, job) {
     // Lazy-loading et Initialisation
     if (!GoogleGenAIClient) {
         try {
-            // 🛠️ CORRECTION D'IMPORT CRITIQUE pour l'environnement Node/ESM
+            // 🛠️ CORRECTION D'IMPORT ULTIME pour l'environnement Node/ESM.
+            // Utiliser une méthode plus directe pour extraire l'export 'GoogleGenAI'.
             const module = await import('@google/generative-ai');
             
-            // 1. Tenter d'utiliser l'export nommé (le plus probable)
-            let GoogleGenAI = module.GoogleGenAI;
+            // Dans certains environnements, la classe se trouve directement sur la propriété 'GoogleGenAI' 
+            // de l'objet module, ou sous le 'default' export.
+            let GoogleGenAI = module.GoogleGenAI || module.default?.GoogleGenAI || module.default;
             
-            // 2. Si l'export nommé n'est pas trouvé, tenter le default export (parfois nécessaire)
-            if (!GoogleGenAI && module.default && module.default.GoogleGenAI) {
-                GoogleGenAI = module.default.GoogleGenAI;
-            }
-            // 3. Cas de l'import direct (si la librairie utilise un CommonJS wrapper)
-            if (!GoogleGenAI && module.GoogleGenAI) {
-                 GoogleGenAI = module.GoogleGenAI;
+            // Le SDK peut également exposer la classe sous le nom par défaut de la classe.
+            if (typeof GoogleGenAI !== 'function' && typeof GoogleGenAI.GoogleGenAI === 'function') {
+                 GoogleGenAI = GoogleGenAI.GoogleGenAI;
             }
             
             if (typeof GoogleGenAI !== 'function') {
-                throw new Error("L'objet importé n'est pas un constructeur valide ou n'a pas été trouvé (vérifiez l'environnement Node/ESM).");
+                throw new Error("La classe GoogleGenAI n'a pas pu être trouvée. Veuillez vérifier la version de Node.js et les dépendances.");
             }
             
             // Instanciation du client
