@@ -17,7 +17,10 @@ let OpenAI = null;            // openai
 let Anthropic = null;         // @anthropic-ai/sdk
 let MistralClientCtor = null; // @mistralai/mistralai export variant
 
-// 🟢 CORRECTION: Nouveau placeholder pour le client Google
+// 🟢 CORRECTION DÉFINITIVE: Importation statique pour contourner les problèmes de résolution ESM/CJS
+import { GoogleGenAI } from '@google/generative-ai';
+
+// GoogleGenAIClient sera initialisé dans callLLM_Gemini
 let GoogleGenAIClient = null;  
 
 const __filename = fileURLToPath(import.meta.url);
@@ -788,32 +791,17 @@ const PROMPTS_RAW_SOURCE = {
 // 6. LOGIQUE D'APPEL ET DE REPARTITION (CORRIGÉE)
 // ------------------------------------------------------------------
 
-// --- 🟢 Fonction d'appel pour Gemini (CORRECTION ULTIME) ---
+// --- 🟢 Fonction d'appel pour Gemini (MAJ INIT STATIQUE) ---
 async function callLLM_Gemini(prompt, job) {
     // Lazy-loading et Initialisation
     if (!GoogleGenAIClient) {
         try {
-            // 🛠️ CORRECTION D'IMPORT FINAL: Utiliser la déstructuration d'export la plus directe.
-            const module = await import('@google/generative-ai');
-            
-            // 1. Détecter l'objet qui contient la classe. Souvent, c'est le 'default' ou le module racine.
-            const constructorHolder = module.default || module;
-            
-            // 2. Extraire la classe 'GoogleGenAI' (en majuscule)
-            let GoogleGenAI = constructorHolder.GoogleGenAI;
-            
-            // 3. Vérification finale
-            if (typeof GoogleGenAI !== 'function') {
-                // Si la classe est introuvable, cela signifie que la librairie n'est pas installée
-                // correctement pour l'environnement ESM/Node 20+.
-                throw new Error("La classe GoogleGenAI n'a pas pu être trouvée. Assurez-vous que '@google/generative-ai' est installé pour l'environnement ESM.");
-            }
-            
-            // Instanciation du client
+            // 🛠️ Instanciation directe maintenant que GoogleGenAI est un import statique.
+            // Nous n'avons plus besoin de la complexité du "await import()" ou des vérifications de module.
             GoogleGenAIClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
         } catch (e) {
-            // Capture toute erreur et la relance pour le retry wrapper
+            // Si l'instanciation échoue (e.g., clé API manquante), cela sera capturé.
             throw new Error(`[FATAL] Impossible d'initialiser Google Generative AI SDK: ${e.message}`);
         }
     }
@@ -838,6 +826,7 @@ async function callLLM_Gemini(prompt, job) {
         
         // Itérer sur result.stream de manière asynchrone (non-bloquant)
         for await (const chunk of result.stream) {
+            // Le reste de la logique asynchrone est correcte
             const chunkText = chunk.text(); 
             if (chunkText) {
                 onChunkTimer(start, chunkText);
