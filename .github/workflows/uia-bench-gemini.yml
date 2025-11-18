@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       concurrency:
-        description: 'Concurrency level (1 or 2 recommended for Gemini stability)'
+        description: 'Concurrency level (1 or 2 recommended for stability)'
         required: false
         default: '1'
       gemini_version:
-        description: 'Gemini model (e.g., gemini-2.5-flash, gemini-2.0-flash)'
+        description: 'Gemini model (e.g., gemini-2.5-flash, gemini-2.5-pro, gemini-2.5-pro-vision)'
         required: false
         default: 'gemini-2.5-flash'
 
@@ -37,10 +37,13 @@ jobs:
       - name: Install dependencies (Strict & Reproducible)
         run: |
           set -e
+          # Utiliser 'npm ci' pour une installation propre basée sur package-lock.json.
+          # Si le package @google/generative-ai est dans les dépendances, 'npm ci' suffit.
+          # Si ce n'est pas le cas, ajoutez-le aux 'dependencies' de votre package.json.
           npm ci
-          # ✓ FIXED: Use correct Google Generative AI SDK package
-          npm i -E @google/generative-ai
-          # Verify installation
+          # ❌ ANCIEN : npm i -E @google/generative-ai (Redondant et peut casser la reproductibilité de 'npm ci')
+          
+          # Vérification de l'installation
           npm list @google/generative-ai
           echo "✓ Dependencies installed successfully"
 
@@ -81,8 +84,8 @@ jobs:
           echo "✓ index.js found"
           
           # Check if Gemini provider is implemented
-          if ! grep -q "PROVIDER === \"gemini\"" index.js; then
-            echo "⚠️  WARNING: Gemini provider case not found in index.js"
+          if ! grep -q "PROVIDER: gemini" index.js; then
+            echo "⚠️  WARNING: PROVIDER: gemini not found in index.js"
             echo "   Make sure callLLM_Gemini() is integrated into callLLM() function"
             echo "   Workflow will still attempt to run..."
           fi
@@ -124,6 +127,7 @@ jobs:
             echo "Attempt ${ATTEMPT}/${MAX_ATTEMPTS}"
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             
+            # Utilisation de 'node index.js' et non 'node .' pour être explicite
             if node index.js \
               --A=all --prompts=all --concurrency="${CONCURRENCY}" \
               --model="${MODEL}" --t=0.2 --max_tokens=180 \
@@ -194,7 +198,10 @@ jobs:
                   ms = e.get('output_ms', 0)
                   sha = e.get('output_text_sha')
                   
-                  if ms > 0 and sha != EMPTY_SHA:
+                  # Ajout d'une vérification pour s'assurer que les métriques ne sont pas nulles, 
+                  # car index.js peut renvoyer { metrics: null } si ARG_METRICS est faux,
+                  # mais ici ARG_METRICS=true.
+                  if e.get('metrics') is not None and ms > 0 and sha != EMPTY_SHA:
                       valid_responses += 1
                       latencies.append(ms)
                       
@@ -205,41 +212,48 @@ jobs:
                   else:
                       empty_responses += 1
               
-              if e.get('event') == 'STREAM_SUMMARY':
-                  if e.get('streaming'):
-                      streaming_true += 1
+              # L'événement STREAM_SUMMARY semble être remplacé par les données dans PROMPT_RESULT (phases)
+              # La vérification de 'streaming_true' est moins critique ici si les phases sont utilisées.
+              if e.get('phases', {}).get('streaming'):
+                  streaming_true += 1
+
+
           
           # Calculate metrics
           valid_rate = 100 * valid_responses / prompt_results if prompt_results > 0 else 0
-          streaming_rate = 100 * streaming_true / (len(events) - 2) if len(events) > 2 else 0
+          # Correction du calcul du taux de streaming, basé sur les résultats de prompt valides
+          streaming_rate = 100 * streaming_true / valid_responses if valid_responses > 0 else 0 
           
           print("📊 RUN QUALITY VALIDATION")
           print("=" * 70)
           print(f"Total PROMPT_RESULT events:    {prompt_results}")
           print(f"Valid responses:               {valid_responses} ({valid_rate:.1f}%)")
           print(f"Empty responses:               {empty_responses} ({100-valid_rate:.1f}%)")
-          print(f"Streaming true:                {streaming_true} ({streaming_rate:.1f}%)")
+          print(f"Streaming responses:           {streaming_true} ({streaming_rate:.1f}%)")
           
           if latencies:
               sorted_lat = sorted(latencies)
+              lat_len = len(sorted_lat)
               print(f"\n⏱️  LATENCY DISTRIBUTION (Valid Responses Only)")
               print(f"   Min:  {min(latencies):7.0f} ms")
-              print(f"   P25:  {sorted_lat[len(sorted_lat)//4]:7.0f} ms")
-              print(f"   P50:  {sorted_lat[len(sorted_lat)//2]:7.0f} ms")
-              print(f"   P75:  {sorted_lat[3*len(sorted_lat)//4]:7.0f} ms")
-              print(f"   P95:  {sorted_lat[int(0.95*len(sorted_lat))]:7.0f} ms")
+              # Calculs de Px5 robustes
+              print(f"   P25:  {sorted_lat[int(0.25*lat_len)]:7.0f} ms")
+              print(f"   P50:  {sorted_lat[int(0.50*lat_len)]:7.0f} ms")
+              print(f"   P75:  {sorted_lat[int(0.75*lat_len)]:7.0f} ms")
+              print(f"   P95:  {sorted_lat[int(0.95*lat_len)]:7.0f} ms")
               print(f"   Max:  {max(latencies):7.0f} ms")
-              print(f"   Avg:  {sum(latencies)/len(latencies):7.0f} ms")
+              print(f"   Avg:  {sum(latencies)/lat_len:7.0f} ms")
           
           if entropies:
+              ent_len = len(entropies)
               print(f"\n📈 ENTROPY DISTRIBUTION (Valid Responses Only)")
               sorted_ent = sorted(entropies)
               print(f"   Min:  {min(entropies):6.3f}")
-              print(f"   P25:  {sorted_ent[len(sorted_ent)//4]:6.3f}")
-              print(f"   P50:  {sorted_ent[len(sorted_ent)//2]:6.3f}")
-              print(f"   P75:  {sorted_ent[3*len(sorted_ent)//4]:6.3f}")
+              print(f"   P25:  {sorted_ent[int(0.25*ent_len)]:6.3f}")
+              print(f"   P50:  {sorted_ent[int(0.50*ent_len)]:6.3f}")
+              print(f"   P75:  {sorted_ent[int(0.75*ent_len)]:6.3f}")
               print(f"   Max:  {max(entropies):6.3f}")
-              print(f"   Avg:  {sum(entropies)/len(entropies):6.3f}")
+              print(f"   Avg:  {sum(entropies)/ent_len:6.3f}")
           
           print("\n" + "=" * 70)
           
@@ -312,14 +326,14 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Possible Causes" >> "$GITHUB_STEP_SUMMARY"
           echo "1. **npm install failed**: Check the 'Install dependencies' step logs" >> "$GITHUB_STEP_SUMMARY"
-          echo "2. **Gemini SDK Not Implemented**: Make sure \`callLLM_Gemini()\` is integrated in index.js" >> "$GITHUB_STEP_SUMMARY"
+          echo "2. **Gemini SDK Not Implemented**: The integration in index.js failed. Check the 'Run UIA Bench' step logs." >> "$GITHUB_STEP_SUMMARY"
           echo "3. **API Key Issue**: Check GEMINI_API_KEY secret in Settings > Secrets" >> "$GITHUB_STEP_SUMMARY"
           echo "4. **Gemini API Timeouts**: SDK couldn't fetch responses in time" >> "$GITHUB_STEP_SUMMARY"
           echo "5. **Rate Limiting**: Too many concurrent requests" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "### Recommended Actions" >> "$GITHUB_STEP_SUMMARY"
           echo "- ✓ Check 'Install dependencies' step for npm errors" >> "$GITHUB_STEP_SUMMARY"
-          echo "- ✓ Verify Gemini provider is implemented in index.js" >> "$GITHUB_STEP_SUMMARY"
+          echo "- ✓ Verify the \`callLLM_Gemini\` function in **index.js** (corrected in the previous response)" >> "$GITHUB_STEP_SUMMARY"
           echo "- ✓ Check GitHub Actions logs for detailed error messages" >> "$GITHUB_STEP_SUMMARY"
           echo "- ✓ Verify GEMINI_API_KEY secret is configured correctly" >> "$GITHUB_STEP_SUMMARY"
           echo "- ✓ Try reducing concurrency further: \`--concurrency=1\`" >> "$GITHUB_STEP_SUMMARY"
