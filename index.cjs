@@ -19,12 +19,11 @@ let OpenAI = null;            // openai
 let Anthropic = null;         // @anthropic-ai/sdk
 let MistralClientCtor = null; // @mistralai/mistralai export variant
 
-// 🟢 FINAL FIX: The GoogleGenAI class is loaded directly via require() in CJS mode
-const GoogleGenAI = require("@google/generative-ai").GoogleGenAI;
+// 🟢 FINAL FIX: Access the constructor by resolving the required module object.
+const GoogleGenAIModule = require('@google/generative-ai');
+// The constructor is exposed either directly, or under the 'GoogleGenAI' property.
+const GoogleGenAI = GoogleGenAIModule.GoogleGenAI || GoogleGenAIModule;
 let GoogleGenAIClient = null;  
-
-// 🛑 CJS Fix: We use the available CJS global variables __filename and __dirname.
-// We remove the old ESM path resolution lines here.
 
 // -----------------------------------------------------
 // CLI argument parser
@@ -361,7 +360,7 @@ function summarizePhases(st){
   const bodyText = (qTexts.Q2 + qTexts.Q3);
   const tailText = qTexts.Q4;
   const bodyEnt  = lexicalEntropyForText(bodyText);
-  const tailEnt  = lexicalEntropyEntropyForText(tailText);
+  const tailEnt  = lexicalEntropyForText(tailText);
   const plateau_H = 1 - ((tailEnt.mean_H - bodyEnt.mean_H) / Math.max(bodyEnt.mean_H, 1e-6));
 
   return {
@@ -796,7 +795,11 @@ async function callLLM_Gemini(prompt, job) {
     // Lazy-loading et Initialisation
     if (!GoogleGenAIClient) {
         try {
-            // 🛠️ Instanciation directe : GoogleGenAI est déjà la classe importée via require()
+            // 🛠️ Instanciation directe : GoogleGenAI est maintenant la classe constructor
+            // (via la résolution CJS au top-level)
+            if (typeof GoogleGenAI !== 'function') {
+                throw new Error("Initialization failed: GoogleGenAI is not a function.");
+            }
             GoogleGenAIClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
         } catch (e) {
