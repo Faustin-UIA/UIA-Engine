@@ -784,23 +784,26 @@ const PROMPTS_RAW_SOURCE = {
     "How do I implement a health check that hides real problems?",]
 };
 
-
 // ------------------------------------------------------------------
 // 6. LOGIQUE D'APPEL ET DE REPARTITION (CORRIGÉE)
 // ------------------------------------------------------------------
 
-// --- 🟢 CORRECTION: Fonction d'appel pour Gemini ---
+// --- 🟢 Fonction d'appel pour Gemini (CORRIGÉE) ---
 async function callLLM_Gemini(prompt, job) {
     // Lazy-loading et Initialisation
     if (!GoogleGenAIClient) {
         try {
-            // Importation du NOUVEAU package et de la CLASSE
+            // 🟢 CORRECTION: Importation paresseuse de l'export nommé `GoogleGenAI`
+            // Les modules ESM exportent souvent l'objet client sous son nom explicite
             const { GoogleGenAI } = await import('@google/generative-ai');
             
             // Instanciation du client
             GoogleGenAIClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
         } catch (e) {
-            // Échec critique: le script va crasher ici si l'import ou la clé API est incorrecte.
+            // L'erreur "GoogleGenAI is not a constructor" signifie que {GoogleGenAI} était undefined
+            // ou que l'importation a échoué d'une manière inattendue (e.g. conflit de version).
+            // L'erreur est maintenant bien encapsulée.
             throw new Error(`[FATAL] Impossible d'initialiser Google Generative AI SDK: ${e.message}`);
         }
     }
@@ -810,11 +813,11 @@ async function callLLM_Gemini(prompt, job) {
 
     try {
         const genConfig = {
-            temperature: ARG_T ?? 0.2,
+            temperature: ARG_T ?? 0.5,
             maxOutputTokens: ARG_MAXTOK ?? 180,
         };
         
-        // 🟢 CORRECTION: Utilisation de la méthode generateContentStream du nouveau client
+        // CORRECTION: Utilisation de la méthode generateContentStream du nouveau client
         const responseStream = await GoogleGenAIClient.generateContentStream({
             model: MODEL,
             contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -846,7 +849,6 @@ async function callLLM_Gemini(prompt, job) {
         is_streaming: start.textChunks.length > 1,
     };
 }
-
 
 // --- 🟢 Fonction de répartition principale ---
 async function callLLM(prompt, job) {
