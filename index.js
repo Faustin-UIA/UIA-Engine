@@ -1098,8 +1098,22 @@ async function main(){
   if (ARG_DIAG) console.log(`Run complete. Success: ${success}, Fail: ${fail}. Log: ${LOG_PATH}`);
 }
 
-main().catch(e => {
-  console.error("\n--- FATAL ERROR IN MAIN EXECUTION ---");
-  console.error(e.message);
-  process.exit(1);
-});
+// ... (lines 620-637, right before the final execution call)
+
+main()
+  .then(() => {
+    // CRITICAL FIX: Add a short, synchronous delay to ensure all 
+    // asynchronous fsPromises.appendFile operations are flushed to disk.
+    const waitTime = 100; // 100 milliseconds
+    const end = Date.now() + waitTime;
+    while (Date.now() < end) {}
+    if (ARG_DIAG) console.log("Process exiting gracefully after final I/O flush delay.");
+  })
+  .catch(e => {
+    // FATAL error handler
+    console.error("=================================================");
+    console.error("!! FATAL RUNTIME ERROR !!");
+    console.error(e);
+    console.error("=================================================");
+    process.exit(1);
+  });
