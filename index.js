@@ -135,7 +135,7 @@ function lexicalEntropyForText(s, W=10){
   const Hs=[];
   for (let i=0;i<toks.length;i++){
     const win=toks.slice(Math.max(0,i-W+1), i+1);
-    const counts=Object.values(win.reduce((m,w)=>(m[w]=(m[w]||0)+1,m),{})));
+    const counts=Object.values(win.reduce((m,w)=>(m[w]=(m[w]||0)+1,m),{}));
     Hs.push(Hshannon(norm(counts)));
   }
   const _mean = mean(Hs);
