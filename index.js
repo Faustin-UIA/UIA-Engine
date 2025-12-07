@@ -19,6 +19,9 @@ let OpenAI = null;            // openai
 let Anthropic = null;         // @anthropic-ai/sdk
 let MistralClientCtor = null; // @mistralai/mistralai export variant
 
+// CRITICAL FIX: Persistent I/O handle for reliable concurrent logging
+let logFileHandle = null; 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
@@ -67,7 +70,13 @@ console.log(`Provider: ${PROVIDER} | Concurrence: ${ARG_CONC}`);
 fs.mkdirSync(path.dirname(LOG_PATH), { recursive: true });
 const appendJsonl = async (p, obj) => {
   try {
-    await fsPromises.appendFile(p, JSON.stringify(obj) + "\n");
+    // CRITICAL FIX: Use the persistent handle for reliable writing and flushing
+    if (logFileHandle) {
+      await logFileHandle.write(JSON.stringify(obj) + "\n");
+    } else {
+        // Fallback to original method if handle failed to open (unreliable)
+        await fsPromises.appendFile(p, JSON.stringify(obj) + "\n");
+    }
   } catch (e) {
     // Écriture synchrone de secours pour les erreurs d'écriture
     console.error(`Erreur d'écriture asynchrone sur ${p}: ${e.message}. Tentative synchrone.`);
@@ -104,7 +113,7 @@ function startStreamTimer(){
     t0: nowPerf(),
     firstAt: null,
     last: null,
-    gaps: [],           // ms gaps between chunks; (The line 'gaps[0] = TTFB' was illegal syntax and has been removed)
+    gaps: [],           // ms gaps between chunks; (SYNTAX ERROR FIXED: The line 'gaps[0] = TTFB' was illegal and removed)
     times: [],          // absolute times for each chunk
     textChunks: [],
     text: ""
@@ -972,6 +981,14 @@ async function safeAppend(event, obj){
 async function main(){
   const perALimit = parsePerALimit(ARG_PROMPTS_RAW);
   const scopeList = selectAList(ARG_A_SCOPE);
+
+    // CRITICAL FIX: Open persistent file handle for reliable concurrent I/O
+    try {
+      logFileHandle = await fsPromises.open(LOG_PATH, 'a');
+      if (ARG_DIAG) console.log(`Opened persistent log file handle: ${LOG_PATH}`);
+    } catch (e) {
+      console.error("!!! FATAL: Could not open log file handle. Proceeding with unreliable I/O fallback.");
+    }
   
   if (ARG_DIAG) {
     const counts = countByAcode(PROMPTS_RAW_SOURCE);
@@ -1098,18 +1115,20 @@ async function main(){
   if (ARG_DIAG) console.log(`Run complete. Success: ${success}, Fail: ${fail}. Log: ${LOG_PATH}`);
 }
 
-// ... (lines 620-637, right before the final execution call)
-
 main()
-  .then(() => {
-    // CRITICAL FIX: Add a short, synchronous delay to ensure all 
-    // asynchronous fsPromises.appendFile operations are flushed to disk.
-    const waitTime = 100; // 100 milliseconds
-    const end = Date.now() + waitTime;
-    while (Date.now() < end) {}
-    if (ARG_DIAG) console.log("Process exiting gracefully after final I/O flush delay.");
+  .then(async () => {
+    // **CRITICAL FIX** Close the handle to force OS to flush all pending data
+    if (logFileHandle) {
+        await logFileHandle.close();
+        if (ARG_DIAG) console.log(`Closed persistent log file handle: ${LOG_PATH}`);
+    }
+    if (ARG_DIAG) console.log("Process exiting gracefully.");
   })
-  .catch(e => {
+  .catch(async (e) => { // NOTE: Added 'async' keyword here
+    // Ensure handle is closed even on main loop failure
+    if (logFileHandle) {
+        await logFileHandle.close().catch(() => {});
+    }
     // FATAL error handler
     console.error("=================================================");
     console.error("!! FATAL RUNTIME ERROR !!");
