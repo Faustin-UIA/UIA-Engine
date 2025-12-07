@@ -1,5 +1,3 @@
-# Votre fichier uia-bench-gemini.yml (légèrement ajusté)
-
 name: UIA Bench (Gemini)
 
 on:
@@ -39,13 +37,13 @@ jobs:
       - name: Install dependencies (Strict & Reproducible)
         run: |
           set -e
-          # Utiliser 'npm ci' pour une installation propre basée sur package-lock.json.
+          # Clean, reproducible install
           npm ci
           
-          # 🚨 AJOUT CRITIQUE: Installer le SDK Google pour Gemini
+          # Install Google Gemini SDK
           npm install @google/generative-ai
           
-          # Vérification de l'installation
+          # Verification
           npm list @google/generative-ai
           echo "✓ Dependencies installed successfully"
 
@@ -58,7 +56,7 @@ jobs:
           echo "🔍 Environment Validation"
           echo "=========================="
           
-          # Verify Node version
+          # Node / npm versions
           echo "✓ Node version: $(node --version)"
           echo "✓ NPM version: $(npm --version)"
           
@@ -85,11 +83,11 @@ jobs:
           fi
           echo "✓ index.js found"
           
-          # Check if Gemini provider is implemented (This should now pass with the new index.js)
-          if ! grep -q "PROVIDER: gemini" index.js; then
-            echo "⚠️  WARNING: PROVIDER: gemini not found in index.js"
-            echo "   Make sure callLLM_Gemini() is integrated into callLLM() function"
-            echo "   Workflow will still attempt to run..."
+          # Optional: check that Gemini provider is present
+          if ! grep -q "PROVIDER === \"gemini\"" index.js && ! grep -q "PROVIDER === 'gemini'" index.js; then
+            echo "⚠️  WARNING: Gemini branch not detected explicitly in index.js (double-check callLLM implementation)"
+          else
+            echo "✓ Gemini provider branch detected in index.js"
           fi
           
           echo ""
@@ -106,8 +104,11 @@ jobs:
           
           mkdir -p results
           TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
-          # 💡 Remplacez uia_gemini par le nom du modèle pour une meilleure organisation
-          MODEL_SLUG=$(echo "${{ github.event.inputs.gemini_version || 'gemini-2.5-flash' }}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g')
+          
+          # Model slug for filename
+          MODEL_SLUG=$(echo "${{ github.event.inputs.gemini_version || 'gemini-2.5-flash' }}" \
+            | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g')
+          
           LOG="results/uia_${MODEL_SLUG}_${TS}.jsonl"
           
           ATTEMPT=0
@@ -131,7 +132,6 @@ jobs:
             echo "Attempt ${ATTEMPT}/${MAX_ATTEMPTS}"
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             
-            # Utilisation de 'node index.js' et non 'node .' pour être explicite
             if node index.js \
               --A=all --prompts=all --concurrency="${CONCURRENCY}" \
               --model="${MODEL}" --t=0.2 --max_tokens=180 \
@@ -140,7 +140,6 @@ jobs:
               echo ""
               echo "✓ Run completed successfully on attempt ${ATTEMPT}"
               break
-              
             else
               EXIT_CODE=$?
               
@@ -157,7 +156,47 @@ jobs:
             fi
           done
           
+          # Expose log path to later steps
           echo "LOG_PATH=${LOG}" >> "$GITHUB_ENV"
 
-      # Le reste du fichier YAML est conservé sans changement pour les étapes de validation et d'upload.
-      # ... (steps: Validate Run Quality, Upload results, Create Detailed Summary, Notify on Validation Failure)
+      - name: Debug – Show workspace and results
+        if: always()
+        run: |
+          echo "📂 Debugging workspace"
+          echo "Current directory: $(pwd)"
+          echo ""
+          echo "─── Tree (top-level) ───"
+          ls
+          echo ""
+          echo "─── Recursive tree ───"
+          ls -R
+          echo ""
+          echo "─── Contents of results/ ───"
+          if [ -d results ]; then
+            ls -l results
+          else
+            echo "No results directory found."
+          fi
+          echo ""
+          echo "LOG_PATH from env: ${LOG_PATH:-<not set>}"
+
+      - name: Upload UIA Gemini log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: uia-gemini-${{ github.run_id }}
+          path: ${{ env.LOG_PATH }}
+          if-no-files-found: error
+
+      # (Optional) Example validation step – adapt to your own AX-BY-CZ tooling
+      # - name: Validate Run Quality
+      #   run: |
+      #     echo "Validating log at: ${LOG_PATH}"
+      #     if ! grep -q '"event": "RUN_END"' "${LOG_PATH}"; then
+      #       echo "❌ RUN_END not found in log – run may be incomplete."
+      #       exit 1
+      #     fi
+      #     echo "✓ RUN_END event found – log looks structurally complete."
+
+      # You can add your existing "Create Detailed Summary" / post-processing steps here,
+      # consuming ${{ env.LOG_PATH }} as input.
