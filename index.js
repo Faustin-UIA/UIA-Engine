@@ -37,7 +37,7 @@ const arg = (k, d = null) => {
 // -----------------------------------------------------
 // Core runtime arguments
 // -----------------------------------------------------
-const LOG_PATH        = arg("log", "results/uia_run.jsonl");
+const LOG_PATH        = arg("log", "uia_run_FINAL.jsonl"); // Writes directly to the root folder
 const ARG_A_SCOPE     = (arg("A", "all") || "all").toUpperCase();
 const ARG_PROMPTS_RAW = arg("prompts", "all");
 const ARG_CONC        = Math.max(1, parseInt(arg("concurrency", "6"), 10) || 1);
