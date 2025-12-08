@@ -1,4 +1,5 @@
 name: UIA Bench (Mistral Main)
+
 on:
   workflow_dispatch:
     inputs:
@@ -6,17 +7,19 @@ on:
         description: "Branch or tag to run from"
         required: false
         default: ""
-  # schedule:
-  #  - cron: "0 7 * * *"
+
 permissions:
   contents: write
+
 concurrency:
   group: uia-bench-mistral-${{ github.ref }}
   cancel-in-progress: false
+
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 240  # Augmenté pour éviter les interruptions
+    timeout-minutes: 240
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,55 +27,43 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.inputs.ref || github.ref }}
 
-      - name: Debug Mistral API Key
-        run: |
-          if [ -z "${{ secrets.MISTRAL_API_KEY }}" ]; then
-            echo "::error ::MISTRAL_API_KEY is not set!"
-            exit 1
-          else
-            echo "MISTRAL_API_KEY is set."
-          fi
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Clean npm cache
-        run: npm cache clean --force
-
       - name: Install dependencies
         run: |
           npm ci
-          npm install @mistralai/mistralai@latest
-
-      - name: Test Mistral API Key
-        env:
-          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
-        run: |
-          curl -s https://api.mistral.ai/v1/models -H "Authorization: Bearer $MISTRAL_API_KEY" | jq '.data[].id' || exit 1
+          # Ensure we are in Module mode
+          npm pkg set type="module"
 
       - name: Run UIA Bench (Mistral Small)
         env:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
           PROVIDER: mistral
-          MODEL: magistral-small-latest
+          MODEL: mistral-small-latest
         run: |
-          set -o pipefail  # Permet de continuer même en cas d'erreur mineure
           mkdir -p results
+          
+          # Generate filename
           TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
           LOG="results/uia_mistral_${TS}.jsonl"
-          echo "Log path: ${LOG}"
-          PROVIDER=${PROVIDER} node index.js \
-            --A=all --prompts=all --concurrency=3 \
-            --model="${MODEL}" --t=0.2 --max_tokens=180 \
-            --metrics=true --diag=true --log="${LOG}" || echo "Script terminé avec des erreurs, mais le log est sauvegardé."
-          echo "LOG_PATH=${LOG}" >> "$GITHUB_ENV"
+          
+          echo "::notice title=UIA Bench::Starting Run -> ${LOG}"
+          
+          # Run the Unified V5 Script
+          # We use '|| true' to ensure the workflow continues to upload even if Node crashes
+          node index.js \
+            --log="${LOG}" \
+            --model="${MODEL}" \
+            || echo "⚠️ Script finished with errors, but uploading logs anyway."
 
       - name: Upload results
         uses: actions/upload-artifact@v4
-        if: always()  # Upload même en cas d'échec partiel
+        if: always() # IMPORTANT: Always upload results, even if script failed
         with:
           name: uia-mistral-results
-          path: ${{ env.LOG_PATH }}
+          path: results/ # ✅ FIX: Hardcoded path prevents "Input required" error
+          if-no-files-found: warn
