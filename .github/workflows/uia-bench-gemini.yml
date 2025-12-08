@@ -41,7 +41,7 @@ jobs:
 
       - name: Run UIA Bench (Gemini Flash)
         env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PROVIDER: google
           MODEL: gemini-1.5-flash
         run: |
