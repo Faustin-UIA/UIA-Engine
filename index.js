@@ -1,6 +1,10 @@
-/* UIA METRIC COLLECTOR V7 (Robust / Debugging Enabled)
-   Target: GitHub Actions
-   Fixes: "Silent Drop" issue where missing logprobs caused empty files.
+/* UIA METRIC COLLECTOR V7 (Robust / Guaranteed Output)
+   Target: GitHub Actions (OpenAI, Mistral, Gemini)
+   Features:
+   - Auto-detects Provider via ENV
+   - Fallback logic for missing logprobs (saves record with 0.0 metrics)
+   - Disables Safety Filters for Gemini to maximize data yield
+   - Forces Mistral Large for better physics support
 */
 
 import fs from 'fs';
@@ -19,7 +23,7 @@ if (PROVIDER === 'google') {
 } else if (PROVIDER === 'mistral') {
     API_KEY = process.env.MISTRAL_API_KEY;
     API_URL = "https://api.mistral.ai/v1/chat/completions";
-    // 🔴 FIX 1: Use LARGE model (Small often drops logprobs)
+    // Force Large model for better logprob support
     DEFAULT_MODEL = "mistral-large-latest"; 
     console.log("🟠 MODE: MISTRAL AI");
 } else {
@@ -43,6 +47,7 @@ args.forEach(arg => {
     if (arg.startsWith('--model=')) MODEL_NAME = arg.split('=')[1];
 });
 
+// Dynamic URL for Gemini
 if (PROVIDER === 'google') {
     API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
 }
@@ -67,10 +72,12 @@ function calculateStdDev(arr) {
 
 function calculateGini(topCandidates) {
     if (!topCandidates || topCandidates.length < 2) return 0;
+    
     const probs = topCandidates.map(t => {
         const val = (t.logprob !== undefined) ? t.logprob : t.logProbability;
         return Math.exp(val);
     });
+
     const sum = probs.reduce((a, b) => a + b, 0);
     if (sum === 0) return 0;
     
@@ -93,6 +100,7 @@ function prepareMixedDeck() {
             deck.push({ prompt: prompt, phase: phase });
         });
     }
+    // Fisher-Yates Shuffle
     for (let i = deck.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [deck[i], deck[j]] = [deck[j], deck[i]];
@@ -109,7 +117,7 @@ async function runProbe(item, id) {
     if (PROVIDER === 'google') {
         payload = {
             contents: [{ parts: [{ text: item.prompt }] }],
-            // 🔴 FIX 2: Disable Safety Settings (They block logprobs)
+            // Disable Safety Filters to prevent "Empty Candidate" errors
             safetySettings: [
                 { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
                 { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
@@ -146,8 +154,13 @@ async function runProbe(item, id) {
 
         if (!response.ok) {
             const errText = await response.text();
-            console.error(`❌ API FAIL [${item.phase}]: ${response.status} - ${errText.substring(0, 100)}`);
-            return null;
+            console.error(`❌ API FAIL [${item.phase}] ID ${id}: ${response.status} - ${errText.substring(0, 100)}`);
+            // RETURN A FAILED RECORD (Don't return null)
+            return {
+                id: id, phase: item.phase, prompt: item.prompt.substring(0, 30),
+                status: "failed_api", error: response.status,
+                tokens: 0, ttfb_ms: 0
+            };
         }
 
         const data = await response.json();
@@ -156,82 +169,98 @@ async function runProbe(item, id) {
 
         let contentTokens = [];
         let firstTokenObj = null;
+        let missingLogprobs = false;
 
         // --- PARSING LOGIC ---
         if (PROVIDER === 'google') {
             const candidate = data.candidates?.[0];
             if (!candidate) {
-                console.warn(`⚠️ Empty Candidate (Safety Filter?) ID ${id}`);
-                return null;
-            }
-            const logRes = candidate.logprobsResult?.chosenCandidates;
-            
-            // 🔴 FIX 3: Warn if Logprobs are missing (Don't just die silently)
-            if (!logRes || logRes.length === 0) {
-                console.warn(`⚠️ NO LOGPROBS [Gemini] ID ${id} - Check Model/Safety`);
-                return null; 
-            }
-
-            contentTokens = logRes.map(t => ({ logprob: t.logProbability }));
-            if (logRes.length > 0 && logRes[0].topLogprobs) {
-                firstTokenObj = { top_logprobs: logRes[0].topLogprobs };
+                console.warn(`⚠️ Empty Candidate ID ${id}`);
+                missingLogprobs = true;
+            } else {
+                const logRes = candidate.logprobsResult?.chosenCandidates;
+                if (!logRes || logRes.length === 0) {
+                    console.warn(`⚠️ NO LOGPROBS [Gemini] ID ${id}`);
+                    missingLogprobs = true;
+                } else {
+                    contentTokens = logRes.map(t => ({ logprob: t.logProbability }));
+                    if (logRes[0].topLogprobs) {
+                        firstTokenObj = { top_logprobs: logRes[0].topLogprobs };
+                    }
+                }
             }
         } else {
             // OpenAI / Mistral
             contentTokens = data.choices?.[0]?.logprobs?.content || [];
             if (contentTokens.length === 0) {
-                 // 🔴 FIX 3: Warn if Logprobs are missing
-                 console.warn(`⚠️ NO LOGPROBS [${PROVIDER}] ID ${id} - Model: ${MODEL_NAME}`);
-                 return null;
+                 console.warn(`⚠️ NO LOGPROBS [${PROVIDER}] ID ${id}`);
+                 missingLogprobs = true;
+                 // Try to fallback to text-only (for token count at least)
+                 if (data.usage?.completion_tokens) {
+                     // Create dummy tokens to allow partial data save
+                     contentTokens = new Array(data.usage.completion_tokens).fill({ logprob: 0 });
+                 }
+            } else {
+                firstTokenObj = contentTokens[0];
             }
-            firstTokenObj = contentTokens[0];
         }
 
+        // --- METRIC CALCULATION ---
         const tokenCount = contentTokens.length;
-        const entropies = contentTokens.map(t => calculateEntropy(t.logprob));
         
-        // F2: Softmax Bottleneck
-        const f2_window = entropies.slice(0, 5);
-        const f2_spike = Math.max(...f2_window);
-        const f2_mean = f2_window.reduce((a, b) => a + b, 0) / f2_window.length;
-        
-        // Gap & Gini
-        let f2_gap = 0;
-        let f2_gini = 0;
+        let entropies = [];
+        let f2_spike = 0, f2_mean = 0, f2_gap = 0, f2_gini = 0;
+        let rwi_total = 0, plateau_h = 0, f3_std = 0, sacr = 0, closure_spike = 0;
 
-        if (firstTokenObj && firstTokenObj.top_logprobs && firstTokenObj.top_logprobs.length >= 2) {
-            const getLogProb = (t) => (t.logprob !== undefined) ? t.logprob : t.logProbability;
-            const p1 = Math.exp(getLogProb(firstTokenObj.top_logprobs[0]));
-            const p2 = Math.exp(getLogProb(firstTokenObj.top_logprobs[1]));
-            f2_gap = p1 - p2; 
-            f2_gini = calculateGini(firstTokenObj.top_logprobs);
+        if (!missingLogprobs && tokenCount > 0) {
+            entropies = contentTokens.map(t => calculateEntropy(t.logprob));
+            
+            // F2
+            const f2_window = entropies.slice(0, 5);
+            f2_spike = Math.max(...f2_window);
+            f2_mean = f2_window.reduce((a, b) => a + b, 0) / f2_window.length;
+
+            // Gap/Gini
+            if (firstTokenObj && firstTokenObj.top_logprobs && firstTokenObj.top_logprobs.length >= 2) {
+                const getLogProb = (t) => (t.logprob !== undefined) ? t.logprob : t.logProbability;
+                const p1 = Math.exp(getLogProb(firstTokenObj.top_logprobs[0]));
+                const p2 = Math.exp(getLogProb(firstTokenObj.top_logprobs[1]));
+                f2_gap = p1 - p2; 
+                f2_gini = calculateGini(firstTokenObj.top_logprobs);
+            }
+
+            // F4
+            rwi_total = entropies.reduce((a, b) => a + b, 0);
+
+            // F3
+            if (tokenCount > 10) {
+                const start = Math.floor(tokenCount * 0.25);
+                const end = Math.floor(tokenCount * 0.75);
+                const window = entropies.slice(start, end);
+                plateau_h = window.reduce((a, b) => a + b, 0) / window.length;
+                f3_std = calculateStdDev(window);
+            } else {
+                plateau_h = f2_mean; 
+            }
+
+            // Closure
+            if (tokenCount > 5) {
+                closure_spike = Math.max(...entropies.slice(-5));
+            }
         }
 
-        // F4 & F3
-        const rwi_total = entropies.reduce((a, b) => a + b, 0);
-        let plateau_h = 0, plateau_std = 0;
-        if (tokenCount > 10) {
-            const start = Math.floor(tokenCount * 0.25);
-            const end = Math.floor(tokenCount * 0.75);
-            const window = entropies.slice(start, end);
-            plateau_h = window.reduce((a, b) => a + b, 0) / window.length;
-            plateau_std = calculateStdDev(window);
-        } else {
-            plateau_h = f2_mean; 
-        }
-        const sacr = (plateau_h > 0) ? (tokenCount / plateau_h) : tokenCount * 100;
-
-        let closure_spike = 0;
-        if (tokenCount > 5) {
-            closure_spike = Math.max(...entropies.slice(-5));
+        if (tokenCount > 0) {
+            sacr = (plateau_h > 0) ? (tokenCount / plateau_h) : tokenCount * 100;
         }
 
         const record = {
             id: id,
             phase: item.phase,
             prompt: item.prompt.substring(0, 30),
+            status: missingLogprobs ? "partial" : "success",
             ttfb_ms: ttfb.toFixed(2),
             total_time: totalDuration.toFixed(2),
+            // Metrics (will be 0 if missing)
             f2_spike: f2_spike.toFixed(4),
             f2_gap: f2_gap.toFixed(4),
             f2_gini: f2_gini.toFixed(4),
@@ -239,16 +268,18 @@ async function runProbe(item, id) {
             rwi: rwi_total.toFixed(4),
             sacr: sacr.toFixed(2),
             plateau_h: plateau_h.toFixed(4),
-            f3_std: plateau_std.toFixed(4),
+            f3_std: f3_std.toFixed(4),
             closure_spike: closure_spike.toFixed(4)
         };
 
-        console.log(`[${item.phase}] ID ${id} | F2: ${record.f2_spike} | Tok: ${tokenCount}`);
+        const logColor = missingLogprobs ? "⚠️" : "✅";
+        console.log(`${logColor} [${item.phase}] ID ${id} | F2: ${record.f2_spike} | Tok: ${tokenCount}`);
+        
         return record;
 
     } catch (error) {
         console.error("Probe Error:", error.message);
-        return null;
+        return { id: id, status: "crashed", error: error.message };
     }
 }
 
@@ -261,10 +292,14 @@ async function runProbe(item, id) {
     console.log(`🃏 Deck Loaded: ${deck.length} prompts (Mixed)`);
 
     let globalCount = 0;
+    
     for (const item of deck) {
         globalCount++;
         const result = await runProbe(item, globalCount);
-        if (result) fs.appendFileSync(OUTPUT_FILE, JSON.stringify(result) + "\n");
+        // GUARANTEED WRITE: Even if result is partial/error, we write it.
+        if (result) {
+            fs.appendFileSync(OUTPUT_FILE, JSON.stringify(result) + "\n");
+        }
         await new Promise(r => setTimeout(r, 200));
     }
     console.log(`✅ Done. Saved ${globalCount} records.`);
