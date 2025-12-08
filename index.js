@@ -1,27 +1,26 @@
-/* UIA METRIC COLLECTOR V6 (Universal: OpenAI, Mistral, Gemini)
+/* UIA METRIC COLLECTOR V7 (Robust / Debugging Enabled)
    Target: GitHub Actions
-   Goal: Capture 13 Core Physics Metrics across all major providers.
+   Fixes: "Silent Drop" issue where missing logprobs caused empty files.
 */
 
 import fs from 'fs';
 import promptsData from './prompts_uia.js';
 
-// --- CONFIGURATION & ENV HANDLING ---
+// --- CONFIGURATION ---
 const PROVIDER = process.env.PROVIDER || 'openai'; 
 let API_KEY = "";
 let API_URL = "";
 let DEFAULT_MODEL = "";
 
-// Provider Adapters
 if (PROVIDER === 'google') {
     API_KEY = process.env.GOOGLE_API_KEY;
-    DEFAULT_MODEL = "gemini-1.5-flash"; // Fast & Efficient
-    // URL is dynamic based on model, set later
+    DEFAULT_MODEL = "gemini-1.5-flash"; 
     console.log("🔵 MODE: GEMINI (GOOGLE)");
 } else if (PROVIDER === 'mistral') {
     API_KEY = process.env.MISTRAL_API_KEY;
     API_URL = "https://api.mistral.ai/v1/chat/completions";
-    DEFAULT_MODEL = "mistral-small-latest";
+    // 🔴 FIX 1: Use LARGE model (Small often drops logprobs)
+    DEFAULT_MODEL = "mistral-large-latest"; 
     console.log("🟠 MODE: MISTRAL AI");
 } else {
     API_KEY = process.env.OPENAI_API_KEY;
@@ -31,7 +30,7 @@ if (PROVIDER === 'google') {
 }
 
 if (!API_KEY) {
-    console.error(`❌ ERROR: Missing API Key for provider ${PROVIDER}`);
+    console.error(`❌ FATAL: Missing API Key for ${PROVIDER}`);
     process.exit(1);
 }
 
@@ -44,7 +43,6 @@ args.forEach(arg => {
     if (arg.startsWith('--model=')) MODEL_NAME = arg.split('=')[1];
 });
 
-// Gemini URL needs the model name embedded
 if (PROVIDER === 'google') {
     API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
 }
@@ -52,9 +50,7 @@ if (PROVIDER === 'google') {
 console.log(`🎯 TARGET: ${MODEL_NAME}`);
 console.log(`📂 OUTPUT: ${OUTPUT_FILE}`);
 
-// ---------------------------------------------------------
-// 1. MATH ENGINE
-// ---------------------------------------------------------
+// --- MATH ENGINE ---
 function calculateEntropy(logprob) {
     if (logprob === undefined || logprob === null) return 0;
     const p = Math.exp(logprob);
@@ -71,12 +67,14 @@ function calculateStdDev(arr) {
 
 function calculateGini(topCandidates) {
     if (!topCandidates || topCandidates.length < 2) return 0;
-    
-    // Normalize probabilities
-    const probs = topCandidates.map(t => Math.exp(t.logprob || t.logProbability));
+    const probs = topCandidates.map(t => {
+        const val = (t.logprob !== undefined) ? t.logprob : t.logProbability;
+        return Math.exp(val);
+    });
     const sum = probs.reduce((a, b) => a + b, 0);
+    if (sum === 0) return 0;
+    
     const normalized = probs.map(p => p / sum);
-
     const n = normalized.length;
     let numerator = 0;
     for (let i = 0; i < n; i++) {
@@ -87,9 +85,7 @@ function calculateGini(topCandidates) {
     return numerator / (2 * n);
 }
 
-// ---------------------------------------------------------
-// 2. MIXER ENGINE
-// ---------------------------------------------------------
+// --- MIXER ENGINE ---
 function prepareMixedDeck() {
     let deck = [];
     for (const [phase, list] of Object.entries(promptsData)) {
@@ -104,28 +100,29 @@ function prepareMixedDeck() {
     return deck;
 }
 
-// ---------------------------------------------------------
-// 3. COLLECTOR ENGINE
-// ---------------------------------------------------------
+// --- COLLECTOR ENGINE ---
 async function runProbe(item, id) {
     const startTick = performance.now();
-    
     let payload = {};
     let headers = { "Content-Type": "application/json" };
 
-    // ADAPTER: Payload Construction
     if (PROVIDER === 'google') {
         payload = {
             contents: [{ parts: [{ text: item.prompt }] }],
+            // 🔴 FIX 2: Disable Safety Settings (They block logprobs)
+            safetySettings: [
+                { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+            ],
             generationConfig: {
                 temperature: 0.2,
                 maxOutputTokens: 180,
-                responseLogprobs: true // Critical for Physics Data
+                responseLogprobs: true // Request Physics Data
             }
         };
-        // Google passes Key in URL, no header needed for auth
     } else {
-        // OpenAI / Mistral Standard
         payload = {
             model: MODEL_NAME,
             messages: [{ role: "user", content: item.prompt }],
@@ -149,7 +146,7 @@ async function runProbe(item, id) {
 
         if (!response.ok) {
             const errText = await response.text();
-            console.error(`API Error (${response.status}): ${errText}`);
+            console.error(`❌ API FAIL [${item.phase}]: ${response.status} - ${errText.substring(0, 100)}`);
             return null;
         }
 
@@ -157,40 +154,41 @@ async function runProbe(item, id) {
         const endTick = performance.now();
         const totalDuration = endTick - startTick;
 
-        // ADAPTER: Response Parsing
         let contentTokens = [];
         let firstTokenObj = null;
 
+        // --- PARSING LOGIC ---
         if (PROVIDER === 'google') {
-            // Google Parsing
             const candidate = data.candidates?.[0];
-            if (!candidate) return null;
+            if (!candidate) {
+                console.warn(`⚠️ Empty Candidate (Safety Filter?) ID ${id}`);
+                return null;
+            }
+            const logRes = candidate.logprobsResult?.chosenCandidates;
             
-            // Gemini puts logprobs in 'logprobsResult.chosenCandidates'
-            // Each has 'logProbability' (note naming diff)
-            const logRes = candidate.logprobsResult?.chosenCandidates || [];
+            // 🔴 FIX 3: Warn if Logprobs are missing (Don't just die silently)
+            if (!logRes || logRes.length === 0) {
+                console.warn(`⚠️ NO LOGPROBS [Gemini] ID ${id} - Check Model/Safety`);
+                return null; 
+            }
+
             contentTokens = logRes.map(t => ({ logprob: t.logProbability }));
-            
-            // For Gap/Gini, Gemini provides 'topLogprobs' array inside chosenCandidate
-            if (logRes.length > 0) {
-                firstTokenObj = {
-                    top_logprobs: logRes[0].topLogprobs // array of {token, logProbability}
-                };
+            if (logRes.length > 0 && logRes[0].topLogprobs) {
+                firstTokenObj = { top_logprobs: logRes[0].topLogprobs };
             }
         } else {
-            // OpenAI / Mistral Parsing
+            // OpenAI / Mistral
             contentTokens = data.choices?.[0]?.logprobs?.content || [];
-            if (contentTokens.length > 0) {
-                firstTokenObj = contentTokens[0];
+            if (contentTokens.length === 0) {
+                 // 🔴 FIX 3: Warn if Logprobs are missing
+                 console.warn(`⚠️ NO LOGPROBS [${PROVIDER}] ID ${id} - Model: ${MODEL_NAME}`);
+                 return null;
             }
+            firstTokenObj = contentTokens[0];
         }
-
-        if (contentTokens.length === 0) return null;
 
         const tokenCount = contentTokens.length;
         const entropies = contentTokens.map(t => calculateEntropy(t.logprob));
-        
-        // --- PHYSICS METRICS ---
         
         // F2: Softmax Bottleneck
         const f2_window = entropies.slice(0, 5);
@@ -201,19 +199,16 @@ async function runProbe(item, id) {
         let f2_gap = 0;
         let f2_gini = 0;
 
-        // Unified Gini Logic
         if (firstTokenObj && firstTokenObj.top_logprobs && firstTokenObj.top_logprobs.length >= 2) {
-            // Normalize key names (OpenAI: logprob, Google: logProbability)
-            const p1 = Math.exp(firstTokenObj.top_logprobs[0].logprob || firstTokenObj.top_logprobs[0].logProbability);
-            const p2 = Math.exp(firstTokenObj.top_logprobs[1].logprob || firstTokenObj.top_logprobs[1].logProbability);
+            const getLogProb = (t) => (t.logprob !== undefined) ? t.logprob : t.logProbability;
+            const p1 = Math.exp(getLogProb(firstTokenObj.top_logprobs[0]));
+            const p2 = Math.exp(getLogProb(firstTokenObj.top_logprobs[1]));
             f2_gap = p1 - p2; 
             f2_gini = calculateGini(firstTokenObj.top_logprobs);
         }
 
-        // F4: Kinetic Work
+        // F4 & F3
         const rwi_total = entropies.reduce((a, b) => a + b, 0);
-
-        // F3: Attractor Stability
         let plateau_h = 0, plateau_std = 0;
         if (tokenCount > 10) {
             const start = Math.floor(tokenCount * 0.25);
@@ -224,10 +219,8 @@ async function runProbe(item, id) {
         } else {
             plateau_h = f2_mean; 
         }
-
         const sacr = (plateau_h > 0) ? (tokenCount / plateau_h) : tokenCount * 100;
 
-        // Closure
         let closure_spike = 0;
         if (tokenCount > 5) {
             closure_spike = Math.max(...entropies.slice(-5));
@@ -250,7 +243,7 @@ async function runProbe(item, id) {
             closure_spike: closure_spike.toFixed(4)
         };
 
-        console.log(`[${item.phase}] ID ${id} | F2: ${record.f2_spike} | Tok: ${tokenCount} | Gini: ${record.f2_gini}`);
+        console.log(`[${item.phase}] ID ${id} | F2: ${record.f2_spike} | Tok: ${tokenCount}`);
         return record;
 
     } catch (error) {
@@ -259,25 +252,20 @@ async function runProbe(item, id) {
     }
 }
 
-// ---------------------------------------------------------
-// 4. EXECUTION
-// ---------------------------------------------------------
+// --- EXECUTION ---
 (async () => {
-    console.log(`🚀 Starting UIA V6 (${PROVIDER.toUpperCase()}) to: ${OUTPUT_FILE}`);
+    console.log(`🚀 Starting UIA V7 (${PROVIDER.toUpperCase()}) to: ${OUTPUT_FILE}`);
     fs.writeFileSync(OUTPUT_FILE, ""); 
 
     const deck = prepareMixedDeck();
     console.log(`🃏 Deck Loaded: ${deck.length} prompts (Mixed)`);
 
     let globalCount = 0;
-    
-    // Serial execution for safety
     for (const item of deck) {
         globalCount++;
         const result = await runProbe(item, globalCount);
         if (result) fs.appendFileSync(OUTPUT_FILE, JSON.stringify(result) + "\n");
-        // Rate limit kindness
-        await new Promise(r => setTimeout(r, 250));
+        await new Promise(r => setTimeout(r, 200));
     }
     console.log(`✅ Done. Saved ${globalCount} records.`);
 })();
