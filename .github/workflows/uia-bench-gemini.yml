@@ -24,6 +24,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          clean: true                # ensure a fresh workspace
           fetch-depth: 0
           ref: ${{ github.event.inputs.ref || github.ref }}
 
@@ -49,7 +50,12 @@ jobs:
           LOG="results/uia_gemini_${TS}.jsonl"
           
           echo "::notice title=UIA Bench::Starting Gemini -> ${LOG}"
-          
+
+          echo "Current commit: $(git rev-parse HEAD)"
+          echo "------ Top of index.js (first 10 lines) ------"
+          sed -n '1,10p' index.js || echo "index.js not found in this directory"
+          echo "------------------------------------------------"
+
           # Using '|| true' to ensure artifacts upload even if script hits an error
           node index.js \
             --log="${LOG}" \
