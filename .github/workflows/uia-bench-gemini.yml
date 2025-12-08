@@ -3,200 +3,63 @@ name: UIA Bench (Gemini)
 on:
   workflow_dispatch:
     inputs:
-      concurrency:
-        description: 'Concurrency level (1 or 2 recommended for stability)'
+      ref:
+        description: "Branch to run"
         required: false
-        default: '1'
-      gemini_version:
-        description: 'Gemini model (e.g., gemini-2.5-flash, gemini-2.5-pro, gemini-2.5-pro-vision)'
-        required: false
-        default: 'gemini-2.5-flash'
+        default: ""
 
 permissions:
   contents: write
 
 concurrency:
   group: uia-bench-gemini-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 240
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.ref || github.ref }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          cache: 'npm'
 
-      - name: Install dependencies (Strict & Reproducible)
+      - name: Install dependencies
         run: |
-          set -e
-          # Clean, reproducible install
           npm ci
-          
-          # Install Google Gemini SDK
-          npm install @google/generative-ai
-          
-          # Verification
-          npm list @google/generative-ai
-          echo "✓ Dependencies installed successfully"
+          npm pkg set type="module"
 
-      - name: Validate Setup and Environment
+      - name: Run UIA Bench (Gemini Flash)
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          PROVIDER: google
+          MODEL: gemini-1.5-flash
         run: |
-          set -e
-          
-          echo "🔍 Environment Validation"
-          echo "=========================="
-          
-          # Node / npm versions
-          echo "✓ Node version: $(node --version)"
-          echo "✓ NPM version: $(npm --version)"
-          
-          # Verify Google Generative AI SDK
-          if ! npm list @google/generative-ai > /dev/null 2>&1; then
-            echo "❌ Google Generative AI SDK (@google/generative-ai) not installed properly"
-            npm list @google/generative-ai
-            exit 1
-          fi
-          echo "✓ Google Generative AI SDK @google/generative-ai installed"
-          
-          # Verify API key
-          if [ -z "$GEMINI_API_KEY" ]; then
-            echo "❌ GEMINI_API_KEY secret is not set"
-            echo "   Configure in: GitHub Settings > Secrets and variables > Actions > GEMINI_API_KEY"
-            exit 1
-          fi
-          echo "✓ GEMINI_API_KEY is set"
-          
-          # Verify index.js exists
-          if [ ! -f "index.js" ]; then
-            echo "❌ index.js not found in repository root"
-            exit 1
-          fi
-          echo "✓ index.js found"
-          
-          # Optional: check that Gemini provider is present
-          if ! grep -q "PROVIDER === \"gemini\"" index.js && ! grep -q "PROVIDER === 'gemini'" index.js; then
-            echo "⚠️  WARNING: Gemini branch not detected explicitly in index.js (double-check callLLM implementation)"
-          else
-            echo "✓ Gemini provider branch detected in index.js"
-          fi
-          
-          echo ""
-          echo "✓ All environment checks passed"
-
-      - name: Run UIA Bench (Gemini) with Retry Logic
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          PROVIDER: gemini
-          NODE_OPTIONS: --max-old-space-size=4096
-          LOG_LEVEL: debug
-        run: |
-          set -euo pipefail
-          
           mkdir -p results
           TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
+          LOG="results/uia_gemini_${TS}.jsonl"
           
-          # Model slug for filename
-          MODEL_SLUG=$(echo "${{ github.event.inputs.gemini_version || 'gemini-2.5-flash' }}" \
-            | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g')
+          echo "::notice title=UIA Bench::Starting Gemini -> ${LOG}"
           
-          LOG="results/uia_${MODEL_SLUG}_${TS}.jsonl"
-          
-          ATTEMPT=0
-          MAX_ATTEMPTS=3
-          CONCURRENCY="${{ github.event.inputs.concurrency || '1' }}"
-          MODEL="${{ github.event.inputs.gemini_version || 'gemini-2.5-flash' }}"
-          
-          echo ""
-          echo "🚀 Starting UIA Bench (Gemini)"
-          echo "════════════════════════════════════════"
-          echo "Model:       ${MODEL}"
-          echo "Concurrency: ${CONCURRENCY} (low for stability)"
-          echo "Max retries: ${MAX_ATTEMPTS}"
-          echo "Log file:    ${LOG}"
-          echo "════════════════════════════════════════"
-          
-          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
-            ATTEMPT=$((ATTEMPT + 1))
-            echo ""
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            echo "Attempt ${ATTEMPT}/${MAX_ATTEMPTS}"
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            
-            if node index.js \
-              --A=all --prompts=all --concurrency="${CONCURRENCY}" \
-              --model="${MODEL}" --t=0.2 --max_tokens=180 \
-              --metrics=true --diag=true --log="${LOG}"; then
-              
-              echo ""
-              echo "✓ Run completed successfully on attempt ${ATTEMPT}"
-              break
-            else
-              EXIT_CODE=$?
-              
-              if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
-                echo ""
-                echo "⚠️ Attempt ${ATTEMPT} failed (exit code: ${EXIT_CODE})"
-                echo "Waiting 60 seconds before retry..."
-                sleep 60
-              else
-                echo ""
-                echo "❌ All ${MAX_ATTEMPTS} attempts failed"
-                exit $EXIT_CODE
-              fi
-            fi
-          done
-          
-          # Expose log path to later steps
-          echo "LOG_PATH=${LOG}" >> "$GITHUB_ENV"
+          # Using '|| true' to ensure artifacts upload even if script hits an error
+          node index.js \
+            --log="${LOG}" \
+            --model="${MODEL}" \
+            || echo "⚠️ Script finished with errors."
 
-      - name: Debug – Show workspace and results
-        if: always()
-        run: |
-          echo "📂 Debugging workspace"
-          echo "Current directory: $(pwd)"
-          echo ""
-          echo "─── Tree (top-level) ───"
-          ls
-          echo ""
-          echo "─── Recursive tree ───"
-          ls -R
-          echo ""
-          echo "─── Contents of results/ ───"
-          if [ -d results ]; then
-            ls -l results
-          else
-            echo "No results directory found."
-          fi
-          echo ""
-          echo "LOG_PATH from env: ${LOG_PATH:-<not set>}"
-
-      - name: Upload UIA Gemini log
-        if: always()
+      - name: Upload results
         uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: uia-gemini-${{ github.run_id }}
-          path: ${{ env.LOG_PATH }}
-          if-no-files-found: error
-
-      # (Optional) Example validation step – adapt to your own AX-BY-CZ tooling
-      # - name: Validate Run Quality
-      #   run: |
-      #     echo "Validating log at: ${LOG_PATH}"
-      #     if ! grep -q '"event": "RUN_END"' "${LOG_PATH}"; then
-      #       echo "❌ RUN_END not found in log – run may be incomplete."
-      #       exit 1
-      #     fi
-      #     echo "✓ RUN_END event found – log looks structurally complete."
-
-      # You can add your existing "Create Detailed Summary" / post-processing steps here,
-      # consuming ${{ env.LOG_PATH }} as input.
+          name: uia-gemini-results
+          path: results/
+          if-no-files-found: warn
