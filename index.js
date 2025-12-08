@@ -3,6 +3,7 @@
    Goal: Capture 13 Core Physics Metrics across all major providers,
    with graceful fallback when token-level logprobs are missing.
 */
+console.log("🔥 UIA V7 LOADED — Build 2025-12-08");
 
 import fs from 'fs';
 import promptsData from './prompts_uia.js';
