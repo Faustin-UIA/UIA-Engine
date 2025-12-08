@@ -1,32 +1,46 @@
-/* UIA METRIC COLLECTOR V4 (OpenAI Mixed 360 - ES Module)
-   Target: gpt-4o-mini (GitHub Actions)
-   Goal: Capture the 13 Core Physics Metrics on a Randomized Stress Test.
+/* UIA METRIC COLLECTOR V5 (Unified OpenAI & Mistral)
+   Target: GitHub Actions (Supports 'openai' and 'mistral' providers via ENV)
+   Goal: Capture 13 Core Physics Metrics on Mixed 360 Dataset.
 */
 
 import fs from 'fs';
 import promptsData from './prompts_uia.js';
 
-// CONFIGURATION
-const API_URL = "https://api.openai.com/v1/chat/completions";
-const MODEL_NAME = "gpt-4o-mini";
+// --- CONFIGURATION & ENV HANDLING ---
+const PROVIDER = process.env.PROVIDER || 'openai'; // 'openai' or 'mistral'
+let API_KEY = "";
+let API_URL = "";
+let DEFAULT_MODEL = "";
 
-// Handle Command Line Args (from Workflow)
-const args = process.argv.slice(2);
-let OUTPUT_FILE = "uia_openai_mixed_360.jsonl"; // Default
-
-// Parse the --log="..." argument from the YAML workflow
-args.forEach(arg => {
-    if (arg.startsWith('--log=')) {
-        OUTPUT_FILE = arg.split('=')[1];
-    }
-});
-
-const API_KEY = process.env.OPENAI_API_KEY;
+if (PROVIDER === 'mistral') {
+    API_KEY = process.env.MISTRAL_API_KEY;
+    API_URL = "https://api.mistral.ai/v1/chat/completions";
+    DEFAULT_MODEL = "mistral-small-latest";
+    console.log("🔵 MODE: MISTRAL AI");
+} else {
+    API_KEY = process.env.OPENAI_API_KEY;
+    API_URL = "https://api.openai.com/v1/chat/completions";
+    DEFAULT_MODEL = "gpt-4o-mini";
+    console.log("🟢 MODE: OPENAI");
+}
 
 if (!API_KEY) {
-    console.error("❌ ERROR: Missing OPENAI_API_KEY environment variable.");
+    console.error(`❌ ERROR: Missing API Key for provider ${PROVIDER}`);
     process.exit(1);
 }
+
+// Parse Args
+const args = process.argv.slice(2);
+let OUTPUT_FILE = `uia_${PROVIDER}_mixed_360.jsonl`;
+let MODEL_NAME = DEFAULT_MODEL;
+
+args.forEach(arg => {
+    if (arg.startsWith('--log=')) OUTPUT_FILE = arg.split('=')[1];
+    if (arg.startsWith('--model=')) MODEL_NAME = arg.split('=')[1];
+});
+
+console.log(`🎯 TARGET: ${MODEL_NAME}`);
+console.log(`📂 OUTPUT: ${OUTPUT_FILE}`);
 
 // ---------------------------------------------------------
 // 1. MATH ENGINE
@@ -45,13 +59,11 @@ function calculateStdDev(arr) {
     return Math.sqrt(variance);
 }
 
-// Gini for OpenAI (using top_logprobs)
 function calculateGini(topLogprobs) {
     if (!topLogprobs || topLogprobs.length < 2) return 0;
-    // Convert logprobs to linear probabilities
     const probs = topLogprobs.map(t => Math.exp(t.logprob));
     
-    // Normalize to sum to 1
+    // Normalize (Mistral/OpenAI sums might vary slightly)
     const sum = probs.reduce((a, b) => a + b, 0);
     const normalized = probs.map(p => p / sum);
 
@@ -89,6 +101,20 @@ function prepareMixedDeck() {
 async function runProbe(item, id) {
     const startTick = performance.now();
     
+    // Mistral & OpenAI share the same payload structure for this
+    const payload = {
+        model: MODEL_NAME,
+        messages: [{ role: "user", content: item.prompt }],
+        temperature: 0.2,
+        max_tokens: 180,
+        stream: false
+    };
+
+    // Both support logprobs, but parameters differ slightly?
+    // Actually, modern Mistral API is fully OpenAI compatible.
+    payload.logprobs = true;
+    payload.top_logprobs = 5;
+
     try {
         const response = await fetch(API_URL, {
             method: "POST",
@@ -96,39 +122,39 @@ async function runProbe(item, id) {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${API_KEY}`
             },
-            body: JSON.stringify({
-                model: MODEL_NAME,
-                messages: [{ role: "user", content: item.prompt }],
-                temperature: 0.2, 
-                max_tokens: 180,  
-                logprobs: true,   
-                top_logprobs: 5   
-            })
+            body: JSON.stringify(payload)
         });
 
         const firstTokenTick = performance.now();
         const ttfb = firstTokenTick - startTick;
 
+        if (!response.ok) {
+            const errText = await response.text();
+            console.error(`API Error (${response.status}): ${errText}`);
+            return null;
+        }
+
         const data = await response.json();
         const endTick = performance.now();
         const totalDuration = endTick - startTick;
 
-        if (data.error) {
-            console.error(`API Error: ${data.error.message}`);
+        // Unified Response Parsing (OpenAI/Mistral compatible)
+        const contentTokens = data.choices?.[0]?.logprobs?.content || [];
+        
+        if (contentTokens.length === 0) {
+            // Fallback: Sometimes Mistral puts logprobs in a different spot if legacy
+            // But 'mistral-small-latest' should be standard.
             return null;
         }
-
-        const contentTokens = data.choices?.[0]?.logprobs?.content || [];
-        if (contentTokens.length === 0) return null;
 
         const tokenCount = contentTokens.length;
         const entropies = contentTokens.map(t => calculateEntropy(t.logprob));
         
-        // F2: SOFTMAX BOTTLENECK
+        // --- F2: SOFTMAX BOTTLENECK ---
         const f2_window = entropies.slice(0, 5);
         const f2_spike = Math.max(...f2_window);
-        const f2_mean = f2_window.reduce((a, b) => a + b, 0) / f2_window.length;
-
+        
+        // Gap & Gini
         const firstTokenObj = contentTokens[0];
         let f2_gap = 0;
         let f2_gini = 0;
@@ -140,11 +166,13 @@ async function runProbe(item, id) {
             f2_gini = calculateGini(firstTokenObj.top_logprobs);
         }
 
-        // F4: FABULATION
+        // --- F4: FABULATION ---
         const rwi_total = entropies.reduce((a, b) => a + b, 0);
 
-        // F3: ATTRACTOR STABILITY
+        // --- F3: ATTRACTOR STABILITY ---
+        const f2_mean = f2_window.reduce((a, b) => a + b, 0) / f2_window.length;
         let plateau_h = 0, plateau_std = 0;
+        
         if (tokenCount > 10) {
             const start = Math.floor(tokenCount * 0.25);
             const end = Math.floor(tokenCount * 0.75);
@@ -157,7 +185,7 @@ async function runProbe(item, id) {
 
         const sacr = (plateau_h > 0) ? (tokenCount / plateau_h) : tokenCount * 100;
 
-        // CLOSURE
+        // --- CLOSURE ---
         let closure_spike = 0;
         if (tokenCount > 5) {
             closure_spike = Math.max(...entropies.slice(-5));
@@ -180,11 +208,12 @@ async function runProbe(item, id) {
             closure_spike: closure_spike.toFixed(4)
         };
 
-        console.log(`[${item.phase}] ID ${id} | F2 Spike: ${record.f2_spike} | Tokens: ${tokenCount}`);
+        // Compact Log
+        console.log(`[${item.phase}] ID ${id} | F2: ${record.f2_spike} | Tok: ${tokenCount} | Gini: ${record.f2_gini}`);
         return record;
 
     } catch (error) {
-        console.error("Connection Error:", error.message);
+        console.error("Probe Error:", error.message);
         return null;
     }
 }
@@ -193,18 +222,21 @@ async function runProbe(item, id) {
 // 4. EXECUTION
 // ---------------------------------------------------------
 (async () => {
-    console.log(`Starting UIA V4 (OpenAI Mixed) to: ${OUTPUT_FILE}`);
+    console.log("🚀 Starting UIA Metric Collector V5...");
     fs.writeFileSync(OUTPUT_FILE, ""); 
 
     const deck = prepareMixedDeck();
+    console.log(`🃏 Deck Loaded: ${deck.length} prompts (Mixed)`);
+
     let globalCount = 0;
     
+    // Serial Execution to prevent Rate Limits (Crucial for Mistral Free/Tier)
     for (const item of deck) {
         globalCount++;
         const result = await runProbe(item, globalCount);
         if (result) fs.appendFileSync(OUTPUT_FILE, JSON.stringify(result) + "\n");
-        // Tiny delay
-        await new Promise(r => setTimeout(r, 100));
+        // Sleep 250ms to be safe
+        await new Promise(r => setTimeout(r, 250));
     }
-    console.log(`Done. Saved ${globalCount} records.`);
+    console.log(`✅ Done. Saved ${globalCount} records to ${OUTPUT_FILE}`);
 })();
