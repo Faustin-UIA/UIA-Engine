@@ -41,14 +41,27 @@ jobs:
           npm install @google/generative-ai
           npm pkg set type="module"
 
+      # === DEBUG STEP START ===
+      - name: DEBUG - Check Env Var
+        env:
+          THE_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          echo "--- DEBUGGING SECRET VISIBILITY ---"
+          if [ -z "$THE_KEY" ]; then
+            echo "❌ CRITICAL: The secret is EMPTY or UNDEFINED!"
+            echo "GitHub cannot see 'GEMINI_API_KEY'. Check if it's restricted to an Environment."
+          else
+            echo "✅ SUCCESS: The workflow sees a secret."
+            echo "Length of key: ${#THE_KEY} characters"
+            echo "First 3 chars: ${THE_KEY:0:3}..." 
+          fi
+          echo "-----------------------------------"
+      # === DEBUG STEP END ===
+
       - name: Run UIA Bench (Gemini Flash)
         env:
-          # CRITICAL FIX 1: Must match process.env.GEMINI_API_KEY in index.js
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} 
-          
-          # CRITICAL FIX 2: Must match 'gemini' string in index.js logic
           PROVIDER: gemini 
-          
           MODEL: gemini-1.5-flash
         run: |
           mkdir -p results
@@ -57,7 +70,6 @@ jobs:
           
           echo "::notice title=UIA Bench::Starting Gemini -> ${LOG}"
 
-          # Debug: Verify we have the right file version
           echo "------ Checking index.js Provider Logic ------"
           grep "PROVIDER === \"gemini\"" index.js || echo "WARNING: 'gemini' provider logic not found in index.js"
           echo "----------------------------------------------"
