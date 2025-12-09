@@ -18,7 +18,8 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 360  # Increased timeout because speed is slower
+    # Increased timeout to 6 hours because we are running in "Slow Mode"
+    timeout-minutes: 360
 
     steps:
       - name: Checkout
@@ -40,11 +41,29 @@ jobs:
           npm install @google/generative-ai
           npm pkg set type="module"
 
-      # ✅ Cleans up the old "Ghost Files" from October
+      # 1. Clean up old artifacts from October so you get fresh data
       - name: Clean Old Results
         run: |
           echo "Deleting old files..."
           rm -f results/*.jsonl results/*.log || true
+
+      # 2. PATCH: Slow down the script to 25 seconds per prompt
+      # This prevents the "429 Too Many Requests" error on the Free Tier
+      - name: Apply Speed Limit Patch
+        run: |
+           sed -i 's/await delay(200);/await delay(25000);/g' index.js
+           echo "✅ Patch applied: Script will now wait 25 seconds between prompts."
+
+      # 3. Verify API Key is visible
+      - name: DEBUG - Check Env Var
+        env:
+          THE_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          if [ -z "$THE_KEY" ]; then
+            echo "❌ CRITICAL: The secret is EMPTY!"
+          else
+            echo "✅ SUCCESS: Secret found. Length: ${#THE_KEY}"
+          fi
 
       - name: Run UIA Bench (Gemini Flash)
         env:
@@ -56,9 +75,9 @@ jobs:
           TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
           LOG="results/uia_gemini_${TS}.jsonl"
           
-          echo "::notice title=UIA Bench::Starting Gemini -> ${LOG}"
+          echo "::notice title=UIA Bench::Starting Gemini (Slow Mode) -> ${LOG}"
 
-          # CRITICAL FIX: Set concurrency to 1 to respect the 5 RPM limit
+          # Concurrency set to 1 for sequential processing
           node index.js \
             --log="${LOG}" \
             --model="${MODEL}" \
