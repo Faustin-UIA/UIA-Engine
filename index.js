@@ -45,10 +45,13 @@ const ARG_METRICS   = /^true$/i.test(arg("metrics", "true"));
 const ARG_DIAG      = /^true$/i.test(arg("diag", "false"));
 const ARG_PHASE_BASIS = (arg("phase_basis", "entropy") || "entropy").toLowerCase();
 
+// -----------------------------------------------------
+// Provider + model selection
+// -----------------------------------------------------
 const PROVIDER = (process.env.PROVIDER || arg("provider", "openai")).toLowerCase();
-// ADD THIS LINE BELOW:
-const MODEL = process.env.MODEL || ARG_MODEL || null; 
-const MAX_RETRIES = 3; // Robustness: Attempt 3 times before failing
+const MODEL    = process.env.MODEL || ARG_MODEL || null; // <--- This fixes "MODEL is not defined"
+const MAX_RETRIES = 3;                                   // Robustness: Attempt 3 times before failing
+const BASE_DELAY  = 1500;                                // <--- This fixes "BASE_DELAY is not defined"
 
 // -----------------------------------------------------
 // 2. DIAGNOSTICS & LOGGING SYSTEM
