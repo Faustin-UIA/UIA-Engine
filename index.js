@@ -46,8 +46,9 @@ const ARG_DIAG      = /^true$/i.test(arg("diag", "false"));
 const ARG_PHASE_BASIS = (arg("phase_basis", "entropy") || "entropy").toLowerCase();
 
 const PROVIDER = (process.env.PROVIDER || arg("provider", "openai")).toLowerCase();
+// ADD THIS LINE BELOW:
+const MODEL = process.env.MODEL || ARG_MODEL || null; 
 const MAX_RETRIES = 3; // Robustness: Attempt 3 times before failing
-const BASE_DELAY = 1500; // ms
 
 // -----------------------------------------------------
 // 2. DIAGNOSTICS & LOGGING SYSTEM
