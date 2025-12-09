@@ -37,32 +37,27 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-          # Force install Gemini SDK in case it's missing from package.json
           npm install @google/generative-ai
           npm pkg set type="module"
 
-      # === DEBUG STEP START ===
+      # === DEBUG STEP ===
       - name: DEBUG - Check Env Var
         env:
           THE_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           echo "--- DEBUGGING SECRET VISIBILITY ---"
           if [ -z "$THE_KEY" ]; then
-            echo "❌ CRITICAL: The secret is EMPTY or UNDEFINED!"
-            echo "GitHub cannot see 'GEMINI_API_KEY'. Check if it's restricted to an Environment."
+            echo "❌ CRITICAL: The secret is EMPTY!"
           else
-            echo "✅ SUCCESS: The workflow sees a secret."
-            echo "Length of key: ${#THE_KEY} characters"
-            echo "First 3 chars: ${THE_KEY:0:3}..." 
+            echo "✅ SUCCESS: Secret found. Length: ${#THE_KEY}"
           fi
           echo "-----------------------------------"
-      # === DEBUG STEP END ===
 
       - name: Run UIA Bench (Gemini Flash)
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} 
           PROVIDER: gemini 
-          MODEL: gemini-1.5-flash
+          MODEL: gemini-2.5-flash   # ✅ RESTORED TO 2.5
         run: |
           mkdir -p results
           TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
@@ -70,11 +65,6 @@ jobs:
           
           echo "::notice title=UIA Bench::Starting Gemini -> ${LOG}"
 
-          echo "------ Checking index.js Provider Logic ------"
-          grep "PROVIDER === \"gemini\"" index.js || echo "WARNING: 'gemini' provider logic not found in index.js"
-          echo "----------------------------------------------"
-
-          # Using '|| true' to ensure artifacts upload even if script hits an error
           node index.js \
             --log="${LOG}" \
             --model="${MODEL}" \
