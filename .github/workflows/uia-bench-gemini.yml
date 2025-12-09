@@ -18,7 +18,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 360  # Increased timeout because speed is slower
 
     steps:
       - name: Checkout
@@ -40,24 +40,17 @@ jobs:
           npm install @google/generative-ai
           npm pkg set type="module"
 
-      # === DEBUG STEP ===
-      - name: DEBUG - Check Env Var
-        env:
-          THE_KEY: ${{ secrets.GEMINI_API_KEY }}
+      # ✅ Cleans up the old "Ghost Files" from October
+      - name: Clean Old Results
         run: |
-          echo "--- DEBUGGING SECRET VISIBILITY ---"
-          if [ -z "$THE_KEY" ]; then
-            echo "❌ CRITICAL: The secret is EMPTY!"
-          else
-            echo "✅ SUCCESS: Secret found. Length: ${#THE_KEY}"
-          fi
-          echo "-----------------------------------"
+          echo "Deleting old files..."
+          rm -f results/*.jsonl results/*.log || true
 
       - name: Run UIA Bench (Gemini Flash)
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} 
           PROVIDER: gemini 
-          MODEL: gemini-2.5-flash   # ✅ RESTORED TO 2.5
+          MODEL: gemini-2.5-flash
         run: |
           mkdir -p results
           TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
@@ -65,10 +58,12 @@ jobs:
           
           echo "::notice title=UIA Bench::Starting Gemini -> ${LOG}"
 
+          # CRITICAL FIX: Set concurrency to 1 to respect the 5 RPM limit
           node index.js \
             --log="${LOG}" \
             --model="${MODEL}" \
             --provider="gemini" \
+            --concurrency=1 \
             || echo "⚠️ Script finished with errors."
 
       - name: Upload results
