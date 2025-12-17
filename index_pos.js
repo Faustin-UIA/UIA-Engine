@@ -2,7 +2,7 @@
 // UIA Engine v3.14 (POSITIVE MANIFOLD EDITION)
 // TARGET: QA1-QA9 (Functional Manifold Mapping)
 // COMPATIBILITY: Generates identical JSONL structure for direct Delta comparison
-// FIX: Auto-cleans log file on start to prevent ghost data
+// FIX: Auto-cleans log file on start + Fixed Import Logic
 // ==============================================================================
 
 import fs from "fs";
@@ -11,12 +11,9 @@ import { fileURLToPath } from "url";
 import crypto from "crypto";
 import { performance } from "node:perf_hooks";
 
-// --- IMPORT POSITIVE PROMPTS ---
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-const prompts_positive_uia = require("./prompts_positive_uia.js"); 
+// --- IMPORT POSITIVE PROMPTS (STANDARD ESM) ---
+import all_positive_prompts from "./prompts_positive_uia.js";
 
-// --- POINT CRITIQUE: Importation des promesses de fs pour l'I/O non-bloquante ---
 const { promises: fsPromises } = fs;
 
 // Provider SDK placeholders (lazy-loaded in callLLM)
@@ -26,7 +23,6 @@ let MistralClientCtor = null; // @mistralai/mistralai export variant
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
-
 
 // -----------------------------------------------------
 // CLI argument parser
@@ -39,8 +35,8 @@ const arg = (k, d = null) => {
 // -----------------------------------------------------
 // Core runtime arguments
 // -----------------------------------------------------
-const LOG_PATH        = arg("log", "results/uia_manifold_run.jsonl"); // Default to new log file
-const ARG_A_SCOPE     = (arg("A", "all") || "all").toUpperCase(); // Now filters QA1-QA9
+const LOG_PATH        = arg("log", "results/uia_manifold_run.jsonl"); 
+const ARG_A_SCOPE     = (arg("A", "all") || "all").toUpperCase();
 const ARG_PROMPTS_RAW = arg("prompts", "all");
 const ARG_CONC        = Math.max(1, parseInt(arg("concurrency", "6"), 10) || 1);
 const ARG_MODEL       = arg("model", null);
@@ -64,7 +60,7 @@ const MODEL    = process.env.MODEL || ARG_MODEL || null;
 console.log("=== UIA Engine v3.14 (MANIFOLD / POSITIVE MODE) ===");
 console.log(`Provider: ${PROVIDER} | Concurrence: ${ARG_CONC}`);
 
-// --- Fonction de journalisation ASYNCHRONE (OPTIMISÉE) ---
+// --- Fonction de journalisation ASYNCHRONE ---
 fs.mkdirSync(path.dirname(LOG_PATH), { recursive: true });
 const appendJsonl = async (p, obj) => {
   try {
@@ -105,8 +101,8 @@ function startStreamTimer(){
     t0: nowPerf(),
     firstAt: null,
     last: null,
-    gaps: [],           // ms gaps between chunks; gaps[0] = TTFB
-    times: [],          // absolute times for each chunk
+    gaps: [],           
+    times: [],          
     textChunks: [],
     text: ""
   };
@@ -115,7 +111,7 @@ function onChunkTimer(st, chunk=""){
   const t = nowPerf();
   if (st.firstAt === null) {
     st.firstAt = t;
-    st.gaps.push(t - st.t0);     // TTFB
+    st.gaps.push(t - st.t0);
   } else {
     st.gaps.push(t - (st.last ?? st.firstAt));
   }
@@ -158,7 +154,7 @@ function hedgesCount(s){
   return (s.match(/\b(might|maybe|perhaps|could|likely|appears|seems)\b/gi)||[]).length;
 }
 
-// ---------- non-stream synthesis (fallback only if single chunk) ----------
+// ---------- non-stream synthesis ----------
 function synthesizeNonStreaming(meter){
   const total_ms = ((meter.last ?? meter.firstAt ?? meter.t0) - meter.t0);
   let ttfb = (meter.firstAt !== null) ? (meter.firstAt - meter.t0) : 0;
@@ -376,7 +372,8 @@ function transformPositivePrompts(flatList) {
     return grouped;
 }
 
-const PROMPTS = transformPositivePrompts(prompts_positive_uia);
+// Ensure the variable name matches the IMPORT
+const PROMPTS = transformPositivePrompts(all_positive_prompts);
 
 // ---------- Semaphore ----------
 class Semaphore {
