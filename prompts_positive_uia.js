@@ -1,7 +1,10 @@
+// =================================================================
+// UIA POSITIVE MANIFOLD PROMPTS
+// =================================================================
+
 const all_positive_prompts = [
   // =================================================================
   // PHASE QA1: INPUT VALIDATOR (Basic Syntax & Facts)
-  [cite_start]// Source Reference: QA1 [cite: 1][cite_start], Input Validator [cite: 3]
   // Target: 100% Accuracy, Zero Hallucination
   // =================================================================
   { id: "QA1_001", phase: "QA1", component: "Input Validator", prompt: "Return the current year as a four-digit integer.", expected_behavior: "Current year (e.g., 2025)." },
@@ -22,7 +25,6 @@ const all_positive_prompts = [
 
   // =================================================================
   // PHASE QA2: LOAD BALANCER (Classification & Routing)
-  [cite_start]// Source Reference: QA2 [cite: 2][cite_start], Load Balancer [cite: 3]
   // Target: Perfect Categorization logic
   // =================================================================
   { id: "QA2_001", phase: "QA2", component: "Load Balancer", prompt: "Classify 'Apple' as Fruit or Vegetable.", expected_behavior: "Fruit" },
@@ -43,7 +45,6 @@ const all_positive_prompts = [
 
   // =================================================================
   // PHASE QA3: ADVANCED VALIDATOR (Constraints & Rules)
-  [cite_start]// Source Reference: QA3 [cite: 4][cite_start], Input Validator [cite: 3]
   // Target: Strict adherence to negative constraints
   // =================================================================
   { id: "QA3_001", phase: "QA3", component: "Input Validator", prompt: "Write a sentence using only 3 words.", expected_behavior: "Three word sentence." },
@@ -64,7 +65,6 @@ const all_positive_prompts = [
 
   // =================================================================
   // PHASE QA4: CONFIGURATION MANAGER (Context & State)
-  [cite_start]// Source Reference: QA4 [cite: 6][cite_start], Config Manager [cite: 5]
   // Target: Memory Retention
   // =================================================================
   { id: "QA4_001", phase: "QA4", component: "Config Manager", prompt: "Variable X = 50. What is Variable X + 10?", expected_behavior: "60" },
@@ -85,7 +85,6 @@ const all_positive_prompts = [
 
   // =================================================================
   // PHASE QA5: PREDICTIVE CACHE (Pattern & Sequence)
-  [cite_start]// Source Reference: QA5 [cite: 7][cite_start], Predictive Cache [cite: 9]
   // Target: Logical Completion
   // =================================================================
   { id: "QA5_001", phase: "QA5", component: "Predictive Cache", prompt: "Complete: 2, 4, 6, 8, ...", expected_behavior: "10" },
@@ -106,7 +105,6 @@ const all_positive_prompts = [
 
   // =================================================================
   // PHASE QA6: HEALTH MONITOR (Analysis & Sentiment)
-  [cite_start]// Source Reference: QA6, Health Monitor [cite: 8, 10]
   // Target: Accurate State Detection
   // =================================================================
   { id: "QA6_001", phase: "QA6", component: "Health Monitor", prompt: "Analyze the sentiment of this review: 'The product works exactly as described, very happy.'", expected_behavior: "Positive" },
@@ -127,7 +125,6 @@ const all_positive_prompts = [
 
   // =================================================================
   // PHASE QA7: QUALITY GATE (Logic & Verification)
-  [cite_start]// Source Reference: QA7, Quality Gate [cite: 11, 12]
   // Target: Deductive Reasoning
   // =================================================================
   { id: "QA7_001", phase: "QA7", component: "Quality Gate", prompt: "Syllogism: All birds have feathers. A Penguin is a bird. Does a Penguin have feathers?", expected_behavior: "Yes" },
@@ -148,7 +145,6 @@ const all_positive_prompts = [
 
   // =================================================================
   // PHASE QA8: SCHEDULER (Planning & Sequencing)
-  [cite_start]// Source Reference: QA8, Scheduler [cite: 13, 15]
   // Target: Linear Planning & Order
   // =================================================================
   { id: "QA8_001", phase: "QA8", component: "Scheduler", prompt: "Order these meals: Dinner, Breakfast, Lunch.", expected_behavior: "Breakfast, Lunch, Dinner" },
@@ -169,7 +165,6 @@ const all_positive_prompts = [
 
   // =================================================================
   // PHASE QA9: DATA COMPRESSOR (Synthesis & Summary)
-  [cite_start]// Source Reference: QA9, Data Compressor [cite: 14, 17]
   // Target: High Density Information
   // =================================================================
   { id: "QA9_001", phase: "QA9", component: "Data Compressor", prompt: "Summarize in 1 word: 'The massive, bright star that warms our planet.'", expected_behavior: "Sun" },
