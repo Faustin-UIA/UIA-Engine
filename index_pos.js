@@ -1,7 +1,8 @@
 // ==============================================================================
-// UIA Engine v4.0 (EXTENDED METRICS EDITION)
+// UIA Engine v4.1 (FORENSIC METRICS + AUTO-SELECTOR)
 // TARGET: Deep Forensic Analysis of QB3 (Compensation) and CZ (Termination)
 // NEW METRICS: Phase Tracing, Structure Density, Closure Geometry
+// FIX: Auto-detects phases (A1 vs QA1) automatically
 // ==============================================================================
 
 import fs from "fs";
@@ -10,18 +11,14 @@ import { fileURLToPath } from "url";
 import crypto from "crypto";
 import { performance } from "node:perf_hooks";
 
-// --- IMPORT PROMPTS (STANDARD ESM) ---
-// Change this:
-// import all_positive_prompts from "./prompts_positive_uia.js";
+// --- IMPORT PROMPTS (Current Target: STRESS TEST) ---
+// Note: To switch back to positive, change this import to "./prompts_positive_uia.js"
+import all_prompts from "./prompts_stress_uia.js";
 
-// To this:
-import all_stress_prompts from "./prompts_stress_uia.js";
 const { promises: fsPromises } = fs;
 
 // Provider SDK placeholders (lazy-loaded in callLLM)
 let OpenAI = null;            
-let Anthropic = null;         
-let MistralClientCtor = null; 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
@@ -37,7 +34,7 @@ const arg = (k, d = null) => {
 // -----------------------------------------------------
 // Core runtime arguments
 // -----------------------------------------------------
-const LOG_PATH        = arg("log", "results/uia_forensic_run.jsonl"); 
+const LOG_PATH        = arg("log", "results/uia_forensic_stress_run.jsonl"); 
 const ARG_A_SCOPE     = (arg("A", "all") || "all").toUpperCase();
 const ARG_PROMPTS_RAW = arg("prompts", "all");
 const ARG_CONC        = Math.max(1, parseInt(arg("concurrency", "6"), 10) || 1);
@@ -46,14 +43,12 @@ const ARG_T_RAW       = arg("t", null);
 const ARG_T           = ARG_T_RAW !== null ? parseFloat(ARG_T_RAW) : undefined;
 const ARG_MAXTOK_RAW  = arg("max_tokens", null);
 const ARG_MAXTOK      = ARG_MAXTOK_RAW !== null ? parseInt(ARG_MAXTOK_RAW, 10) : undefined;
-const ARG_METRICS     = /^true$/i.test(arg("metrics", "true"));
 const ARG_DIAG        = /^true$/i.test(arg("diag", "false"));
-const ARG_PHASE_BASIS = (arg("phase_basis", "entropy") || "entropy").toLowerCase();
 
 const PROVIDER = (process.env.PROVIDER || arg("provider", "openai")).toLowerCase();
 const MODEL    = process.env.MODEL || ARG_MODEL || null;
 
-console.log("=== UIA Engine v4.0 (FORENSIC METRICS) ===");
+console.log("=== UIA Engine v4.1 (FORENSIC / AUTO-SELECT) ===");
 console.log(`Provider: ${PROVIDER} | Concurrence: ${ARG_CONC}`);
 
 // --- Auto-Clean Log File (Clean Start) ---
@@ -70,7 +65,6 @@ const appendJsonl = async (p, obj) => {
 
 // ---------- Math Helpers ----------
 const nowPerf  = () => performance.now();
-const median   = a => (a.length ? a.slice().sort((x,y)=>x-y)[Math.floor(a.length/2)] : 0);
 const mean     = a => (a.length ? a.reduce((s,x)=>s+x,0)/a.length : 0);
 const p95      = a => (a.length ? a.slice().sort((x,y)=>x-y)[Math.floor(0.95*(a.length-1))] : 0);
 const norm     = v => { const s=v.reduce((a,b,)=>a+b,0)||1; return v.map(x=>x/s); };
@@ -85,8 +79,6 @@ function analyzeRefusal(text) {
     const score = matches.length;
     
     // Compliance Distance: How far into the text (0.0 - 1.0) did the first refusal appear?
-    // QB2 (Gatekeeper) usually refuses early (0.0 - 0.1).
-    // QB3 (Talk your way out) might refuse late (0.8 - 1.0) or not at all.
     let firstMatchIndex = -1;
     let complianceDist = 1.0; // Default: Compliance (no refusal)
     
@@ -109,7 +101,6 @@ function analyzeStructure(text) {
     const headings = (text.match(/^#{1,6}\s/gm) || []).length;
     const codeBlocks = (text.match(/```/g) || []).length / 2; // Pairs of backticks
     
-    // Discourse Markers (Logic glue)
     const discourse = (text.match(/\b(however|therefore|consequently|furthermore|firstly|finally|specifically)\b/gi) || []).length;
 
     return {
@@ -125,7 +116,7 @@ function analyzeStructure(text) {
 // 3. Closure Geometry (Proving CZ Primitive)
 function analyzeClosure(meter) {
     const len = meter.gaps.length;
-    if (len < 5) return { final_velocity: 0, tail_ratio: 0, abruptness: "insufficient_data" };
+    if (len < 5) return { final_velocity_ms: 0, tail_ratio: 0, abrupt_stop: false };
 
     // Velocity of last 5 tokens (ms per token)
     const last5 = meter.gaps.slice(-5);
@@ -136,9 +127,7 @@ function analyzeClosure(meter) {
     const baseGaps = meter.gaps.slice(0, midIndex);
     const baseMean = mean(baseGaps) || 1;
 
-    // Tail Ratio: Is the end slower or faster than the beginning?
-    // > 1.0 = Slowing down (Fade out / C9)
-    // < 1.0 = Speeding up (Abrupt cut / C1)
+    // Tail Ratio: > 1.0 = Slowing down (Fade out), < 1.0 = Speeding up (Abrupt)
     const tailRatio = +(last5Mean / baseMean).toFixed(3);
 
     return {
@@ -158,11 +147,8 @@ function analyzePhaseTrace(meter, text) {
     const totalDuration = meter.last - t0;
     const totalLen = text.length;
     
-    // Find timestamps for progress milestones
     const findTimeAtPct = (pct) => {
-        const targetLen = totalLen * pct;
         // Approximation: map text length to chunk index
-        // In precise mode we would track char counts per chunk, but this is sufficient for streaming
         const idx = Math.floor((meter.times.length - 1) * pct);
         const t = meter.times[idx] || meter.last;
         return +(t - t0).toFixed(2);
@@ -193,67 +179,45 @@ function lexicalEntropyForText(s, W=10){
 
 // ---------- Finalize All Metrics ----------
 function finalizeMetrics(meter) {
-    // 1. Classic Metrics
     const total_ms = +(((meter.last ?? meter.firstAt ?? meter.t0)) - meter.t0).toFixed(2);
     const tok_lat = meter.gaps.length ? meter.gaps.slice(1) : [];
     const ent = lexicalEntropyForText(meter.text);
     
-    // 2. New Forensic Metrics
     const refusal = analyzeRefusal(meter.text);
     const structure = analyzeStructure(meter.text);
     const closure = analyzeClosure(meter);
     const phases = analyzePhaseTrace(meter, meter.text);
 
     return {
-        // Base
         total_ms,
         token_count: ent.tokens,
         output_text_sha: crypto.createHash("sha1").update(meter.text).digest("hex").slice(0,12),
-        
-        // Classic Logic
         entropy: { mean: ent.mean_H, p95: ent.p95_H },
         latency: { mean: +mean(tok_lat).toFixed(2), p95: +p95(tok_lat).toFixed(2) },
-        
-        // NEW: QB3 & CZ Proofs
         forensics: {
-            refusal,       // Proves if it's QB3 (late) or QB2 (early)
-            structure,     // Proves if it's organized (QB3) or chaotic (Panic)
-            closure,       // Proves dominant CZ primitive (Abrupt vs Fade)
-            phases         // Proves temporal shape (Fast start vs Stall)
+            refusal,       
+            structure,     
+            closure,       
+            phases         
         }
     };
 }
 
 // ---------- Streaming Logic ----------
 function startStreamTimer(){
-  return {
-    t0: nowPerf(),
-    firstAt: null,
-    last: null,
-    gaps: [],
-    times: [],
-    textChunks: [],
-    text: ""
-  };
+  return { t0: nowPerf(), firstAt: null, last: null, gaps: [], times: [], textChunks: [], text: "" };
 }
 function onChunkTimer(st, chunk=""){
   const t = nowPerf();
-  if (st.firstAt === null) {
-    st.firstAt = t;
-    st.gaps.push(t - st.t0);
-  } else {
-    st.gaps.push(t - (st.last ?? st.firstAt));
-  }
+  if (st.firstAt === null) { st.firstAt = t; st.gaps.push(t - st.t0); } 
+  else { st.gaps.push(t - (st.last ?? st.firstAt)); }
   st.last = t;
   st.times.push(t);
-  if (chunk) {
-    st.textChunks.push(chunk);
-    st.text += chunk;
-  }
+  if (chunk) { st.textChunks.push(chunk); st.text += chunk; }
 }
 
 // ---------- Prompt Transformer ----------
-function transformPositivePrompts(flatList) {
+function transformPrompts(flatList) {
     const grouped = {};
     flatList.forEach(item => {
         if (!grouped[item.phase]) grouped[item.phase] = [];
@@ -261,11 +225,7 @@ function transformPositivePrompts(flatList) {
     });
     return grouped;
 }
-// Change this:
-// const PROMPTS = transformPositivePrompts(all_positive_prompts);
-
-// To this:
-const PROMPTS = transformPositivePrompts(all_stress_prompts);
+const PROMPTS = transformPrompts(all_prompts);
 
 // ---------- Provider Calls ----------
 async function callLLM({ messages, model, temperature, max_tokens }) {
@@ -282,19 +242,21 @@ async function callLLM({ messages, model, temperature, max_tokens }) {
     }
     return { text: meter.text, metrics: finalizeMetrics(meter) };
   }
-  // (Other providers omitted for brevity, logic is identical)
   throw new Error("Only OpenAI enabled for Forensic Trace.");
 }
 
 // ---------- Main Execution ----------
-// Updated Selector
+// ✅ UPDATED SELECTOR (The Fix)
 function selectAList(scopeStr) {
-  if (!scopeStr || scopeStr === "ALL") return Array.from({length:9}, (_,i)=>"QA"+(i+1));
+  // If scope is ALL, return ALL available keys (A1-A9 or QA1-QA9)
+  if (!scopeStr || scopeStr === "ALL") {
+      return Object.keys(PROMPTS).sort();
+  }
+  // Otherwise filter requested keys
   const s = new Set(scopeStr.split(",").map(x=>x.trim().toUpperCase()));
-  return Array.from(s).filter(x => /^QA[1-9]$/.test(x));
+  return Array.from(s).filter(x => PROMPTS[x]);
 }
 
-// Selection Logic
 function parsePromptLimit(raw) {
   if (!raw || raw.toString().toLowerCase() === "all") return "all";
   const n = parseInt(raw, 10);
@@ -311,7 +273,6 @@ function buildJobs(scopeList, perALimit) {
   return jobs;
 }
 
-// Semaphore
 class Semaphore {
   constructor(n){ this.n=n; this.q=[]; }
   async acquire(){ if (this.n>0){ this.n--; return; } await new Promise(r=>this.q.push(r)); }
@@ -325,11 +286,13 @@ async function run() {
   await appendJsonl(LOG_PATH, { 
     event: "RUN_START", 
     ts: new Date().toISOString(), 
-    mode: "FORENSIC_ANALYSIS_V4",
-    metrics: "EXTENDED"
+    mode: "FORENSIC_ANALYSIS_V4.1",
+    phases_detected: scopeList
   });
 
   const jobs = buildJobs(scopeList, perALimit);
+  console.log(`[Init] Found ${jobs.length} prompts across phases: ${scopeList.join(", ")}`);
+
   const sem = new Semaphore(ARG_CONC);
   let success = 0, fail = 0;
 
@@ -349,7 +312,7 @@ async function run() {
         ts: new Date().toISOString(),
         A: job.A,
         prompt_id: `${job.A}:${job.idx}`,
-        metrics: res.metrics // Now contains 'forensics' block
+        metrics: res.metrics 
       });
       success++;
       if (ARG_DIAG) console.log(`[OK] ${job.A}:${job.idx}`);
@@ -364,7 +327,7 @@ async function run() {
   const tasks = jobs.map(j => processJob(j));
   await Promise.all(tasks);
   await appendJsonl(LOG_PATH, { event: "RUN_END", success, fail });
-  console.log(`Done. Log saved to: ${LOG_PATH}`);
+  console.log(`Done. Success: ${success}, Fail: ${fail}`);
 }
 
 run().catch(e => { console.error("FATAL:", e); process.exit(1); });
