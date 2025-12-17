@@ -12,7 +12,9 @@ import crypto from "crypto";
 import { performance } from "node:perf_hooks";
 
 // --- IMPORT POSITIVE PROMPTS ---
-import prompts_positive_uia from "./prompts_positive_uia.js"; 
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const prompts_positive_uia = require("./prompts_positive_uia.js"); 
 
 // --- POINT CRITIQUE: Importation des promesses de fs pour l'I/O non-bloquante ---
 const { promises: fsPromises } = fs;
