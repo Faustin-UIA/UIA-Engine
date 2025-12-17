@@ -1,67 +1,43 @@
 name: UIA Bench (OpenAI)
 
-on:
-  workflow_dispatch:        # ✅ allows you to run it manually
-  # push:
-  #   branches:
-  #     - main              # ❌ commented out to stop auto-runs
-  # pull_request:
-  #   branches:
-  #     - main              # ❌ commented out to stop PR runs
+on: workflow_dispatch
 
 permissions:
   contents: write
 
-concurrency:
-  group: uia-bench-openai-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 60
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
       - name: Install dependencies
-        run: |
-          npm ci
-          npm i -E openai@^4.0.0
+        run: npm ci && npm i -E openai@^4
 
-      - name: Run UIA Bench (OpenAI)
+      - name: Run UIA Manifold (Positive)
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          PROVIDER: openai
-          MODEL: gpt-4o-2024-05-13
-          CONCURRENCY: '6'
-          T: '0.7'
-          MAXTOK: '120'
+        # Runs index_pos.js with a FIXED log name to prevent ghost data
         run: |
           mkdir -p results
-          TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
-          LOG="results/uia_openai_${TS}.jsonl"
-          
-          # Using '|| true' so the workflow doesn't turn red even if the script fails
-          node index.js \
-            --log="${LOG}" \
-            --provider="${PROVIDER}" \
-            --model="${MODEL}" \
-            --concurrency="${CONCURRENCY}" \
-            --t="${T}" \
-            --max_tokens="${MAXTOK}" \
-            || echo "⚠️ Script finished with errors."
+          node index_pos.js \
+            --provider=openai \
+            --model=gpt-4o-2024-05-13 \
+            --t=0.7 \
+            --max_tokens=120 \
+            --concurrency=6 \
+            --log=results/uia_manifold_fresh.jsonl
 
-      - name: Upload results
+      - name: Upload Results
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: uia-openai-results
-          path: results/
+          path: results/*.jsonl
