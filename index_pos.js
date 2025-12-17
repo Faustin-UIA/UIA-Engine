@@ -10,9 +10,12 @@ import { fileURLToPath } from "url";
 import crypto from "crypto";
 import { performance } from "node:perf_hooks";
 
-// --- IMPORT POSITIVE PROMPTS (STANDARD ESM) ---
-import all_positive_prompts from "./prompts_positive_uia.js";
+// --- IMPORT PROMPTS (STANDARD ESM) ---
+// Change this:
+// import all_positive_prompts from "./prompts_positive_uia.js";
 
+// To this:
+import all_stress_prompts from "./prompts_stress_uia.js";
 const { promises: fsPromises } = fs;
 
 // Provider SDK placeholders (lazy-loaded in callLLM)
@@ -258,7 +261,11 @@ function transformPositivePrompts(flatList) {
     });
     return grouped;
 }
-const PROMPTS = transformPositivePrompts(all_positive_prompts);
+// Change this:
+// const PROMPTS = transformPositivePrompts(all_positive_prompts);
+
+// To this:
+const PROMPTS = transformPositivePrompts(all_stress_prompts);
 
 // ---------- Provider Calls ----------
 async function callLLM({ messages, model, temperature, max_tokens }) {
