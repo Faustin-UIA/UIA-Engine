@@ -1,4 +1,0 @@
-{"event":"RUN_START","ts":"2025-10-31T16:52:45.306Z","provider":"openai","adapter":"node","model":"model","A_scope":["A1"],"prompts_per_A":2,"concurrency":1,"metrics":true}
-{"event":"PROMPT_ERROR","ts":"2025-10-31T16:52:45.342Z","A":"A1","prompt_id":"A1:0","error":"Adapter exited with code 1"}
-{"event":"PROMPT_ERROR","ts":"2025-10-31T16:52:45.371Z","A":"A1","prompt_id":"A1:1","error":"Adapter exited with code 1"}
-{"event":"RUN_END","ts":"2025-10-31T16:52:45.372Z","success":0,"fail":2}

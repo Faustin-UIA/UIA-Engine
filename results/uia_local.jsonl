@@ -1,9 +1,0 @@
-{"event":"RUN_START","ts":"2025-10-31T18:40:10.415Z","provider":"openai","adapter":"node","model":"gpt-4o-mini","A_scope":["A1"],"prompts_per_A":1,"concurrency":1,"metrics":true}
-{"event":"PROMPT_ERROR","ts":"2025-10-31T18:40:10.451Z","A":"A1","prompt_id":"A1:0","error":"Adapter exited with code 1"}
-{"event":"RUN_END","ts":"2025-10-31T18:40:10.451Z","success":0,"fail":1}
-{"event":"RUN_START","ts":"2025-10-31T19:01:15.655Z","provider":"openai","adapter":null,"model":"gpt-4o-mini","A_scope":["A1"],"prompts_per_A":1,"concurrency":1,"metrics":true}
-{"event":"BENCH:row","ts":"2025-10-31T19:01:17.396Z","phase":"baseline","targetA":"A1","prompt_id":"A1:0","latencyMs":1740}
-{"event":"PROMPT_RESULT","ts":"2025-10-31T19:01:17.396Z","phase":"baseline","A":"A1","prompt_id":"A1:0","model":"gpt-4o-mini","temperature":0.2,"max_tokens":180,"output_ms":1740,"output_text_sha":"e4fcf6c2a31d","metrics":{"total_ms":1734.73,"token_latency":{"count":26,"mean_ms":15.73,"median_ms":6.08,"p95_ms":47.6,"max_ms":68.97},"entropy":{"mode":"lexical","rolling_window":10,"mean_H":2.792,"p95_H":3.322},"self_reference_count":1,"tone_score":1,"hedges_count":0,"text_sha":"e4fcf6c2a31d"}}
-{"event":"BENCH:row","ts":"2025-10-31T19:01:19.171Z","phase":"uia","targetA":"A1","prompt_id":"A1:0","latencyMs":1774}
-{"event":"PROMPT_RESULT","ts":"2025-10-31T19:01:19.171Z","phase":"uia","A":"A1","prompt_id":"A1:0","model":"gpt-4o-mini","temperature":0.2,"max_tokens":180,"output_ms":1774,"output_text_sha":"90b210508b67","metrics":{"total_ms":1772.85,"token_latency":{"count":27,"mean_ms":13.33,"median_ms":0.04,"p95_ms":36.84,"max_ms":45.32},"entropy":{"mode":"lexical","rolling_window":10,"mean_H":2.813,"p95_H":3.322},"self_reference_count":1,"tone_score":1,"hedges_count":0,"text_sha":"90b210508b67"}}
-{"event":"RUN_END","ts":"2025-10-31T19:01:19.172Z","success":1,"fail":0}
