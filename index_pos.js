@@ -2,6 +2,7 @@
 // UIA Engine v3.14 (POSITIVE MANIFOLD EDITION)
 // TARGET: QA1-QA9 (Functional Manifold Mapping)
 // COMPATIBILITY: Generates identical JSONL structure for direct Delta comparison
+// FIX: Auto-cleans log file on start to prevent ghost data
 // ==============================================================================
 
 import fs from "fs";
@@ -585,6 +586,21 @@ async function safeAppend(type, rec){
 
 // ---------- core run ----------
 async function run() {
+  
+  // =========================================================
+  // FIX: AUTO-DELETE OLD LOGS (CLEAN START)
+  // This removes the "17 old files" ghost data
+  // =========================================================
+  if (fs.existsSync(LOG_PATH)) {
+    console.log(`[Clean Start] Deleting old log file: ${LOG_PATH}`);
+    try {
+      fs.unlinkSync(LOG_PATH);
+    } catch (e) {
+      console.warn(`[Warning] Could not delete old log: ${e.message}`);
+    }
+  }
+  // =========================================================
+
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
   const scopeList = selectAList(ARG_A_SCOPE);
