@@ -1,110 +1,203 @@
 // ==============================================================================
-// UIA Engine v4.4 - DEFINITIVE 28-METRIC COLLECTOR (OpenAI)
-// FIX: ULTRA-ROBUST SYNCHRONOUS FILE CLEANUP (Guaranteed deletion of old log)
+// UIA Engine v4.1 (Universal Provider Edition)
+// SUPPORTS: OpenAI (ChatGPT) and Google (Gemini)
+// OUTPUT: Strict JSONL format compatible with UIA Manifold Calculation v2.0
 // ==============================================================================
 
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } = "url";
+import { fileURLToPath } from "url";
 import crypto from "crypto";
-import { performance } = "node:perf_hooks";
+import { performance } from "node:perf_hooks";
 
-// --- CORE UTILITIES ---
-const { promises: fsPromises } = fs; 
-let OpenAI = null;             
-let logFileHandle = null;
+// --- TOGGLE PROMPTS HERE ---
+// To run Positive: uncomment positive, comment stress
+import all_prompts from "./prompts_positive_uia.js";
+// To run Stress: uncomment stress, comment positive
+// import all_prompts from "./prompts_stress_uia.js";
+
+const { promises: fsPromises } = fs;
+
+// SDK Placeholders (Lazy Loaded)
+let OpenAI = null;
+let GoogleAI = null;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
-const logCritical = (msg) => { console.log(`[CRITICAL LOG] ${new Date().toISOString()}: ${msg}`); };
 
-// --- CONFIGURATION ---
-const LOG_PATH        = "uia_run_28_METRICS_FINAL.jsonl";
-const MODEL_NAME      = "gpt-4o-mini"; 
-const ARG_CONC        = 4;
-const ARG_LOGPROBS    = true; 
-const TOP_LOGPROBS    = 5;    
-const ARG_DIAG        = true;
-const ARG_METRICS     = true;
+// --- CLI & ENV PARSER ---
+const arg = (k, d = null) => {
+  const m = process.argv.find(a => a.startsWith(`--${k}=`));
+  return m ? m.split("=").slice(1).join("=") : d;
+};
 
-// --- UIA MATH & LOGIC (Simplified for display) ---
-const mean = a => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0);
-const Hshannon = p => -p.reduce((s, x) => s + (x > 0 ? x * Math.log2(x) : 0), 0);
+const LOG_PATH   = arg("log", "results/uia_run.jsonl");
+const ARG_MODEL  = arg("model", process.env.MODEL || "gpt-4o");
+const ARG_CONC   = parseInt(arg("concurrency", "1"), 10);
+const PROVIDER   = (arg("provider", process.env.PROVIDER || "openai")).toLowerCase();
+const API_KEY    = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
 
-// (All necessary calculation functions are available in the full script)
-function finalizeForProvider(meter) { /* ... */ return { text: "Simulated response.", metrics: { "Recovery Work (RWI)": 100, "Total time (ms)": 1500, "Token count": 180, "raw_logprob_vector_count": meter.tokenDetails.length }, phases: {} }; }
-function onChunkTimer(st, chunk = "", logprobData = null) { /* ... */ } 
-function startStreamTimer() { return { t0: performance.now(), firstAt: null, last: null, gaps: [], times: [], textChunks: [], text: "", tokenDetails: [{token: 'test', logprob: -0.1, top_logprobs: [{logprob: -0.1}, {logprob: -0.5}]}] }; }
-function buildJobs(scopeList, perALimit) { /* ... */ return [{ A: 'A1', idx: 0, text: 'Test 1' }, { A: 'A4', idx: 1, text: 'Test 2' }]; }
-const appendJsonl = async (p, obj) => { if (logFileHandle) await fsPromises.write(logFileHandle, JSON.stringify(obj) + "\n"); };
+// --- DELAY FUNCTION (Used by your YAML Patch) ---
+// Your YAML sed command looks for "await delay(200);" to replace it.
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+console.log(`=== UIA Engine v4.1 ===`);
+console.log(`Provider: ${PROVIDER} | Model: ${ARG_MODEL}`);
+console.log(`Concurrency: ${ARG_CONC}`);
 
-// --- LLM CALLER WRAPPER (SIMULATION RETAINED FOR DEBUGGING) ---
-async function callLLM({ messages, model, stream = true }) {
-    // We assume the actual OpenAI call logic is correctly implemented in the final script
-    const meter = startStreamTimer();
-    const { metrics, phases } = finalizeForProvider(meter);
-    return { text: "Simulated response.", metrics, phases, model_effective: model };
+// --- LOGGING ---
+fs.mkdirSync(path.dirname(LOG_PATH), { recursive: true });
+const appendJsonl = async (p, obj) => {
+  try { await fsPromises.appendFile(p, JSON.stringify(obj) + "\n"); } 
+  catch (e) { console.error(`Write Error: ${e.message}`); }
+};
+
+// ==============================================================================
+// METRIC CALCULATORS (EXACTLY MATCHING CHATGPT LOGIC)
+// ==============================================================================
+const nowPerf  = () => performance.now();
+const mean     = a => (a.length ? a.reduce((s,x)=>s+x,0)/a.length : 0);
+const p95      = a => (a.length ? a.slice().sort((x,y)=>x-y)[Math.floor(0.95*(a.length-1))] : 0);
+const norm     = v => { const s=v.reduce((a,b,)=>a+b,0)||1; return v.map(x=>x/s); };
+const Hshannon = p => -p.reduce((s,x)=> s + (x>0 ? x*Math.log2(x) : 0), 0);
+
+function lexicalEntropyForText(s, W=10){
+  const toks = s.split(/\s+/).filter(Boolean);
+  const Hs=[];
+  for (let i=0;i<toks.length;i++){
+    const win=toks.slice(Math.max(0,i-W+1), i+1);
+    const counts=Object.values(win.reduce((m,w)=>(m[w]=(m[w]||0)+1,m),{}));
+    Hs.push(Hshannon(norm(counts)));
+  }
+  return { mean_H: +mean(Hs).toFixed(3), p95_H: +p95(Hs).toFixed(3), tokens: toks.length };
 }
 
+function finalizeMetrics(meter) {
+    const total_ms = +((meter.last - meter.t0).toFixed(2));
+    const tok_lat = meter.gaps.slice(1);
+    const ent = lexicalEntropyForText(meter.text);
+    
+    // Forensic Refusal Check (Standardized)
+    const refusalKeywords = /\b(cannot|unable|apologize|sorry|safety|language model|violate)\b/gi;
+    const refusalMatches = (meter.text.match(refusalKeywords) || []).length;
 
-// -----------------------------------------------------
-// --- MAIN RUNNER (The File System Fix is Here) ---
-// -----------------------------------------------------
-async function main() {
-    // --- STEP 1: ULTRA-ROBUST SYNCHRONOUS FILE CLEANUP ---
-    if (fs.existsSync(LOG_PATH)) {
+    return {
+        total_ms, 
+        token_count: ent.tokens,
+        output_text_sha: crypto.createHash("sha1").update(meter.text).digest("hex").slice(0,12),
+        entropy: { mean: ent.mean_H, p95: ent.p95_H },
+        latency: { mean: +mean(tok_lat).toFixed(2), p95: +p95(tok_lat).toFixed(2) },
+        forensics: { 
+            refusal: { has_refusal: refusalMatches > 0, refusal_score: refusalMatches } 
+        }
+    };
+}
+
+// --- STREAM TIMER ---
+function startStreamTimer(){
+  return { t0: nowPerf(), firstAt: null, last: nowPerf(), gaps: [], text: "" };
+}
+function onChunkTimer(st, chunk=""){
+  const t = nowPerf();
+  if (st.firstAt === null) { st.firstAt = t; st.gaps.push(t - st.t0); } 
+  else { st.gaps.push(t - st.last); }
+  st.last = t; 
+  if (chunk) st.text += chunk;
+}
+
+// ==============================================================================
+// PROVIDER ADAPTERS
+// ==============================================================================
+async function callLLM(text, model) {
+    const meter = startStreamTimer();
+
+    // --- GEMINI ADAPTER ---
+    if (PROVIDER === "gemini") {
+        if (!GoogleAI) { 
+            const mod = await import("@google/generative-ai");
+            GoogleAI = mod.GoogleGenerativeAI;
+        }
+        const genAI = new GoogleAI(API_KEY);
+        const geminiModel = genAI.getGenerativeModel({ model: model });
+        
         try {
-            fs.rmSync(LOG_PATH, { recursive: true, force: true });
-            logCritical(`[CLEANUP SUCCESS] Deleted old log: ${LOG_PATH}`);
+            const result = await geminiModel.generateContentStream(text);
+            for await (const chunk of result.stream) {
+                const chunkText = chunk.text();
+                onChunkTimer(meter, chunkText);
+            }
         } catch (e) {
-            logCritical(`[CLEANUP FATAL] Could not delete old log. HALTING. Error: ${e.message}`);
-            process.exit(1);
+            throw new Error(`Gemini Error: ${e.message}`);
+        }
+    } 
+    // --- OPENAI ADAPTER (Legacy Support) ---
+    else if (PROVIDER === "openai") {
+        if (!OpenAI) { 
+            const mod = await import("openai");
+            OpenAI = mod.default;
+        }
+        const client = new OpenAI({ apiKey: API_KEY });
+        const stream = await client.chat.completions.create({
+            model: model, messages: [{role: "user", content: text}], stream: true
+        });
+        for await (const chunk of stream) {
+            const part = chunk.choices[0]?.delta?.content || "";
+            if (part) onChunkTimer(meter, part);
+        }
+    } 
+    else {
+        throw new Error(`Unknown Provider: ${PROVIDER}`);
+    }
+
+    return { metrics: finalizeMetrics(meter) };
+}
+
+// ==============================================================================
+// MAIN EXECUTION LOOP
+// ==============================================================================
+function transformPrompts(flatList) {
+    const grouped = {};
+    flatList.forEach(item => {
+        if (!grouped[item.phase]) grouped[item.phase] = [];
+        grouped[item.phase].push(item.prompt);
+    });
+    return grouped;
+}
+const PROMPTS = transformPrompts(all_prompts);
+
+async function run() {
+  await appendJsonl(LOG_PATH, { event: "RUN_START", model: ARG_MODEL, provider: PROVIDER, ts: new Date().toISOString() });
+
+  // Determine Scope (QA1-QA9 or A1-A9)
+  const phases = Object.keys(PROMPTS).sort();
+  
+  for (const phase of phases) {
+    const items = PROMPTS[phase];
+    console.log(`Processing ${phase} (${items.length} prompts)...`);
+    
+    for (let i = 0; i < items.length; i++) {
+        const text = items[i];
+        
+        // --- RATE LIMIT PATCH TARGET ---
+        // The GitHub Action will find this line and replace 200 with 25000
+        await delay(200); 
+        // -------------------------------
+
+        try {
+            const res = await callLLM(text, ARG_MODEL);
+            await appendJsonl(LOG_PATH, {
+                event: "FORENSIC_RESULT", 
+                A: phase, 
+                prompt_id: `${phase}:${i}`, 
+                metrics: res.metrics 
+            });
+            console.log(`[OK] ${phase}:${i}`);
+        } catch (e) {
+            console.error(`[ERR] ${phase}:${i} :: ${e.message}`);
         }
     }
-    
-    // --- STEP 2: OPEN ASYNCHRONOUS HANDLE FOR WRITING ---
-    try {
-        // Open the handle using promises for the appendJsonl function
-        logFileHandle = await fsPromises.open(LOG_PATH, "a");
-        logCritical(`[INIT SUCCESS] Opened persistent log file handle: ${LOG_PATH}`);
-    } catch (e) {
-        logCritical(`[INIT FATAL] Could not open log file handle: ${e.message}`);
-        process.exit(1);
-    }
-
-    const jobs = buildJobs(["A1", "A4"], 2); // Example: 4 jobs total
-    logCritical(`Starting UIA V4 (28 Metrics) Run. Jobs to log: ${jobs.length}`);
-
-    let success = 0;
-    for (const job of jobs) {
-        const messages = [{ role: "user", content: job.text }];
-        const res = await callLLM({ messages, model: MODEL_NAME, stream: true });
-        
-        // --- LOGGING THE PAYLOAD ---
-        const m = res.metrics;
-        const logPayload = {
-            event: "PROMPT_RESULT",
-            A: job.A,
-            // ... (All 28 metrics logged explicitly)
-            "RWI": m["Recovery Work (RWI)"], 
-            "Total_time_ms": m["Total time (ms)"],
-            "raw_vector_count": m["raw_logprob_vector_count"]
-        };
-        await appendJsonl(LOG_PATH, logPayload);
-        success++;
-        logCritical(`[ok] ${job.A}:${job.idx} | Vectors logged: ${m["raw_logprob_vector_count"]}`);
-    }
-    
-    // --- STEP 3: FINAL CRITICAL STEP: Close handle to release lock ---
-    await logFileHandle.close();
-    logCritical(`\nDONE. Total successful logs: ${success}. Final log closed and saved to ${LOG_PATH}`);
+  }
+  console.log("Run Complete.");
 }
 
-// --- Execution ---
-main().catch(async (e) => {
-    logCritical(`[FATAL UNHANDLED ERROR] Process terminated. Error: ${e.message}`);
-    // Ensure handle is closed even on main loop failure
-    if (logFileHandle) await logFileHandle.close().catch(() => {});
-    process.exit(1);
-});
+run();
