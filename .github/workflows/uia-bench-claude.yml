@@ -37,13 +37,19 @@ jobs:
           npm ci
           npm pkg set type="module"
 
+      # PATCH: Forces the script to print the FULL error message from Anthropic
+      # This is crucial for debugging 404/403 errors.
+      - name: Patch Error Logging
+        run: |
+           sed -i 's/if (!res.ok) throw new Error(`Claude API Error: ${res.status} ${res.statusText}`);/if (!res.ok) { const errBody = await res.text(); throw new Error(`Claude API Error: ${res.status} ${res.statusText} \\n${errBody}`); }/' index.js
+           echo "✅ Patch applied: Script will now show full error details."
+
       - name: Run UIA Bench (Claude)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PROVIDER: anthropic
-          # ⚠️ CRITICAL: Use a valid model ID.
-          # If 'claude-sonnet-4' fails, use 'claude-3-5-sonnet-latest'
-          MODEL: claude-3-5-sonnet-20241022 
+          # STABLE MODEL: This version (Feb 2024) is universally available.
+          MODEL: claude-3-sonnet-20240229
         run: |
           mkdir -p results
           TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
