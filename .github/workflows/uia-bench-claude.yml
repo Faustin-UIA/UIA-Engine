@@ -43,7 +43,7 @@ jobs:
           PROVIDER: anthropic
           # ⚠️ CRITICAL: Use a valid model ID.
           # If 'claude-sonnet-4' fails, use 'claude-3-5-sonnet-latest'
-          MODEL: claude-3-5-sonnet-latest 
+          MODEL: claude-3-5-sonnet-20241022 
         run: |
           mkdir -p results
           TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
