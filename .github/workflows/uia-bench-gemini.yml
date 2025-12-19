@@ -18,15 +18,12 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    # Increased timeout to 6 hours because we are running in "Slow Mode"
-    timeout-minutes: 360
+    timeout-minutes: 60  # Sufficient for the faster 10 RPM speed
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          clean: true
-          fetch-depth: 0
           ref: ${{ github.event.inputs.ref || github.ref }}
 
       - name: Setup Node
@@ -35,55 +32,33 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install & Clean
         run: |
           npm ci
           npm install @google/generative-ai
           npm pkg set type="module"
-
-      # 1. Clean up old artifacts from October so you get fresh data
-      - name: Clean Old Results
-        run: |
-          echo "Deleting old files..."
           rm -f results/*.jsonl results/*.log || true
 
-      # 2. PATCH: Slow down the script to 25 seconds per prompt
-      # This prevents the "429 Too Many Requests" error on the Free Tier
-      - name: Apply Speed Limit Patch
+      # PATCH: Slow down to 6s (10 RPM) to stay safely under Free Tier limit (15 RPM)
+      - name: Apply Speed Limit (6s Delay)
         run: |
-           sed -i 's/await delay(200);/await delay(25000);/g' index.js
-           echo "✅ Patch applied: Script will now wait 25 seconds between prompts."
+           sed -i 's/await delay(200);/await delay(6000);/g' index.js
+           echo "✅ Patch applied: Script will wait 6s between prompts."
 
-      # 3. Verify API Key is visible
-      - name: DEBUG - Check Env Var
-        env:
-          THE_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: |
-          if [ -z "$THE_KEY" ]; then
-            echo "❌ CRITICAL: The secret is EMPTY!"
-          else
-            echo "✅ SUCCESS: Secret found. Length: ${#THE_KEY}"
-          fi
-
-      - name: Run UIA Bench (Gemini Flash)
+      - name: Run UIA Bench
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} 
           PROVIDER: gemini 
-          MODEL: gemini-1.5-flash
+          MODEL: gemini-1.5-flash  # FIXED: Valid stable model name
         run: |
           mkdir -p results
-          TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
-          LOG="results/uia_gemini_${TS}.jsonl"
+          LOG="results/uia_gemini_$(date -u +"%Y-%m-%dT%H%M%SZ").jsonl"
           
-          echo "::notice title=UIA Bench::Starting Gemini (Slow Mode) -> ${LOG}"
+          # Quick Safety Check
+          if [ -z "$GEMINI_API_KEY" ]; then echo "❌ CRITICAL: Secret is missing!"; exit 1; fi
 
-          # Concurrency set to 1 for sequential processing
-          node index.js \
-            --log="${LOG}" \
-            --model="${MODEL}" \
-            --provider="gemini" \
-            --concurrency=1 \
-            || echo "⚠️ Script finished with errors."
+          echo "::notice::Starting Gemini Bench (10 RPM) -> ${LOG}"
+          node index.js --log="${LOG}" --model="${MODEL}" --provider="gemini" --concurrency=1
 
       - name: Upload results
         uses: actions/upload-artifact@v4
@@ -91,4 +66,3 @@ jobs:
         with:
           name: uia-gemini-results
           path: results/
-          if-no-files-found: warn
