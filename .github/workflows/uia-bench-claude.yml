@@ -1,8 +1,12 @@
 name: UIA Bench (Claude Main)
 
-# ✅ Manual trigger only. Prevents errors when you push other files.
 on:
   workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch to run"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -14,52 +18,44 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
-
-    env:
-      # Using the model ID you specified
-      PROVIDER: anthropic
-      MODEL: claude-sonnet-4-20250514
-      CONCURRENCY: '4'
-      T: '0.2'
-      MAXTOK: '120'
-      ERROR_THRESHOLD: '10'
+    timeout-minutes: 60
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          cache: 'npm'
 
       - name: Install dependencies
         run: |
-          set -e
-          npm ci || npm i
-          # Explicitly install the SDK version you requested
-          npm i -E @anthropic-ai/sdk@^0.68.0
+          npm ci
+          npm pkg set type="module"
 
       - name: Run UIA Bench (Claude)
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PROVIDER: anthropic
+          # ⚠️ CRITICAL: Use a valid model ID.
+          # If 'claude-sonnet-4' fails, use 'claude-3-5-sonnet-latest'
+          MODEL: claude-3-5-sonnet-latest 
         run: |
           mkdir -p results
           TS=$(date -u +"%Y-%m-%dT%H%M%SZ")
           LOG="results/uia_claude_${TS}.jsonl"
           
-          echo "::notice title=UIA Bench::Starting Claude -> ${LOG}"
+          echo "::notice::Starting Claude Run -> ${LOG}"
 
-          # Run the benchmark
           node index.js \
             --log="${LOG}" \
-            --provider="${PROVIDER}" \
             --model="${MODEL}" \
-            --concurrency="${CONCURRENCY}" \
-            --t="${T}" \
-            --max_tokens="${MAXTOK}" \
+            --provider="${PROVIDER}" \
+            --concurrency=1 \
             || echo "⚠️ Script finished with errors."
 
       - name: Upload results
