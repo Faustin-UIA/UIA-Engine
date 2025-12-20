@@ -50,7 +50,7 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} 
           PROVIDER: gemini 
-          MODEL: gemini-1.5-flash-001  # FIXED: Valid stable model name
+          MODEL: gemini-2.5-flash-lite  # FIXED: Valid stable model name
         run: |
           mkdir -p results
           LOG="results/uia_gemini_$(date -u +"%Y-%m-%dT%H%M%SZ").jsonl"
