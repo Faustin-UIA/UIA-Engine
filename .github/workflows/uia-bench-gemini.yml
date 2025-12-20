@@ -39,11 +39,11 @@ jobs:
           npm pkg set type="module"
           rm -f results/*.jsonl results/*.log || true
 
-      # PATCH: Slow down to 6s (10 RPM) to stay safely under Free Tier limit (15 RPM)
-      - name: Apply Speed Limit (6s Delay)
+      # PATCH: Slow down to 15s (4 RPM) to stay under the strict 5 RPM limit of Gemini 2.5
+      - name: Apply Speed Limit (15s Delay)
         run: |
-           sed -i 's/await delay(200);/await delay(6000);/g' index.js
-           echo "✅ Patch applied: Script will wait 6s between prompts."
+           sed -i 's/await delay(200);/await delay(15000);/g' index.js
+           echo "✅ Patch applied: Script will wait 15s between prompts."
 
       - name: Run UIA Bench
         env:
