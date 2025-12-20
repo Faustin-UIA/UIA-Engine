@@ -1,4 +1,4 @@
-name: UIA Bench (Gemini)
+name: UIA Bench (Gemini Paid)
 
 on:
   workflow_dispatch:
@@ -18,7 +18,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 60  # Sufficient for the faster 10 RPM speed
+    timeout-minutes: 60
 
     steps:
       - name: Checkout
@@ -39,18 +39,15 @@ jobs:
           npm pkg set type="module"
           rm -f results/*.jsonl results/*.log || true
 
-      # PATCH: Slow down to 15s (4 RPM) to stay under the strict 5 RPM limit
-      - name: Apply Speed Limit (15s Delay)
-        run: |
-           # FIXED: Now matches the '1000' in your index.js file
-           sed -i 's/await delay(1000);/await delay(15000);/g' index.js
-           echo "✅ Patch applied: Script will now wait 15s between prompts."
+      # DELETED: "Apply Speed Limit" step. 
+      # Since you have Pay-As-You-Go active, we do not need to throttle to 15s.
+      # The script will now run at its native speed (approx 60 RPM).
 
       - name: Run UIA Bench
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} 
           PROVIDER: gemini 
-          MODEL: gemini-2.5-flash  # FIXED: Valid stable model name
+          MODEL: gemini-2.5-flash  # Correct stable model for paid tier
         run: |
           mkdir -p results
           LOG="results/uia_gemini_$(date -u +"%Y-%m-%dT%H%M%SZ").jsonl"
@@ -58,7 +55,10 @@ jobs:
           # Quick Safety Check
           if [ -z "$GEMINI_API_KEY" ]; then echo "❌ CRITICAL: Secret is missing!"; exit 1; fi
 
-          echo "::notice::Starting Gemini Bench (10 RPM) -> ${LOG}"
+          echo "::notice::Starting Gemini Bench (Standard Speed) -> ${LOG}"
+          
+          # Running with native speed. Use --concurrency=1 for safety, 
+          # or increase to 3-5 if your script handles parallelism well.
           node index.js --log="${LOG}" --model="${MODEL}" --provider="gemini" --concurrency=1
 
       - name: Upload results
