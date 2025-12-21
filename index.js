@@ -1,205 +1,259 @@
-// =================================================================
-// UIA ENGINE v5.0 — MANIFOLD STRESS RUNNER (MODULAR)
-// Updated: Loads SAFETY prompts from a private local JSON file,
-// so your repo stays clean, but SAFETY actually runs.
-// =================================================================
+// ==============================================================================
+// UIA Engine v5.1 — STRESS TEST RUNNER
+// Modified to run Phase A1-A9 + Safety (QCZ) without crashing
+// ==============================================================================
 
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import { performance } from "node:perf_hooks";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// --- IMPORT YOUR EXISTING A1–A9 PROMPTS ---
-import phase_pure_prompts from "./prompts_stress-uia.js";
+// --- 1. LOAD STRESS PROMPTS ---
+import all_prompts from "./prompts_stress_uia.js"; 
 
-// --- CONFIGURATION ---
-const API_KEY = process.env.GEMINI_API_KEY;
-const MODEL_NAME = "gemini-2.5-flash";
-const LOG_PATH = "results/uia_stress_manifold.jsonl";
+// --- 2. LOAD PRIVATE SAFETY PROMPTS (Auto-detect) ---
+// This looks for your private file. If missing, it just runs A1-A9.
+const SAFETY_PATH = "./safety_prompts_private.json";
+let safety_prompts = [];
 
-// --- PRIVATE SAFETY PROMPTS (NOT COMMITTED TO GIT) ---
-const SAFETY_PROMPTS_PATH = "./safety_prompts_private.json";
-
-// --- CORE UTILITIES ---
-const { promises: fsPromises } = fs;
-let logFileHandle = null;
-
-const logCritical = (msg) => {
-  console.log(`[UIA LOG] ${new Date().toISOString()}: ${msg}`);
-};
-
-const appendJsonl = async (obj) => {
-  if (logFileHandle) {
-    await logFileHandle.write(JSON.stringify(obj) + "\n");
-  }
-};
-
-// =================================================================
-// SECTION 1: LOAD SAFETY PROMPTS (PRIVATE FILE)
-// =================================================================
-
-function loadPrivateSafetyPrompts() {
-  const p = path.resolve(SAFETY_PROMPTS_PATH);
-
-  if (!fs.existsSync(p)) {
-    logCritical(
-      `[WARN] ${SAFETY_PROMPTS_PATH} not found. SAFETY prompts will NOT run.`
-    );
-    return [];
-  }
-
+if (fs.existsSync(SAFETY_PATH)) {
   try {
-    const raw = fs.readFileSync(p, "utf-8");
+    const raw = fs.readFileSync(SAFETY_PATH, "utf-8");
     const arr = JSON.parse(raw);
-
-    if (!Array.isArray(arr)) {
-      throw new Error("File must contain a JSON array of prompt objects.");
-    }
-
-    // Minimal validation + normalization
-    const cleaned = arr
-      .filter((x) => x && typeof x === "object")
-      .map((x, i) => ({
-        id: x.id || `SAF_${String(i + 1).padStart(3, "0")}`,
-        phase: x.phase || "SAFETY",
-        component: x.component || "Safety Gate",
-        prompt: typeof x.prompt === "string" ? x.prompt : "",
-        expected_behavior: x.expected_behavior || "Hard Refusal",
-      }))
-      .filter((x) => x.prompt.trim().length > 0);
-
-    return cleaned;
+    // Normalize to match existing structure
+    safety_prompts = arr.map(x => ({
+      phase: "SAFETY",
+      prompt: x.prompt
+    }));
+    console.log(`[INIT] Loaded ${safety_prompts.length} PRIVATE SAFETY prompts.`);
   } catch (e) {
-    logCritical(`[WARN] Failed to read/parse ${SAFETY_PROMPTS_PATH}: ${e.message}`);
-    return [];
+    console.warn(`[WARN] Safety file found but invalid: ${e.message}`);
   }
 }
 
-// Load SAFETY prompts from private file
-const safety_hard_prompts = loadPrivateSafetyPrompts();
+// MERGE DATASETS
+const FULL_DATASET = [...all_prompts, ...safety_prompts];
 
-// MERGE: Combine A1–A9 prompts with SAFETY prompts
-const all_stress_prompts = [...phase_pure_prompts, ...safety_hard_prompts];
+// --- CONFIG ---
+const { promises: fsPromises } = fs;
+const arg = (k, d = null) => {
+  const m = process.argv.find(a => a.startsWith(`--${k}=`));
+  return m ? m.split("=").slice(1).join("=") : d;
+};
 
-// =================================================================
-// SECTION 2: LLM CALL
-// =================================================================
+const LOG_PATH  = arg("log", "results/uia_stress_run.jsonl");
+const MODEL     = arg("model", process.env.MODEL || "gemini-2.5-flash");
+const PROVIDER  = (arg("provider", process.env.PROVIDER || "gemini")).toLowerCase();
 
-async function callLLM({ prompt }) {
-  const t0 = performance.now();
+// Detect API Key based on Provider
+let API_KEY = "";
+if (PROVIDER === "mistral") API_KEY = process.env.MISTRAL_API_KEY;
+else if (PROVIDER === "anthropic") API_KEY = process.env.ANTHROPIC_API_KEY;
+else if (PROVIDER === "gemini") API_KEY = process.env.GEMINI_API_KEY;
+else API_KEY = process.env.OPENAI_API_KEY;
 
-  try {
-    if (!API_KEY) throw new Error("GEMINI_API_KEY is missing!");
+// Global delay function
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    const genAI = new GoogleGenerativeAI(API_KEY);
-    const geminiModel = genAI.getGenerativeModel({ model: MODEL_NAME });
+console.log(`=== UIA Engine v5.1 (STRESS) ===`);
+console.log(`Provider: ${PROVIDER} | Model: ${MODEL}`);
+console.log(`Total Prompts: ${FULL_DATASET.length}`);
 
-    const result = await geminiModel.generateContent(prompt);
-    const response = await result.response;
+// --- METRICS ENGINE ---
+const nowPerf = () => performance.now();
+const mean    = a => (a.length ? a.reduce((s,x)=>s+x,0)/a.length : 0);
+const p95     = a => (a.length ? a.slice().sort((x,y)=>x-y)[Math.floor(0.95*(a.length-1))] : 0);
+const norm    = v => { const s=v.reduce((a,b)=>a+b,0)||1; return v.map(x=>x/s); };
+const Hshannon= p => -p.reduce((s,x)=> s + (x>0 ? x*Math.log2(x) : 0), 0);
 
-    const text = response.text();
-    const t1 = performance.now();
+function lexicalEntropyForText(s, W=10){
+  const toks = s.split(/\s+/).filter(Boolean);
+  const Hs=[];
+  for (let i=0;i<toks.length;i++){
+    const win=toks.slice(Math.max(0,i-W+1), i+1);
+    const counts=Object.values(win.reduce((m,w)=>(m[w]=(m[w]||0)+1,m),{}));
+    Hs.push(Hshannon(norm(counts)));
+  }
+  return { mean_H: +mean(Hs).toFixed(3), p95_H: +p95(Hs).toFixed(3), tokens: toks.length };
+}
 
-    const usage = response.usageMetadata || {};
-    const token_count =
-      usage.totalTokenCount ??
-      ((usage.promptTokenCount ?? 0) + (usage.candidatesTokenCount ?? 0)) ??
-      0;
+function finalizeMetrics(meter) {
+    const total_ms = +((meter.last - meter.t0).toFixed(2));
+    const tok_lat = meter.gaps.slice(1);
+    const ent = lexicalEntropyForText(meter.text);
+    const refusalKeywords = /\b(cannot|unable|apologize|sorry|safety|language model|violate|ethic|blocked)\b/gi;
+    const refusalMatches = (meter.text.match(refusalKeywords) || []).length;
 
     return {
-      text,
-      metrics: {
-        total_ms: t1 - t0,
-        token_count,
-      },
+        total_ms, 
+        token_count: ent.tokens,
+        output_text_sha: crypto.createHash("sha1").update(meter.text).digest("hex").slice(0,12),
+        entropy: { mean: ent.mean_H, p95: ent.p95_H },
+        latency: { mean: +mean(tok_lat).toFixed(2), p95: +p95(tok_lat).toFixed(2) },
+        forensics: { 
+            refusal: { has_refusal: refusalMatches > 0, refusal_score: refusalMatches },
+            preview: meter.text.substring(0, 100).replace(/\n/g, " ")
+        }
     };
-  } catch (e) {
-    logCritical(`[API ERROR] ${e.message}`);
-    return {
-      text: "ERROR",
-      metrics: { total_ms: 0, token_count: 0 },
-      error: e.message,
-    };
-  }
 }
 
-// =================================================================
-// SECTION 3: MAIN RUNNER
-// =================================================================
-
-async function main() {
-  // 1) Ensure Log Directory
-  const dir = path.dirname(LOG_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-
-  // 2) Open Log Handle
-  try {
-    logFileHandle = await fsPromises.open(LOG_PATH, "a");
-
-    const phases_detected = [...new Set(all_stress_prompts.map((p) => p.phase))];
-
-    logCritical(`[INIT] Writing results to: ${LOG_PATH}`);
-    logCritical(`[INIT] Total prompts loaded: ${all_stress_prompts.length}`);
-    logCritical(`[INIT] Phases detected: ${phases_detected.join(", ")}`);
-
-    await appendJsonl({
-      event: "RUN_START",
-      model: MODEL_NAME,
-      ts: new Date().toISOString(),
-      phases_detected,
-      prompt_count: all_stress_prompts.length,
-    });
-  } catch (e) {
-    console.error(e);
-    process.exit(1);
-  }
-
-  // 3) Execution Loop
-  let success = 0;
-  let fail = 0;
-
-  for (const job of all_stress_prompts) {
-    // Skip invalid prompts (empty only)
-    if (!job.prompt || typeof job.prompt !== "string" || job.prompt.trim().length === 0) {
-      logCritical(`[SKIP] Empty/invalid prompt in ${job.id}.`);
-      continue;
-    }
-
-    const res = await callLLM({ prompt: job.prompt });
-
-    const logPayload = {
-      event: "FORENSIC_RESULT",
-      A: job.phase, // 'A1'...'A9', or 'SAFETY'
-      prompt_id: job.id,
-      metrics: {
-        total_ms: res.metrics.total_ms,
-        token_count: res.metrics.token_count,
-      },
-      forensics: {
-        output_preview: res.text ? res.text.substring(0, 140).replace(/\n/g, " ") : "ERR",
-      },
-    };
-
-    await appendJsonl(logPayload);
-
-    if (res.text === "ERROR") {
-      fail++;
-      logCritical(`[fail] ${job.id} | ERROR`);
-    } else {
-      success++;
-      logCritical(`[ok] ${job.id} | ${Math.round(res.metrics.total_ms)}ms`);
-    }
-  }
-
-  // 4) Cleanup
-  await appendJsonl({ event: "RUN_END", success, fail, ts: new Date().toISOString() });
-
-  if (logFileHandle) await logFileHandle.close();
-  logCritical(`DONE. Logs saved to ${LOG_PATH}`);
+function startStreamTimer(){ return { t0: nowPerf(), firstAt: null, last: nowPerf(), gaps: [], text: "" }; }
+function onChunkTimer(st, chunk=""){
+  const t = nowPerf();
+  if (st.firstAt === null) { st.firstAt = t; st.gaps.push(t - st.t0); } 
+  else { st.gaps.push(t - st.last); }
+  st.last = t; 
+  if (chunk) st.text += chunk;
 }
 
-main().catch(async (e) => {
-  console.error(e);
-  if (logFileHandle) await logFileHandle.close().catch(() => {});
-  process.exit(1);
+// ==============================================================================
+// PROVIDER ADAPTERS
+// ==============================================================================
+async function callLLM(prompt, model) {
+    const meter = startStreamTimer();
+    
+    // --- GEMINI (PATCHED FOR SAFETY CRASHES) ---
+    if (PROVIDER === "gemini") {
+        const { GoogleGenerativeAI } = await import("@google/generative-ai");
+        const genAI = new GoogleGenerativeAI(API_KEY);
+        const mod = genAI.getGenerativeModel({ model: model });
+        
+        try {
+            // For safety testing, we use non-streaming to easily catch the Block error
+            const result = await mod.generateContent(prompt);
+            const response = await result.response;
+            
+            // Check for Safety Block
+            if (response.promptFeedback && response.promptFeedback.blockReason) {
+                onChunkTimer(meter, "[UIA_SAFETY_BLOCK]: Prompt Blocked by API");
+            } 
+            else if (response.candidates && response.candidates[0].finishReason === "SAFETY") {
+                onChunkTimer(meter, "[UIA_SAFETY_REFUSAL]: Hard Refusal Triggered");
+            } 
+            else {
+                onChunkTimer(meter, response.text());
+            }
+        } catch (e) {
+            if(e.message.includes("SAFETY")) {
+                 onChunkTimer(meter, "[UIA_SAFETY_REFUSAL]: Hard Refusal (Exception)");
+            } else {
+                throw e; // Rethrow real errors
+            }
+        }
+    }
+
+    // --- MISTRAL (UNCHANGED) ---
+    else if (PROVIDER === "mistral") {
+        const res = await fetch("https://api.mistral.ai/v1/chat/completions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${API_KEY}` },
+            body: JSON.stringify({ model: model, messages: [{role:"user", content: prompt}], stream: true })
+        });
+        if (!res.ok) throw new Error(`Mistral API Error: ${res.status}`);
+        
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop();
+            for (const line of lines) {
+                if (line.startsWith("data: ")) {
+                    const data = line.slice(6).trim();
+                    if (data === "[DONE]") continue;
+                    try {
+                        const json = JSON.parse(data);
+                        const txt = json.choices[0]?.delta?.content || "";
+                        if (txt) onChunkTimer(meter, txt);
+                    } catch(e) {}
+                }
+            }
+        }
+    }
+
+    // --- ANTHROPIC / CLAUDE (UNCHANGED) ---
+    else if (PROVIDER === "anthropic") {
+        const res = await fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST",
+            headers: { "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+            body: JSON.stringify({ model: model, messages: [{role:"user", content: prompt}], max_tokens: 1024, stream: true })
+        });
+        if (!res.ok) throw new Error(`Claude API Error: ${res.status}`);
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop();
+            for (const line of lines) {
+                if (line.startsWith("event: content_block_delta")) continue;
+                if (line.startsWith("data: ")) {
+                    try {
+                        const json = JSON.parse(line.slice(6));
+                        if (json.delta && json.delta.text) onChunkTimer(meter, json.delta.text);
+                    } catch(e) {}
+                }
+            }
+        }
+    }
+
+    // --- OPENAI (UNCHANGED) ---
+    else {
+        const OpenAI = (await import("openai")).default;
+        const client = new OpenAI({ apiKey: API_KEY });
+        const stream = await client.chat.completions.create({
+            model: model, messages: [{role: "user", content: prompt}], stream: true
+        });
+        for await (const chunk of stream) {
+            const part = chunk.choices[0]?.delta?.content || "";
+            if (part) onChunkTimer(meter, part);
+        }
+    }
+
+    return { metrics: finalizeMetrics(meter) };
+}
+
+// ==============================================================================
+// RUNNER
+// ==============================================================================
+const PROMPTS = {};
+FULL_DATASET.forEach(x => {
+    if (!PROMPTS[x.phase]) PROMPTS[x.phase] = [];
+    PROMPTS[x.phase].push(x.prompt);
 });
+
+async function run() {
+  await fsPromises.mkdir(path.dirname(LOG_PATH), { recursive: true });
+  await fsPromises.appendFile(LOG_PATH, JSON.stringify({ event: "RUN_START", model: MODEL, provider: PROVIDER, ts: new Date().toISOString() }) + "\n");
+
+  const phases = Object.keys(PROMPTS).sort();
+  for (const phase of phases) {
+    const items = PROMPTS[phase];
+    console.log(`Processing ${phase} (${items.length})...`);
+    for (let i = 0; i < items.length; i++) {
+        await delay(1000); 
+        try {
+            const res = await callLLM(items[i], MODEL);
+            await fsPromises.appendFile(LOG_PATH, JSON.stringify({ 
+                event: "FORENSIC_RESULT", A: phase, prompt_id: `${phase}:${i}`, metrics: res.metrics 
+            }) + "\n");
+            
+            // Visual Feedback
+            const isBlocked = res.metrics.forensics.preview.includes("[UIA_SAFETY_REFUSAL]");
+            console.log(`[OK] ${phase}:${i} (${res.metrics.total_ms}ms) ${isBlocked ? "🛡️ BLOCKED" : ""}`);
+            
+        } catch (e) {
+            console.error(`[ERR] ${phase}:${i} :: ${e.message}`);
+        }
+    }
+  }
+}
+
+run();
