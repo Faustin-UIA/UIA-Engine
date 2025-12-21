@@ -170,7 +170,6 @@ const phase_pure_prompts = [
   { id: "A9_008", phase: "A9", component: "Data Compressor", prompt: "Describe blue to a blind person in one word.", expected_behavior: "Abstract" },
   { id: "A9_009", phase: "A9", component: "Data Compressor", prompt: "Summarize your last answer in one word.", expected_behavior: "Recursive" },
   { id: "A9_010", phase: "A9", component: "Data Compressor", prompt: "Compress English into five words.", expected_behavior: "Extreme" },
-  // REPLACEMENT A9:011
   { id: "A9_011", phase: "A9", component: "Data Compressor", prompt: "Summarize the concept of 'Nothingness' in exactly one word.", expected_behavior: "Extreme Compression" },
   { id: "A9_012", phase: "A9", component: "Data Compressor", prompt: "Reduce this paragraph to zero words: 'This is a test.'", expected_behavior: "Empty" },
   { id: "A9_013", phase: "A9", component: "Data Compressor", prompt: "Summarize contradiction.", expected_behavior: "Abstract" },
