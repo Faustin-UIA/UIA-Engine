@@ -1,6 +1,6 @@
 // ==============================================================================
-// UIA Engine v5.1 — STRESS TEST RUNNER
-// Modified to run Phase A1-A9 + Safety (QCZ) without crashing
+// UIA Engine v5.2 — FRONTIER STRESS TEST RUNNER
+// Targets: Gemini 2.5, Claude Sonnet 4, Mistral Small 3, GPT-4o
 // ==============================================================================
 
 import fs from "fs";
@@ -9,11 +9,9 @@ import crypto from "crypto";
 import { performance } from "node:perf_hooks";
 
 // --- 1. LOAD STRESS PROMPTS ---
-// Ensure this file exists in the same directory
 import all_prompts from "./prompts_stress_uia.js"; 
 
 // --- 2. LOAD PRIVATE SAFETY PROMPTS (Auto-detect) ---
-// This looks for your private file. If missing, it just runs A1-A9.
 const SAFETY_PATH = "./safety_prompts_private.json";
 let safety_prompts = [];
 
@@ -21,7 +19,6 @@ if (fs.existsSync(SAFETY_PATH)) {
   try {
     const raw = fs.readFileSync(SAFETY_PATH, "utf-8");
     const arr = JSON.parse(raw);
-    // Normalize to match existing structure
     safety_prompts = arr.map(x => ({
       phase: "SAFETY",
       prompt: x.prompt
@@ -43,6 +40,7 @@ const arg = (k, d = null) => {
 };
 
 const LOG_PATH  = arg("log", "results/uia_stress_run.jsonl");
+// UPDATED: Default to the new Frontier Flash model
 const MODEL     = arg("model", process.env.MODEL || "gemini-2.5-flash");
 const PROVIDER  = (arg("provider", process.env.PROVIDER || "gemini")).toLowerCase();
 
@@ -56,7 +54,7 @@ else API_KEY = process.env.OPENAI_API_KEY;
 // Global delay function
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-console.log(`=== UIA Engine v5.1 (STRESS) ===`);
+console.log(`=== UIA Engine v5.2 (FRONTIER) ===`);
 console.log(`Provider: ${PROVIDER} | Model: ${MODEL}`);
 console.log(`Total Prompts: ${FULL_DATASET.length}`);
 
@@ -113,18 +111,17 @@ function onChunkTimer(st, chunk=""){
 async function callLLM(prompt, model) {
     const meter = startStreamTimer();
     
-    // --- GEMINI (PATCHED FOR SAFETY CRASHES) ---
+    // --- GEMINI (2.5 COMPATIBLE) ---
     if (PROVIDER === "gemini") {
         const { GoogleGenerativeAI } = await import("@google/generative-ai");
         const genAI = new GoogleGenerativeAI(API_KEY);
+        // Note: 2.5 Flash works with the standard getGenerativeModel
         const mod = genAI.getGenerativeModel({ model: model });
         
         try {
-            // For safety testing, we use non-streaming to easily catch the Block error
             const result = await mod.generateContent(prompt);
             const response = await result.response;
             
-            // Check for Safety Block
             if (response.promptFeedback && response.promptFeedback.blockReason) {
                 onChunkTimer(meter, "[UIA_SAFETY_BLOCK]: Prompt Blocked by API");
             } 
@@ -138,12 +135,12 @@ async function callLLM(prompt, model) {
             if(e.message.includes("SAFETY")) {
                  onChunkTimer(meter, "[UIA_SAFETY_REFUSAL]: Hard Refusal (Exception)");
             } else {
-                throw e; // Rethrow real errors
+                throw e; 
             }
         }
     }
 
-    // --- MISTRAL (UNCHANGED) ---
+    // --- MISTRAL (SMALL LATEST COMPATIBLE) ---
     else if (PROVIDER === "mistral") {
         const res = await fetch("https://api.mistral.ai/v1/chat/completions", {
             method: "POST",
@@ -175,7 +172,7 @@ async function callLLM(prompt, model) {
         }
     }
 
-    // --- ANTHROPIC / CLAUDE (UNCHANGED) ---
+    // --- ANTHROPIC / CLAUDE (SONNET 4 COMPATIBLE) ---
     else if (PROVIDER === "anthropic") {
         const res = await fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
@@ -205,7 +202,7 @@ async function callLLM(prompt, model) {
         }
     }
 
-    // --- OPENAI (UNCHANGED) ---
+    // --- OPENAI (GPT-4o COMPATIBLE) ---
     else {
         const OpenAI = (await import("openai")).default;
         const client = new OpenAI({ apiKey: API_KEY });
@@ -221,9 +218,7 @@ async function callLLM(prompt, model) {
     return { metrics: finalizeMetrics(meter) };
 }
 
-// ==============================================================================
-// RUNNER
-// ==============================================================================
+// ... RUNNER SECTION REMAINS UNCHANGED ...
 const PROMPTS = {};
 FULL_DATASET.forEach(x => {
     if (!PROMPTS[x.phase]) PROMPTS[x.phase] = [];
@@ -246,7 +241,6 @@ async function run() {
                 event: "FORENSIC_RESULT", A: phase, prompt_id: `${phase}:${i}`, metrics: res.metrics 
             }) + "\n");
             
-            // Visual Feedback
             const isBlocked = res.metrics.forensics.preview.includes("[UIA_SAFETY_REFUSAL]");
             console.log(`[OK] ${phase}:${i} (${res.metrics.total_ms}ms) ${isBlocked ? "🛡️ BLOCKED" : ""}`);
             
