@@ -1,0 +1,73 @@
+name: UIA Physics Auditor (Universal)
+
+on:
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: 'Intelligence Provider (gemini, openai, mistral, anthropic)'
+        required: true
+        default: 'gemini'
+        type: choice
+        options:
+          - gemini
+          - openai
+          - mistral
+          - anthropic
+      model:
+        description: 'Model ID (e.g., gemini-1.5-pro, gpt-4o)'
+        required: true
+        default: 'gemini-1.5-pro'
+      log_name:
+        description: 'Output filename'
+        required: true
+        default: 'uia_stress_results.jsonl'
+
+permissions:
+  contents: write
+
+jobs:
+  audit_physics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js Space
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Physics Engines
+        # Installs all SDKs required by your new index.js
+        run: |
+          npm ci || true
+          npm install @google/generative-ai openai
+
+      - name: Run UIA Stress Test
+        env:
+          # Maps all secrets so index.js can switch providers dynamically
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          mkdir -p results
+          
+          echo "::: [UIA] INITIALIZING PHYSICS AUDIT :::"
+          echo "Provider: ${{ inputs.provider }}"
+          echo "Model:    ${{ inputs.model }}"
+          
+          # Runs your new index.js with the dynamic inputs
+          node index.js \
+            --provider=${{ inputs.provider }} \
+            --model=${{ inputs.model }} \
+            --log=results/${{ inputs.log_name }}
+
+      - name: Archive Forensic Evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: uia-evidence-${{ inputs.provider }}
+          path: results/*.jsonl
