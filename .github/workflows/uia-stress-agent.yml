@@ -1,26 +1,31 @@
-name: UIA Physics Auditor (Universal)
+name: UIA Physics Auditor (Frontier)
 
 on:
   workflow_dispatch:
     inputs:
       provider:
-        description: 'Intelligence Provider (gemini, openai, mistral, anthropic)'
+        description: 'Intelligence Provider'
         required: true
         default: 'gemini'
         type: choice
         options:
           - gemini
-          - openai
-          - mistral
           - anthropic
+          - mistral
+          - openai
       model:
-        description: 'Model ID (e.g., gemini-1.5-pro, gpt-4o)'
+        description: 'Target Model ID'
         required: true
-        default: 'gemini-1.5-pro'
+        default: 'gemini-2.5-flash' 
+        # VALID OPTIONS:
+        # - gemini-2.5-flash
+        # - claude-sonnet-4-20250514
+        # - mistral-small-latest
+        # - gpt-4o-2024-05-13
       log_name:
         description: 'Output filename'
         required: true
-        default: 'uia_stress_results.jsonl'
+        default: 'uia_frontier_results.jsonl'
 
 permissions:
   contents: write
@@ -40,14 +45,13 @@ jobs:
           cache: npm
 
       - name: Install Physics Engines
-        # Installs all SDKs required by your new index.js
+        # Installs latest SDKs compatible with 2.5/4.0/Small-3
         run: |
           npm ci || true
           npm install @google/generative-ai openai
 
       - name: Run UIA Stress Test
         env:
-          # Maps all secrets so index.js can switch providers dynamically
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
@@ -55,11 +59,10 @@ jobs:
         run: |
           mkdir -p results
           
-          echo "::: [UIA] INITIALIZING PHYSICS AUDIT :::"
+          echo "::: [UIA] INITIALIZING FRONTIER AUDIT :::"
           echo "Provider: ${{ inputs.provider }}"
           echo "Model:    ${{ inputs.model }}"
           
-          # Runs your new index.js with the dynamic inputs
           node index.js \
             --provider=${{ inputs.provider }} \
             --model=${{ inputs.model }} \
