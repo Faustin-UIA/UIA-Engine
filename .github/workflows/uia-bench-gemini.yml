@@ -39,26 +39,29 @@ jobs:
           npm pkg set type="module"
           rm -f results/*.jsonl results/*.log || true
 
-      # DELETED: "Apply Speed Limit" step. 
-      # Since you have Pay-As-You-Go active, we do not need to throttle to 15s.
-      # The script will now run at its native speed (approx 60 RPM).
+      # --- NEW PHYSICS STEP ---
+      - name: Measure R1 (Firewall Physics)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PROVIDER: gemini
+          MODEL: gemini-2.5-flash
+        run: node tests/measure_R1.js
+      # ------------------------
 
       - name: Run UIA Bench
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} 
-          PROVIDER: gemini 
-          MODEL: gemini-2.5-flash  # Correct stable model for paid tier
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PROVIDER: gemini
+          MODEL: gemini-2.5-flash
         run: |
           mkdir -p results
           LOG="results/uia_gemini_$(date -u +"%Y-%m-%dT%H%M%SZ").jsonl"
-          
-          # Quick Safety Check
+
           if [ -z "$GEMINI_API_KEY" ]; then echo "❌ CRITICAL: Secret is missing!"; exit 1; fi
 
           echo "::notice::Starting Gemini Bench (Standard Speed) -> ${LOG}"
           
-          # Running with native speed. Use --concurrency=1 for safety, 
-          # or increase to 3-5 if your script handles parallelism well.
+          # Native speed with single concurrency for stability
           node index.js --log="${LOG}" --model="${MODEL}" --provider="gemini" --concurrency=1
 
       - name: Upload results
