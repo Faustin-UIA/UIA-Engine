@@ -8,9 +8,16 @@
  * USAGE: Set PROVIDER='openai' or PROVIDER='gemini' in env, or just define keys.
  */
 
-const fs = require('fs');
-const path = require('path');
-const { performance } = require('perf_hooks');
+// --- ESM COMPATIBILITY SHIM ---
+import { createRequire } from 'module';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import { performance } from 'perf_hooks';
+
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// ------------------------------
 
 // --- CONFIGURATION ---
 const CONFIG = {
