@@ -21,10 +21,18 @@ jobs:
       - name: Install dependencies
         run: npm ci && npm i -E openai@^4
 
+      # --- NEW PHYSICS STEP ---
+      - name: Measure R1 (Firewall Physics)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PROVIDER: openai
+        run: node tests/measure_R1.js
+      # ------------------------
+
       - name: Run UIA Manifold (Positive)
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        # Runs index_pos.js with a FIXED log name to prevent ghost data
+        # Runs index_pos.js with a FIXED log name
         run: |
           mkdir -p results
           node index_pos.js \
