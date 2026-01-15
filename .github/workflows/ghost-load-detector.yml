@@ -55,7 +55,7 @@ jobs:
               -H "Authorization: Bearer $OPENAI_API_KEY" \
               -d '{
                 "model": "gpt-4",
-                "messages": [{"role": "user", "content": "Analyze the thermodynamic efficiency of a Carnot cycle."}],
+                "messages": [{"role": "user", "content": "Say 'Hello World'."}],
                 "temperature": 0.7
               }' > response.json
           else
