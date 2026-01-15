@@ -1,0 +1,151 @@
+name: UIA Ghost Load Detector
+# This workflow operationalizes the "Ghost Load" theory (UIA Section 11).
+# It measures the "Ghost Interval" (Delta T) between Service Completion (T_exec)
+# and Liability Discharge (T_dis).
+
+on:
+  workflow_dispatch:
+    inputs:
+      context_capacity:
+        description: 'Context Capacity (C) in tokens'
+        required: true
+        default: '128000'
+      alpha_coefficient:
+        description: 'Alpha Coefficient (Criticality Threshold 0.15 - 0.25)'
+        required: true
+        default: '0.20'
+      mode:
+        description: 'Test Mode (simulation or api)'
+        required: true
+        default: 'simulation'
+        type: choice
+        options:
+        - simulation
+        - api
+
+jobs:
+  measure_hysteresis:
+    runs-on: ubuntu-latest
+    steps:
+      # -------------------------------------------------------
+      # PHASE 1: ADMISSION (PA)
+      # -------------------------------------------------------
+      - name: 0. System Admission (Start Clock)
+        id: admission
+        run: echo "t_start=$(date +%s%3N)" >> $GITHUB_OUTPUT
+
+      # -------------------------------------------------------
+      # PHASE 2: BUILDING (PB) - SERVICE COMPLETION
+      # -------------------------------------------------------
+      - name: 1. Execution Phase (T_exec)
+        id: execution
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} # Required if using API mode
+        run: |
+          MODE="${{ inputs.mode }}"
+          echo "Running in $MODE mode..."
+          
+          if [ "$MODE" == "api" ]; then
+            # --- LIVE API PROBE ---
+            # Sends a request to measuring actual cloud latency
+            echo "Sending Probe Request..."
+            curl https://api.openai.com/v1/chat/completions \
+              -s \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer $OPENAI_API_KEY" \
+              -d '{
+                "model": "gpt-4",
+                "messages": [{"role": "user", "content": "Analyze the thermodynamic efficiency of a Carnot cycle."}],
+                "temperature": 0.7
+              }' > response.json
+          else
+            # --- SIMULATION MODE ---
+            # Simulates an agent doing heavy processing (5000ms)
+            echo "Simulating Agent Processing..."
+            sleep 5
+            echo "Agent Output Generated."
+          fi
+
+          # CAPTURE T_EXEC (Service Complete)
+          echo "t_exec=$(date +%s%3N)" >> $GITHUB_OUTPUT
+
+      # -------------------------------------------------------
+      # PHASE 3: CLOSURE (PC) - LIABILITY DISCHARGE
+      # -------------------------------------------------------
+      - name: 2. Closure Phase (T_dis)
+        id: closure
+        run: |
+          # The "Ghost Interval" occurs here.
+          # This represents the time required to clear context, 
+          # reset vector stores, or teardown containers.
+          
+          echo "Initiating Liability Discharge (Cleanup)..."
+          
+          # Simulate the lag of a system reset (e.g., 2000ms)
+          # In a real pipeline, run your cleanup script here: python cleanup.py
+          sleep 2
+          
+          echo "System State Returned to Zero."
+          
+          # CAPTURE T_DIS (Discharge Complete)
+          echo "t_dis=$(date +%s%3N)" >> $GITHUB_OUTPUT
+
+      # -------------------------------------------------------
+      # PHASE 4: UIA METRICS CALCULATION
+      # -------------------------------------------------------
+      - name: 3. Calculate Ghost Load Metrics
+        id: calculation
+        run: |
+          # Retrieve Timestamps
+          T_EXEC_TS=${{ steps.execution.outputs.t_exec }}
+          T_DIS_TS=${{ steps.closure.outputs.t_dis }}
+          T_START_TS=${{ steps.admission.outputs.t_start }}
+
+          # 1. Calculate Durations (in ms)
+          DURATION_EXEC=$((T_EXEC_TS - T_START_TS))
+          GHOST_INTERVAL=$((T_DIS_TS - T_EXEC_TS))
+          
+          # Ensure no division by zero if simulation is too fast
+          if [ "$DURATION_EXEC" -eq "0" ]; then DURATION_EXEC=1; fi
+
+          # 2. Calculate GLR (Ghost Load Ratio)
+          # GLR = (T_dis - T_exec) / T_exec
+          GLR=$(python3 -c "print(round($GHOST_INTERVAL / $DURATION_EXEC, 4))")
+          
+          # 3. Calculate G_critical Threshold
+          # G_critical = Alpha * C
+          C=${{ inputs.context_capacity }}
+          ALPHA=${{ inputs.alpha_coefficient }}
+          G_CRITICAL=$(python3 -c "print(int($C * $ALPHA))")
+
+          # 4. Estimate Current Ghost Load (G)
+          # G = Ghost_Interval_ms * (Tokens / Execution_Time)
+          TOKENS_PER_MS=$(python3 -c "print($C / $DURATION_EXEC)")
+          CURRENT_G_LOAD=$(python3 -c "print(int($GHOST_INTERVAL * $TOKENS_PER_MS))")
+
+          # 5. Generate Telemetry Report
+          echo "----------------------------------------"
+          echo "       UIA GHOST LOAD TELEMETRY         "
+          echo "----------------------------------------"
+          echo "Context Capacity (C):     $C tokens"
+          echo "Alpha Coefficient:        $ALPHA"
+          echo "----------------------------------------"
+          echo "Execution Time (Service): $DURATION_EXEC ms"
+          echo "Discharge Time (Closure): $GHOST_INTERVAL ms"
+          echo "Ghost Load Ratio (GLR):   $GLR"
+          echo "----------------------------------------"
+          echo "Calculated G_critical:    $G_CRITICAL tokens"
+          echo "Effective Ghost Load:     $CURRENT_G_LOAD tokens"
+          echo "----------------------------------------"
+
+          # 6. Check Criticality Phase Transition (The "Haunting" Check)
+          # If Ghost Load > Critical Threshold, fail the build.
+          if (( $(echo "$CURRENT_G_LOAD > $G_CRITICAL" | bc -l) )); then
+            echo "❌ CRITICALITY ALERT: Ghost Load ($CURRENT_G_LOAD) > G_critical ($G_CRITICAL)"
+            echo "   System Status: COHERENCE COLLAPSE IMMINENT"
+            echo "   Action Required: Increase Closure Latency or Decrease Arrival Rate."
+            exit 1
+          else
+            echo "✅ System Status: STABLE (Zero-Hysteresis Enforced)"
+            echo "   The queue is clean."
+          fi
