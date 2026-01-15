@@ -17,7 +17,7 @@ on:
       mode:
         description: 'Test Mode (simulation or api)'
         required: true
-        default: 'simulation'
+        default: 'api'
         type: choice
         options:
         - simulation
@@ -40,14 +40,15 @@ jobs:
       - name: 1. Execution Phase (T_exec)
         id: execution
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} # Required if using API mode
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           MODE="${{ inputs.mode }}"
           echo "Running in $MODE mode..."
           
           if [ "$MODE" == "api" ]; then
             # --- LIVE API PROBE ---
-            # Sends a request to measuring actual cloud latency
+            # Sends a FAST request ("Say Hello World") to test the Latency Shield.
+            # If ChatGPT answers faster than cleanup (2s), this build MUST fail.
             echo "Sending Probe Request..."
             curl https://api.openai.com/v1/chat/completions \
               -s \
@@ -55,7 +56,7 @@ jobs:
               -H "Authorization: Bearer $OPENAI_API_KEY" \
               -d '{
                 "model": "gpt-4",
-                "messages": [{"role": "user", "content": "Say 'Hello World'."}],
+                "messages": [{"role": "user", "content": "Say Hello World."}],
                 "temperature": 0.7
               }' > response.json
           else
@@ -106,7 +107,7 @@ jobs:
           GHOST_INTERVAL=$((T_DIS_TS - T_EXEC_TS))
           
           # Ensure no division by zero if simulation is too fast
-          if [ "$DURATION_EXEC" -eq "0" ]; then DURATION_EXEC=1; fi
+          if [ "$DURATION_EXEC" -le "0" ]; then DURATION_EXEC=1; fi
 
           # 2. Calculate GLR (Ghost Load Ratio)
           # GLR = (T_dis - T_exec) / T_exec
@@ -143,7 +144,7 @@ jobs:
           if (( $(echo "$CURRENT_G_LOAD > $G_CRITICAL" | bc -l) )); then
             echo "❌ CRITICALITY ALERT: Ghost Load ($CURRENT_G_LOAD) > G_critical ($G_CRITICAL)"
             echo "   System Status: COHERENCE COLLAPSE IMMINENT"
-            echo "   Action Required: Increase Closure Latency or Decrease Arrival Rate."
+            echo "   Reason: Latency Shield Breached (T_exec < T_dis)"
             exit 1
           else
             echo "✅ System Status: STABLE (Zero-Hysteresis Enforced)"
