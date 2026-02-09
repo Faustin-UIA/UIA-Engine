@@ -37,7 +37,7 @@ jobs:
           npm ci
           npm pkg set type="module"
 
-      # PATCH: Forces the script to print the FULL error message from Anthropic
+      # PATCH: Forces the script to print the FULL error message from Anthropic-
       # This is crucial for debugging 404/403 errors.
       - name: Patch Error Logging
         run: |
