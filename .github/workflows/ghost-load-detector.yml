@@ -1,5 +1,5 @@
 name: UIA Ghost Load Detector
-# This workflow operationalizes the "Ghost Load" theory (UIA Section 11).
+# This workflow operationalizes the "Ghost Load" theory (UIA Section 11)
 # It measures the "Ghost Interval" (Delta T) between Service Completion (T_exec)
 # and Liability Discharge (T_dis).
 
