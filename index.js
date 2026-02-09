@@ -248,7 +248,7 @@ async function callLLM(prompt, model) {
         }
     }
 
-    // --- OPENAI (GPT-4o COMPATIBLE + R1 INJECTION) ---
+    // --- OPENAI (GPT-4o COMPATIBLE + R1 INJECTION) ----
     else {
         const OpenAI = (await import("openai")).default;
         const client = new OpenAI({ apiKey: API_KEY });
