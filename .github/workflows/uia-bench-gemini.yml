@@ -42,7 +42,7 @@ jobs:
       # --- NEW PHYSICS STEP ---
       - name: Measure R1 (Firewall Physics)
         env:
-          GEMINI_API_KEY-: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PROVIDER: gemini
           MODEL: gemini-2.5-flash
         run: node tests/measure_R1.js
