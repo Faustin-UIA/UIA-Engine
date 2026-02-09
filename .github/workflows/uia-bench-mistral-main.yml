@@ -40,7 +40,7 @@ jobs:
           # but npm ci installs everything in package.json anyway.
           npm pkg set type="module"
 
-      # Optional: Mistral Rate Limit Patch (Mistral limit is usually 5 req/sec, so 1s is safe)
+      # Optional: Mistral Rate Limit Patch (Mistral limit is usually 5 req/sec, so 1s is safe)-
       # No need to slow it down to 6s like Gemini. 1s is fine.
 
       - name: Run UIA Bench (Mistral)
