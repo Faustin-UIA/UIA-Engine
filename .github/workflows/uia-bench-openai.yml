@@ -30,7 +30,7 @@ jobs:
             --provider=openai \
             --model=gpt-4o-2024-05-13 \
             --t=0.7 \
-            --max_tokens=120 \
+            --max_tokens=400 \
             --concurrency=3 \
             --log=results/uia_manifold_run.jsonl
 
